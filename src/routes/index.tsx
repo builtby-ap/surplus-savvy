@@ -130,9 +130,34 @@ function MarketplaceHome() {
 
 
       <section className="mx-auto max-w-6xl px-4 py-12">
-        <h2 className="text-xl font-semibold">Businesses rescuing food nearby</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-xl font-semibold">Businesses rescuing food nearby</h2>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {geoState === "ready" ? (
+              <span className="inline-flex items-center gap-1 text-success">
+                <MapPin className="size-3.5" /> Sorted by your location
+              </span>
+            ) : geoState === "loading" ? (
+              <span>Finding your location…</span>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+                onClick={requestLocation}
+              >
+                <MapPin className="size-3.5" /> Use my location
+              </Button>
+            )}
+          </div>
+        </div>
+        {geoState === "denied" ? (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Location unavailable — showing businesses across the city.
+          </p>
+        ) : null}
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {businesses.slice(0, 6).map((b) => (
+          {nearbyBusinesses.map(({ business: b, distanceKm }) => (
             <Link
               key={b.id}
               to="/business/$businessId"
@@ -146,12 +171,14 @@ function MarketplaceHome() {
                 <p className="truncate font-medium">{b.name}</p>
                 <p className="truncate text-xs text-muted-foreground">
                   {businessTypeLabels[b.type]} · {b.neighborhood}
+                  {distanceKm != null ? ` · ${distanceKm.toFixed(1)} km away` : ""}
                 </p>
               </div>
             </Link>
           ))}
         </div>
       </section>
+
     </PublicLayout>
   );
 }
