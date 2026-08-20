@@ -20,7 +20,6 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as AccountIndexRouteImport } from './routes/account.index'
 import { Route as AccountAddressesRouteImport } from './routes/account.addresses'
 import { Route as AccountFavoritesRouteImport } from './routes/account.favorites'
-import { Route as AccountOrdersRouteImport } from './routes/account.orders'
 import { Route as AccountSettingsRouteImport } from './routes/account.settings'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminBusinessesRouteImport } from './routes/admin.businesses'
@@ -36,6 +35,8 @@ import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
 import { Route as OrderOrderIdRouteImport } from './routes/order.$orderId'
 import { Route as VendorApplicationStatusRouteImport } from './routes/vendor.application-status'
 import { Route as VendorRegisterRouteImport } from './routes/vendor.register'
+import { Route as AccountOrdersIndexRouteImport } from './routes/account.orders.index'
+import { Route as AccountOrdersOrderIdRouteImport } from './routes/account.orders.$orderId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -90,11 +91,6 @@ const AccountAddressesRoute = AccountAddressesRouteImport.update({
 const AccountFavoritesRoute = AccountFavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
-  getParentRoute: () => AccountRoute,
-} as any)
-const AccountOrdersRoute = AccountOrdersRouteImport.update({
-  id: '/orders',
-  path: '/orders',
   getParentRoute: () => AccountRoute,
 } as any)
 const AccountSettingsRoute = AccountSettingsRouteImport.update({
@@ -172,6 +168,16 @@ const VendorRegisterRoute = VendorRegisterRouteImport.update({
   path: '/vendor/register',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountOrdersIndexRoute = AccountOrdersIndexRouteImport.update({
+  id: '/orders/',
+  path: '/orders/',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountOrdersOrderIdRoute = AccountOrdersOrderIdRouteImport.update({
+  id: '/orders/$orderId',
+  path: '/orders/$orderId',
+  getParentRoute: () => AccountRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -184,7 +190,6 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
-  '/account/orders': typeof AccountOrdersRoute
   '/account/settings': typeof AccountSettingsRoute
   '/admin/businesses': typeof AdminBusinessesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -201,6 +206,8 @@ export interface FileRoutesByFullPath {
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/account/orders/$orderId': typeof AccountOrdersOrderIdRoute
+  '/account/orders/': typeof AccountOrdersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -210,7 +217,6 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
-  '/account/orders': typeof AccountOrdersRoute
   '/account/settings': typeof AccountSettingsRoute
   '/admin/businesses': typeof AdminBusinessesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -227,6 +233,8 @@ export interface FileRoutesByTo {
   '/account': typeof AccountIndexRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
+  '/account/orders/$orderId': typeof AccountOrdersOrderIdRoute
+  '/account/orders': typeof AccountOrdersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -240,7 +248,6 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
-  '/account/orders': typeof AccountOrdersRoute
   '/account/settings': typeof AccountSettingsRoute
   '/admin/businesses': typeof AdminBusinessesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -257,6 +264,8 @@ export interface FileRoutesById {
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
+  '/account/orders/$orderId': typeof AccountOrdersOrderIdRoute
+  '/account/orders/': typeof AccountOrdersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -271,7 +280,6 @@ export interface FileRouteTypes {
     | '/search'
     | '/account/addresses'
     | '/account/favorites'
-    | '/account/orders'
     | '/account/settings'
     | '/admin/businesses'
     | '/admin/settings'
@@ -288,6 +296,8 @@ export interface FileRouteTypes {
     | '/account/'
     | '/admin/'
     | '/dashboard/'
+    | '/account/orders/$orderId'
+    | '/account/orders/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -297,7 +307,6 @@ export interface FileRouteTypes {
     | '/search'
     | '/account/addresses'
     | '/account/favorites'
-    | '/account/orders'
     | '/account/settings'
     | '/admin/businesses'
     | '/admin/settings'
@@ -314,6 +323,8 @@ export interface FileRouteTypes {
     | '/account'
     | '/admin'
     | '/dashboard'
+    | '/account/orders/$orderId'
+    | '/account/orders'
   id:
     | '__root__'
     | '/'
@@ -326,7 +337,6 @@ export interface FileRouteTypes {
     | '/search'
     | '/account/addresses'
     | '/account/favorites'
-    | '/account/orders'
     | '/account/settings'
     | '/admin/businesses'
     | '/admin/settings'
@@ -343,6 +353,8 @@ export interface FileRouteTypes {
     | '/account/'
     | '/admin/'
     | '/dashboard/'
+    | '/account/orders/$orderId'
+    | '/account/orders/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -438,13 +450,6 @@ declare module '@tanstack/react-router' {
       path: '/favorites'
       fullPath: '/account/favorites'
       preLoaderRoute: typeof AccountFavoritesRouteImport
-      parentRoute: typeof AccountRoute
-    }
-    '/account/orders': {
-      id: '/account/orders'
-      path: '/orders'
-      fullPath: '/account/orders'
-      preLoaderRoute: typeof AccountOrdersRouteImport
       parentRoute: typeof AccountRoute
     }
     '/account/settings': {
@@ -552,23 +557,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VendorRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account/orders/': {
+      id: '/account/orders/'
+      path: '/orders'
+      fullPath: '/account/orders/'
+      preLoaderRoute: typeof AccountOrdersIndexRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/orders/$orderId': {
+      id: '/account/orders/$orderId'
+      path: '/orders/$orderId'
+      fullPath: '/account/orders/$orderId'
+      preLoaderRoute: typeof AccountOrdersOrderIdRouteImport
+      parentRoute: typeof AccountRoute
+    }
   }
 }
 
 interface AccountRouteChildren {
   AccountAddressesRoute: typeof AccountAddressesRoute
   AccountFavoritesRoute: typeof AccountFavoritesRoute
-  AccountOrdersRoute: typeof AccountOrdersRoute
   AccountSettingsRoute: typeof AccountSettingsRoute
   AccountIndexRoute: typeof AccountIndexRoute
+  AccountOrdersOrderIdRoute: typeof AccountOrdersOrderIdRoute
+  AccountOrdersIndexRoute: typeof AccountOrdersIndexRoute
 }
 
 const AccountRouteChildren: AccountRouteChildren = {
   AccountAddressesRoute: AccountAddressesRoute,
   AccountFavoritesRoute: AccountFavoritesRoute,
-  AccountOrdersRoute: AccountOrdersRoute,
   AccountSettingsRoute: AccountSettingsRoute,
   AccountIndexRoute: AccountIndexRoute,
+  AccountOrdersOrderIdRoute: AccountOrdersOrderIdRoute,
+  AccountOrdersIndexRoute: AccountOrdersIndexRoute,
 }
 
 const AccountRouteWithChildren =
