@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell, LogIn, LogOut, Search, Sprout, Store, User } from "lucide-react";
+import { Bell, LogIn, LogOut, Sprout, Store, User } from "lucide-react";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -47,22 +46,7 @@ export function SiteHeader() {
           </span>
         </Link>
 
-        {isVendor ? (
-          <div className="flex-1" />
-        ) : (
-        <form
-          className="relative ml-1 flex-1"
-          onSubmit={(e) => e.preventDefault()}
-          role="search"
-        >
-          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            aria-label="Search mystery bags and businesses"
-            placeholder="Search bags, bakeries, cafes…"
-            className="h-10 rounded-full border-border bg-card pl-9"
-          />
-        </form>
-        )}
+        <div className="flex-1" />
 
         <div className="flex shrink-0 items-center gap-1">
           <Button variant="ghost" size="icon" className="relative rounded-full" aria-label="Notifications">
