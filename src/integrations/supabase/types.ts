@@ -128,6 +128,13 @@ export type Database = {
             referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "food_posts_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       order_items: {
@@ -184,6 +191,13 @@ export type Database = {
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors_public"
             referencedColumns: ["id"]
           },
         ]
@@ -249,6 +263,13 @@ export type Database = {
             columns: ["vendor_id"]
             isOneToOne: false
             referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors_public"
             referencedColumns: ["id"]
           },
         ]
@@ -338,6 +359,7 @@ export type Database = {
           delivery_fee: number
           delivery_minimum: number
           description: string
+          display_alias: string | null
           email: string | null
           fda_approval_name: string | null
           fda_approval_url: string | null
@@ -370,6 +392,7 @@ export type Database = {
           delivery_fee?: number
           delivery_minimum?: number
           description?: string
+          display_alias?: string | null
           email?: string | null
           fda_approval_name?: string | null
           fda_approval_url?: string | null
@@ -402,6 +425,7 @@ export type Database = {
           delivery_fee?: number
           delivery_minimum?: number
           description?: string
+          display_alias?: string | null
           email?: string | null
           fda_approval_name?: string | null
           fda_approval_url?: string | null
@@ -429,9 +453,84 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      vendors_public: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string | null
+          delivery_fee: number | null
+          delivery_minimum: number | null
+          description: string | null
+          display_alias: string | null
+          fulfillment: Database["public"]["Enums"]["fulfillment_type"] | null
+          id: string | null
+          latitude: number | null
+          legacy_id: string | null
+          longitude: number | null
+          meals_rescued: number | null
+          neighborhood: string | null
+          rating: number | null
+          review_count: number | null
+          type: Database["public"]["Enums"]["business_type"] | null
+          verification_status:
+            | Database["public"]["Enums"]["vendor_status"]
+            | null
+          verified: boolean | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string | null
+          delivery_fee?: number | null
+          delivery_minimum?: number | null
+          description?: string | null
+          display_alias?: string | null
+          fulfillment?: Database["public"]["Enums"]["fulfillment_type"] | null
+          id?: string | null
+          latitude?: number | null
+          legacy_id?: string | null
+          longitude?: number | null
+          meals_rescued?: number | null
+          neighborhood?: string | null
+          rating?: number | null
+          review_count?: number | null
+          type?: Database["public"]["Enums"]["business_type"] | null
+          verification_status?:
+            | Database["public"]["Enums"]["vendor_status"]
+            | null
+          verified?: boolean | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string | null
+          delivery_fee?: number | null
+          delivery_minimum?: number | null
+          description?: string | null
+          display_alias?: string | null
+          fulfillment?: Database["public"]["Enums"]["fulfillment_type"] | null
+          id?: string | null
+          latitude?: number | null
+          legacy_id?: string | null
+          longitude?: number | null
+          meals_rescued?: number | null
+          neighborhood?: string | null
+          rating?: number | null
+          review_count?: number | null
+          type?: Database["public"]["Enums"]["business_type"] | null
+          verification_status?:
+            | Database["public"]["Enums"]["vendor_status"]
+            | null
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      alias_label: {
+        Args: { _type: Database["public"]["Enums"]["business_type"] }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
