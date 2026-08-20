@@ -59,10 +59,21 @@ function OrderTracking() {
           </span>
         </div>
 
-        <p className="mt-3 text-sm text-muted-foreground">{orderStatusDescriptions[status]}</p>
+        <p className="mt-3 text-sm text-muted-foreground">
+          {order.paymentStatus === "awaiting_verification"
+            ? "Payment under review — the vendor will start preparing once your payment is verified."
+            : orderStatusDescriptions[status]}
+        </p>
 
         <div className="mt-8">
-          {isTerminal(status) ? (
+          {order.paymentStatus === "awaiting_verification" || order.paymentStatus === "rejected" ? (
+            <PaymentReviewPanel
+              status={order.paymentStatus}
+              orderId={order.id}
+              screenshotPath={order.paymentScreenshotUrl}
+            />
+          ) : isTerminal(status) ? (
+
             <div className="flex items-start gap-3 rounded-2xl border border-destructive/30 bg-destructive/5 p-4">
               <Ban className="mt-0.5 size-5 text-destructive" />
               <div>
