@@ -217,6 +217,14 @@ function OrderReceipt() {
                     <Timer className="size-4 shrink-0 text-primary" />
                     {order.pickupWindow}
                   </p>
+                  {vendor?.phone && (
+                    <p className="mt-1 flex items-center gap-2">
+                      <Phone className="size-4 shrink-0 text-primary" />
+                      <a href={`tel:${vendor.phone}`} className="font-medium underline-offset-2 hover:underline">
+                        {vendor.phone}
+                      </a>
+                    </p>
+                  )}
                 </>
               )}
             </div>
