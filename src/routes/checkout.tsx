@@ -598,6 +598,28 @@ function CheckoutPage() {
           </aside>
         </div>
       </section>
+
+      <AddressFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        initial={dialogInitial}
+        title={editingId ? "Edit address" : "Add address"}
+        submitLabel={editingId ? "Save changes" : "Add address"}
+        onSubmit={async (input) => {
+          if (editingId) {
+            await updateAddress(editingId, input);
+            toast.success("Address updated");
+            await reloadAddresses();
+            setSelectedId(editingId);
+          } else {
+            const saved = await createAddress(input);
+            toast.success("Address saved");
+            await reloadAddresses();
+            setSelectedId(saved.id);
+          }
+        }}
+      />
     </PublicLayout>
+
   );
 }
