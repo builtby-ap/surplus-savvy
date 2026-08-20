@@ -11,6 +11,8 @@ export interface OrderItem {
 
 export interface PlacedOrder {
   id: string;
+  /** Owner of the order — customer orders are scoped to this id. */
+  customerId?: string;
   receiptNumber: string;
   items: OrderItem[];
   /** Primary vendor (first item's vendor) — kept for quick lookups. */
