@@ -11,9 +11,9 @@ import {
   Utensils,
 } from "lucide-react";
 import { formatPrice } from "@/data/mock";
+import { fetchAdminUsers, fetchAdminVendors, fetchPlatformOrders } from "@/lib/admin-db";
 import {
   monthlyTrends,
-  platformOrders,
   platformTotals,
   type MonthlyPoint,
   type PlatformTotals,
@@ -27,8 +27,22 @@ function AdminOverview() {
   const [data, setData] = useState<{ totals: PlatformTotals; months: MonthlyPoint[] } | null>(null);
 
   useEffect(() => {
-    const orders = platformOrders();
-    setData({ totals: platformTotals(orders), months: monthlyTrends(orders) });
+    let active = true;
+    void Promise.all([fetchPlatformOrders(), fetchAdminVendors(), fetchAdminUsers()])
+      .then(([orders, vendors, users]) => {
+        if (!active) return;
+        const customers = users.filter((u) => u.role === "customer").length;
+        setData({
+          totals: platformTotals(orders, vendors, customers),
+          months: monthlyTrends(orders, vendors),
+        });
+      })
+      .catch(() => {
+        if (active) setData({ totals: platformTotals([], []), months: monthlyTrends([], []) });
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   const cards = useMemo(() => {

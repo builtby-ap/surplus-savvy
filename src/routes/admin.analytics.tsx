@@ -17,12 +17,12 @@ import {
   categoryBreakdown,
   cityBreakdown,
   monthlyTrends,
-  platformOrders,
   platformTotals,
   type Breakdown,
   type MonthlyPoint,
   type PlatformTotals,
 } from "@/lib/platform-stats";
+import { fetchAdminUsers, fetchAdminVendors, fetchPlatformOrders } from "@/lib/admin-db";
 
 export const Route = createFileRoute("/admin/analytics")({
   component: AdminAnalytics,
@@ -39,13 +39,28 @@ function AdminAnalytics() {
   const [data, setData] = useState<Data | null>(null);
 
   useEffect(() => {
-    const orders = platformOrders();
-    setData({
-      totals: platformTotals(orders),
-      months: monthlyTrends(orders),
+    let active = true;
+    const build = (
+      orders: Parameters<typeof categoryBreakdown>[0],
+      vendors: Parameters<typeof monthlyTrends>[1] & object,
+      customers?: number,
+    ) => ({
+      totals: platformTotals(orders, vendors, customers),
+      months: monthlyTrends(orders, vendors),
       categories: categoryBreakdown(orders),
       cities: cityBreakdown(orders),
     });
+    void Promise.all([fetchPlatformOrders(), fetchAdminVendors(), fetchAdminUsers()])
+      .then(([orders, vendors, users]) => {
+        if (!active) return;
+        setData(build(orders, vendors, users.filter((u) => u.role === "customer").length));
+      })
+      .catch(() => {
+        if (active) setData(build([], []));
+      });
+    return () => {
+      active = false;
+    };
   }, []);
 
   if (!data) {

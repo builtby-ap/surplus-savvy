@@ -23,12 +23,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  listUsers,
-  roleLabels,
-  setUserStatus,
-  type PlatformUser,
-} from "@/lib/platform-users";
+import { roleLabels, type PlatformUser } from "@/lib/platform-users";
+import { fetchAdminUsers, updateUserStatus } from "@/lib/admin-db";
 import type { UserRole } from "@/lib/auth/types";
 
 export const Route = createFileRoute("/admin/users")({
@@ -81,7 +77,15 @@ function AdminUsersPage() {
   const [suspending, setSuspending] = useState<PlatformUser | null>(null);
 
   useEffect(() => {
-    setUsers(listUsers());
+    let active = true;
+    fetchAdminUsers()
+      .then((rows) => {
+        if (active) setUsers(rows);
+      })
+      .catch(() => toast.error("Could not load accounts — admin access required."));
+    return () => {
+      active = false;
+    };
   }, []);
 
   const stats = useMemo(
@@ -107,14 +111,23 @@ function AdminUsersPage() {
   }, [users, role, query]);
 
   const activate = (user: PlatformUser) => {
-    setUsers(setUserStatus(user.id, "active"));
-    toast.success(`${user.fullName} reactivated.`);
+    void updateUserStatus(user.id, "active")
+      .then((rows) => {
+        setUsers(rows);
+        toast.success(`${user.fullName} reactivated.`);
+      })
+      .catch(() => toast.error("Could not update this account."));
   };
 
   const confirmSuspend = () => {
     if (!suspending) return;
-    setUsers(setUserStatus(suspending.id, "suspended"));
-    toast.success(`${suspending.fullName} suspended.`);
+    const target = suspending;
+    void updateUserStatus(target.id, "suspended")
+      .then((rows) => {
+        setUsers(rows);
+        toast.success(`${target.fullName} suspended.`);
+      })
+      .catch(() => toast.error("Could not update this account."));
     setSuspending(null);
   };
 
