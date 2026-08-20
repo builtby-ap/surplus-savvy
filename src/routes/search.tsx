@@ -202,6 +202,11 @@ function BrowsePage() {
   const available = sorted.filter((b) => b.quantityLeft > 0);
   const soldOut = sorted.filter((b) => b.quantityLeft === 0);
 
+  const addToCart = (bag: (typeof mysteryBags)[number]) => {
+    toast.success(`${bag.title} added — reserve it now.`);
+    void navigate({ to: "/checkout", search: { bag: bag.id } });
+  };
+
   const reset = () => {
     setQuery("");
     setCategory("all");
@@ -209,9 +214,12 @@ function BrowsePage() {
     setMethod("all");
     setCity("all");
     setClosingSoon(false);
+    setRadiusKm(5);
     void navigate({ to: "/search", search: () => ({}) });
     setUserLocation(null);
+    setLocationLabel("");
   };
+
 
 
 
