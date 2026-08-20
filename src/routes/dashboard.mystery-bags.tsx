@@ -406,11 +406,13 @@ function VendorPostsPage() {
                   id="image"
                   type="file"
                   accept="image/*"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    setForm((prev) => ({ ...prev, image: URL.createObjectURL(file) }));
+                    const stored = await fileToStoredImage(file);
+                    setForm((prev) => ({ ...prev, image: stored }));
                   }}
+
                 />
               </div>
             </div>
