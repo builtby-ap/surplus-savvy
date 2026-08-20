@@ -411,7 +411,7 @@ function VendorPostsPage() {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="originalPrice">Original value</Label>
+                <Label htmlFor="originalPrice">Original value (MMK)</Label>
                 <Input
                   id="originalPrice"
                   type="text"
