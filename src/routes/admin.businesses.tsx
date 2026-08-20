@@ -32,12 +32,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  listVendors,
-  setVendorStatus,
   vendorStatusLabels,
   type VendorRecord,
   type VendorStatus,
 } from "@/lib/vendor-registry";
+import { fetchAdminVendors, updateVendorStatus } from "@/lib/admin-db";
 
 export const Route = createFileRoute("/admin/businesses")({
   component: VendorApprovalPage,
