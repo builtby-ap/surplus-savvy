@@ -21,6 +21,7 @@ import {
 } from "@/data/mock";
 import type { VendorPin } from "@/components/map/vendor-map";
 import { cn } from "@/lib/utils";
+import { getNearbyLocation, saveNearbyLocation } from "@/lib/nearby";
 
 
 
@@ -82,6 +83,16 @@ function BrowsePage() {
   useEffect(() => {
     setMaxPrice(priceCeiling);
   }, [priceCeiling]);
+
+  // Reuse the last location the customer picked, so distances stay consistent.
+  useEffect(() => {
+    const saved = getNearbyLocation();
+    if (saved) setUserLocation(saved);
+  }, []);
+
+  useEffect(() => {
+    saveNearbyLocation(userLocation);
+  }, [userLocation]);
 
   useEffect(() => {
     setClosingSoon(initial.closingSoon ?? false);
