@@ -141,6 +141,14 @@ function StoreProfilePage() {
         </p>
       )}
 
+      {vendor?.displayAlias && (
+        <p className="surface-card bg-secondary/40 p-4 text-sm">
+          Customers see you as:{" "}
+          <strong className="font-semibold">{vendor.displayAlias}</strong> — your real
+          business name is never shown on the marketplace.
+        </p>
+      )}
+
       <form onSubmit={submit} className="space-y-6">
         <div className="surface-card grid gap-4 p-5 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
@@ -197,6 +205,10 @@ function StoreProfilePage() {
               value={form.description}
               onChange={(e) => setForm({ ...form, description: e.target.value })}
             />
+            <p className="text-xs text-muted-foreground">
+              Don't mention your real business name here — customers only see your
+              mystery alias, and naming yourself in the description would reveal it.
+            </p>
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">Phone</Label>
