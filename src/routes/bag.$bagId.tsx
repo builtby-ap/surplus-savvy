@@ -16,6 +16,8 @@ import {
   getBusiness,
   storefrontImage,
 } from "@/data/mock";
+import { toast } from "sonner";
+import { useCart } from "@/lib/cart";
 import { CLOSING_SOON_MS, formatDuration, useCountdown } from "@/lib/countdown";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +35,7 @@ export const Route = createFileRoute("/bag/$bagId")({
 
 function BagDetail() {
   const { bagId } = useParams({ from: "/bag/$bagId" });
+  const { add } = useCart();
   const bag = getBag(bagId);
   const business = bag ? getBusiness(bag.businessId) : undefined;
   const gallery = bag ? [bag.image, storefrontImage, categoryImages[bag.category]] : [];
@@ -168,15 +171,28 @@ function BagDetail() {
                 Sold out
               </Button>
             ) : (
-              <Button
-                asChild
-                size="lg"
-                className="mt-6 w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
-              >
-                <Link to="/checkout" search={{ bag: bag.id }}>
-                  Reserve this food post
-                </Link>
-              </Button>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="w-full rounded-full sm:flex-1"
+                  onClick={() => {
+                    add(bag.id, 1, bag.quantityLeft);
+                    toast.success(`${bag.title} added to your cart.`);
+                  }}
+                >
+                  Add to cart
+                </Button>
+                <Button
+                  asChild
+                  size="lg"
+                  className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90 sm:flex-1"
+                >
+                  <Link to="/checkout" search={{ bag: bag.id }}>
+                    Reserve this food post
+                  </Link>
+                </Button>
+              </div>
             )}
 
             {business && (

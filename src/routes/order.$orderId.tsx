@@ -4,7 +4,7 @@ import { Bike, Check, Download, MapPin, Printer, ShoppingBag, Timer } from "luci
 import { toast } from "sonner";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { Button } from "@/components/ui/button";
-import { businessTypeLabels, formatPrice, getBag, getBusiness } from "@/data/mock";
+import { businessTypeLabels, formatPrice, getBusiness } from "@/data/mock";
 import { getPlacedOrder, type PlacedOrder } from "@/lib/orders";
 
 export const Route = createFileRoute("/order/$orderId")({
@@ -53,8 +53,10 @@ function OrderReceipt() {
     );
   }
 
-  const bag = getBag(order.bagId);
-  const business = getBusiness(order.businessId);
+  const businesses = (order.businessIds ?? [order.businessId])
+    .map((id) => getBusiness(id))
+    .filter((b): b is NonNullable<typeof b> => Boolean(b));
+  const business = businesses[0];
   const placed = new Date(order.placedAt);
 
   return (
@@ -87,11 +89,15 @@ function OrderReceipt() {
 
           <div className="grid gap-4 border-b border-dashed border-border py-4 text-sm sm:grid-cols-2">
             <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Vendor</p>
-              <p className="font-medium">{business?.name}</p>
-              <p className="text-muted-foreground">
-                {business ? businessTypeLabels[business.type] : ""}
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                Vendor{businesses.length > 1 ? "s" : ""}
               </p>
+              {businesses.map((b) => (
+                <div key={b.id}>
+                  <p className="font-medium">{b.name}</p>
+                  <p className="text-muted-foreground">{businessTypeLabels[b.type]}</p>
+                </div>
+              ))}
             </div>
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
@@ -118,10 +124,19 @@ function OrderReceipt() {
           </div>
 
           <div className="border-b border-dashed border-border py-4">
-            <p className="flex items-center gap-2 font-medium">
-              <ShoppingBag className="size-4 text-primary" />
-              {bag?.title ?? "Food post"} × {order.quantity}
-            </p>
+            <ul className="space-y-2">
+              {order.items.map((item) => (
+                <li key={item.bagId} className="flex items-start justify-between gap-3">
+                  <span className="flex items-center gap-2 font-medium">
+                    <ShoppingBag className="size-4 shrink-0 text-primary" />
+                    {item.title} × {item.quantity}
+                  </span>
+                  <span className="shrink-0 text-sm">
+                    {formatPrice(item.unitPrice * item.quantity)}
+                  </span>
+                </li>
+              ))}
+            </ul>
             <dl className="mt-3 space-y-2 text-sm">
               <div className="flex justify-between text-muted-foreground">
                 <dt>Original price</dt>
