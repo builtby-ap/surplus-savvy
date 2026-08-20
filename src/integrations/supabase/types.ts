@@ -125,6 +125,13 @@ export type Database = {
             foreignKeyName: "food_posts_vendor_id_fkey"
             columns: ["vendor_id"]
             isOneToOne: false
+            referencedRelation: "advertised_vendors_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "food_posts_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
             referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
@@ -184,6 +191,13 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "advertised_vendors_public"
             referencedColumns: ["id"]
           },
           {
@@ -258,6 +272,13 @@ export type Database = {
           vendor_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "advertised_vendors_public"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_vendor_id_fkey"
             columns: ["vendor_id"]
@@ -351,6 +372,8 @@ export type Database = {
       }
       vendors: {
         Row: {
+          ad_priority: number
+          ad_tagline: string | null
           address: string
           business_license_name: string | null
           business_license_url: string | null
@@ -366,6 +389,7 @@ export type Database = {
           fulfillment: Database["public"]["Enums"]["fulfillment_type"]
           id: string
           image_url: string | null
+          is_advertised: boolean
           latitude: number | null
           legacy_id: string | null
           logo_initials: string
@@ -384,6 +408,8 @@ export type Database = {
           verified: boolean
         }
         Insert: {
+          ad_priority?: number
+          ad_tagline?: string | null
           address?: string
           business_license_name?: string | null
           business_license_url?: string | null
@@ -399,6 +425,7 @@ export type Database = {
           fulfillment?: Database["public"]["Enums"]["fulfillment_type"]
           id?: string
           image_url?: string | null
+          is_advertised?: boolean
           latitude?: number | null
           legacy_id?: string | null
           logo_initials?: string
@@ -417,6 +444,8 @@ export type Database = {
           verified?: boolean
         }
         Update: {
+          ad_priority?: number
+          ad_tagline?: string | null
           address?: string
           business_license_name?: string | null
           business_license_url?: string | null
@@ -432,6 +461,7 @@ export type Database = {
           fulfillment?: Database["public"]["Enums"]["fulfillment_type"]
           id?: string
           image_url?: string | null
+          is_advertised?: boolean
           latitude?: number | null
           legacy_id?: string | null
           logo_initials?: string
@@ -453,6 +483,42 @@ export type Database = {
       }
     }
     Views: {
+      advertised_vendors_public: {
+        Row: {
+          ad_priority: number | null
+          city: string | null
+          id: string | null
+          image_url: string | null
+          logo_initials: string | null
+          name: string | null
+          neighborhood: string | null
+          tagline: string | null
+          type: Database["public"]["Enums"]["business_type"] | null
+        }
+        Insert: {
+          ad_priority?: number | null
+          city?: string | null
+          id?: string | null
+          image_url?: string | null
+          logo_initials?: string | null
+          name?: string | null
+          neighborhood?: string | null
+          tagline?: string | null
+          type?: Database["public"]["Enums"]["business_type"] | null
+        }
+        Update: {
+          ad_priority?: number | null
+          city?: string | null
+          id?: string | null
+          image_url?: string | null
+          logo_initials?: string | null
+          name?: string | null
+          neighborhood?: string | null
+          tagline?: string | null
+          type?: Database["public"]["Enums"]["business_type"] | null
+        }
+        Relationships: []
+      }
       vendors_public: {
         Row: {
           address: string | null
