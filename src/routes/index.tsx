@@ -184,6 +184,95 @@ function MarketplaceHome() {
         )}
       </section>
 
+      <section className="mx-auto max-w-6xl px-4 py-12">
+        <div className="text-center">
+          <h2 className="text-xl font-semibold">How Phoelamin Works</h2>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Rescue good food in four simple steps
+          </p>
+        </div>
+
+        <div className="relative mt-8">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              {
+                icon: Search,
+                title: "Discover",
+                subtitle: "Find Surplus Food Near You",
+                description:
+                  "Use your location to discover nearby Secret Bags from participating food businesses.",
+                tone: "text-primary",
+                bg: "bg-primary/10",
+              },
+              {
+                icon: Package,
+                title: "Choose",
+                subtitle: "Pick Your Secret Bag",
+                description:
+                  "Browse discounted surplus food, check the details, and choose the Secret Bag you want to rescue.",
+                tone: "text-accent",
+                bg: "bg-accent/10",
+              },
+              {
+                icon: ShoppingCart,
+                title: "Reserve",
+                subtitle: "Place Your Order",
+                description:
+                  "Add the Secret Bag to your cart, choose pickup or delivery, select your address if delivery is selected, and place your order.",
+                tone: "text-coral",
+                bg: "bg-coral/10",
+              },
+              {
+                icon: Leaf,
+                title: "Rescue & Make an Impact",
+                subtitle: "Enjoy Food, Reduce Waste",
+                description:
+                  "Collect or receive your rescued food and see how much food waste, CO₂, and money you helped save.",
+                tone: "text-success",
+                bg: "bg-success/10",
+              },
+            ].map((step, i) => (
+              <div
+                key={step.title}
+                className="surface-card group relative flex flex-col items-center p-6 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lifted)]"
+              >
+                <span className="absolute left-4 top-4 text-xs font-semibold text-muted-foreground">
+                  0{i + 1}
+                </span>
+                <div
+                  className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl ${step.bg}`}
+                >
+                  <step.icon className={`size-7 ${step.tone}`} />
+                </div>
+                <h3 className="mt-4 text-base font-semibold">{step.title}</h3>
+                <p className="mt-1 text-sm font-medium text-foreground">
+                  {step.subtitle}
+                </p>
+                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                  {step.description}
+                </p>
+
+                {i < 3 && (
+                  <>
+                    <ArrowRight className="absolute -right-3 top-1/2 hidden size-5 -translate-y-1/2 text-muted-foreground/40 lg:block" />
+                    <ArrowDown className="absolute -bottom-3 left-1/2 block size-5 -translate-x-1/2 text-muted-foreground/40 sm:hidden" />
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 hidden items-center justify-center gap-2 text-sm font-medium text-muted-foreground sm:flex lg:hidden">
+            <span>Discover</span>
+            <ArrowRight className="size-4" />
+            <span>Choose</span>
+            <ArrowRight className="size-4" />
+            <span>Reserve</span>
+            <ArrowRight className="size-4" />
+            <span>Rescue</span>
+          </div>
+        </div>
+      </section>
 
       <section className="mx-auto max-w-6xl px-4 py-12">
         <div className="flex flex-wrap items-center justify-between gap-3">
