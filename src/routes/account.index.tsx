@@ -121,7 +121,7 @@ function ImpactDashboard() {
         <div className="mt-6 h-64">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
               <XAxis dataKey="label" tickLine={false} axisLine={false} fontSize={12} />
               <YAxis allowDecimals={false} tickLine={false} axisLine={false} width={28} fontSize={12} />
               <Tooltip cursor={{ fill: "transparent" }} />
