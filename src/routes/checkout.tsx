@@ -1,12 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Bike, Info, MapPin, ShoppingBag, Timer } from "lucide-react";
+import { Bike, Info, LocateFixed, MapPin, Plus, ShoppingBag, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AddressFormDialog } from "@/components/account/address-form-dialog";
 import {
   bagCategoryLabels,
   businessTypeLabels,
@@ -19,7 +21,18 @@ import { postUuidById, vendorUuidById } from "@/data/catalogue";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth/auth-context";
 import { newOrderIds, saveOrder, type OrderItem, type OrderMethod } from "@/lib/orders";
+import {
+  createAddress,
+  emptyAddress,
+  formatAddress,
+  makeDefaultAddress,
+  updateAddress,
+  useMyAddresses,
+  validateAddress,
+  type CustomerAddressInput,
+} from "@/lib/customer-addresses";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/checkout")({
   validateSearch: (search: Record<string, unknown>) => ({
