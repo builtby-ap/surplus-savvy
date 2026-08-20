@@ -170,7 +170,7 @@ export async function registerCustomer(
     email,
     password: input.password,
     options: {
-      emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
+      emailRedirectTo: typeof window !== "undefined" ? window.location.origin : "",
       data: {
         full_name: input.fullName.trim(),
         phone: input.phone.trim(),
@@ -202,7 +202,7 @@ export async function registerVendor(
     email,
     password: input.password,
     options: {
-      emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
+      emailRedirectTo: typeof window !== "undefined" ? window.location.origin : "",
       data: {
         full_name: input.cafeName.trim(),
         phone: input.phone.trim(),
@@ -256,7 +256,7 @@ export async function loginWithGoogle(): Promise<AuthSession> {
   const { error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
+      redirectTo: typeof window !== "undefined" ? window.location.origin : "",
     },
   });
   if (error) {
