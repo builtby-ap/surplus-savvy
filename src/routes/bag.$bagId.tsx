@@ -160,14 +160,25 @@ function BagDetail() {
               </p>
             </div>
 
-            <Button
-              size="lg"
-              disabled={soldOut}
-              onClick={() => toast.success("Food post reserved — pay cash on collection.")}
-              className="mt-6 w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
-            >
-              {soldOut ? "Sold out" : "Reserve this food post"}
-            </Button>
+            {soldOut ? (
+              <Button
+                size="lg"
+                disabled
+                className="mt-6 w-full rounded-full bg-accent text-accent-foreground"
+              >
+                Sold out
+              </Button>
+            ) : (
+              <Button
+                asChild
+                size="lg"
+                className="mt-6 w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
+              >
+                <Link to="/checkout" search={{ bag: bag.id }}>
+                  Reserve this food post
+                </Link>
+              </Button>
+            )}
 
             {business && (
               <Link
