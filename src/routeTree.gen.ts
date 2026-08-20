@@ -14,7 +14,6 @@ import { Route as AccountRouteImport } from './routes/account'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CheckoutRouteImport } from './routes/checkout'
 import { Route as DashboardRouteImport } from './routes/dashboard'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SearchRouteImport } from './routes/search'
@@ -35,6 +34,8 @@ import { Route as DashboardDeliveryRouteImport } from './routes/dashboard.delive
 import { Route as DashboardMysteryBagsRouteImport } from './routes/dashboard.mystery-bags'
 import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
 import { Route as OrderOrderIdRouteImport } from './routes/order.$orderId'
+import { Route as VendorApplicationStatusRouteImport } from './routes/vendor.application-status'
+import { Route as VendorRegisterRouteImport } from './routes/vendor.register'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -59,11 +60,6 @@ const CheckoutRoute = CheckoutRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LoginRoute = LoginRouteImport.update({
@@ -166,6 +162,16 @@ const OrderOrderIdRoute = OrderOrderIdRouteImport.update({
   path: '/order/$orderId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VendorApplicationStatusRoute = VendorApplicationStatusRouteImport.update({
+  id: '/vendor/application-status',
+  path: '/vendor/application-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VendorRegisterRoute = VendorRegisterRouteImport.update({
+  id: '/vendor/register',
+  path: '/vendor/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -173,7 +179,6 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRouteWithChildren
-  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/search': typeof SearchRoute
@@ -191,6 +196,8 @@ export interface FileRoutesByFullPath {
   '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
   '/dashboard/orders': typeof DashboardOrdersRoute
   '/order/$orderId': typeof OrderOrderIdRoute
+  '/vendor/application-status': typeof VendorApplicationStatusRoute
+  '/vendor/register': typeof VendorRegisterRoute
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -198,7 +205,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkout': typeof CheckoutRoute
-  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/search': typeof SearchRoute
@@ -216,6 +222,8 @@ export interface FileRoutesByTo {
   '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
   '/dashboard/orders': typeof DashboardOrdersRoute
   '/order/$orderId': typeof OrderOrderIdRoute
+  '/vendor/application-status': typeof VendorApplicationStatusRoute
+  '/vendor/register': typeof VendorRegisterRoute
   '/account': typeof AccountIndexRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -227,7 +235,6 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/checkout': typeof CheckoutRoute
   '/dashboard': typeof DashboardRouteWithChildren
-  '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/search': typeof SearchRoute
@@ -245,6 +252,8 @@ export interface FileRoutesById {
   '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
   '/dashboard/orders': typeof DashboardOrdersRoute
   '/order/$orderId': typeof OrderOrderIdRoute
+  '/vendor/application-status': typeof VendorApplicationStatusRoute
+  '/vendor/register': typeof VendorRegisterRoute
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -257,7 +266,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/checkout'
     | '/dashboard'
-    | '/forgot-password'
     | '/login'
     | '/register'
     | '/search'
@@ -275,6 +283,8 @@ export interface FileRouteTypes {
     | '/dashboard/mystery-bags'
     | '/dashboard/orders'
     | '/order/$orderId'
+    | '/vendor/application-status'
+    | '/vendor/register'
     | '/account/'
     | '/admin/'
     | '/dashboard/'
@@ -282,7 +292,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/checkout'
-    | '/forgot-password'
     | '/login'
     | '/register'
     | '/search'
@@ -300,6 +309,8 @@ export interface FileRouteTypes {
     | '/dashboard/mystery-bags'
     | '/dashboard/orders'
     | '/order/$orderId'
+    | '/vendor/application-status'
+    | '/vendor/register'
     | '/account'
     | '/admin'
     | '/dashboard'
@@ -310,7 +321,6 @@ export interface FileRouteTypes {
     | '/admin'
     | '/checkout'
     | '/dashboard'
-    | '/forgot-password'
     | '/login'
     | '/register'
     | '/search'
@@ -328,6 +338,8 @@ export interface FileRouteTypes {
     | '/dashboard/mystery-bags'
     | '/dashboard/orders'
     | '/order/$orderId'
+    | '/vendor/application-status'
+    | '/vendor/register'
     | '/account/'
     | '/admin/'
     | '/dashboard/'
@@ -339,13 +351,14 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   CheckoutRoute: typeof CheckoutRoute
   DashboardRoute: typeof DashboardRouteWithChildren
-  ForgotPasswordRoute: typeof ForgotPasswordRoute
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
   SearchRoute: typeof SearchRoute
   BagBagIdRoute: typeof BagBagIdRoute
   BusinessBusinessIdRoute: typeof BusinessBusinessIdRoute
   OrderOrderIdRoute: typeof OrderOrderIdRoute
+  VendorApplicationStatusRoute: typeof VendorApplicationStatusRoute
+  VendorRegisterRoute: typeof VendorRegisterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -383,13 +396,6 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/login': {
@@ -532,6 +538,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrderOrderIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vendor/application-status': {
+      id: '/vendor/application-status'
+      path: '/vendor/application-status'
+      fullPath: '/vendor/application-status'
+      preLoaderRoute: typeof VendorApplicationStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vendor/register': {
+      id: '/vendor/register'
+      path: '/vendor/register'
+      fullPath: '/vendor/register'
+      preLoaderRoute: typeof VendorRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -596,13 +616,14 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   CheckoutRoute: CheckoutRoute,
   DashboardRoute: DashboardRouteWithChildren,
-  ForgotPasswordRoute: ForgotPasswordRoute,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
   SearchRoute: SearchRoute,
   BagBagIdRoute: BagBagIdRoute,
   BusinessBusinessIdRoute: BusinessBusinessIdRoute,
   OrderOrderIdRoute: OrderOrderIdRoute,
+  VendorApplicationStatusRoute: VendorApplicationStatusRoute,
+  VendorRegisterRoute: VendorRegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
