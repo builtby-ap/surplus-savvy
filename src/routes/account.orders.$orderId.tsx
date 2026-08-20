@@ -56,9 +56,20 @@ function OrderTracking() {
               {order.vendorName ? ` · ${order.vendorName}` : ""}
             </p>
           </div>
-          <span className={`rounded-full border px-3 py-1 text-sm font-medium ${statusBadgeClass(status)}`}>
-            {orderStatusLabels[status]}
-          </span>
+          {order.paymentStatus === "awaiting_verification" ? (
+            <span className="rounded-full border border-accent/40 bg-accent/15 px-3 py-1 text-sm font-medium">
+              Payment under review
+            </span>
+          ) : order.paymentStatus === "rejected" ? (
+            <span className="rounded-full border border-destructive/30 bg-destructive/10 px-3 py-1 text-sm font-medium text-destructive">
+              Payment rejected
+            </span>
+          ) : (
+            <span className={`rounded-full border px-3 py-1 text-sm font-medium ${statusBadgeClass(status)}`}>
+              {orderStatusLabels[status]}
+            </span>
+          )}
+
         </div>
 
         <p className="mt-3 text-sm text-muted-foreground">
