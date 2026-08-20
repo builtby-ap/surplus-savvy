@@ -101,8 +101,11 @@ export async function loadCatalogue(): Promise<boolean> {
 
     businesses.splice(0, businesses.length, ...nextBusinesses);
     mysteryBags.splice(0, mysteryBags.length, ...nextBags);
-    loaded = true;
-    return true;
+
+    const signature = JSON.stringify([nextBusinesses, nextBags]);
+    const changed = signature !== lastSignature;
+    lastSignature = signature;
+    return changed;
   } catch {
     return false;
   }
