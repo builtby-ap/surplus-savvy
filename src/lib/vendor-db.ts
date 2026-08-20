@@ -339,9 +339,10 @@ export async function fetchVendorOrders(vendorId: string): Promise<VendorOrder[]
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "id, receipt_number, method, status, notes, delivery_address, pickup_window, item_price, delivery_fee, total, placed_at, order_items(id, food_post_id, title, quantity, original_price, unit_price)",
+      "id, receipt_number, method, status, notes, delivery_address, pickup_window, item_price, delivery_fee, total, placed_at, payment_status, order_items(id, food_post_id, title, quantity, original_price, unit_price)",
     )
     .eq("vendor_id", vendorId)
+    .in("payment_status", ["not_required", "verified"])
     .order("placed_at", { ascending: false });
   if (error) throw new Error(error.message);
   return (data ?? []).map((row) => {
