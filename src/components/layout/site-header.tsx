@@ -1,6 +1,6 @@
 import logoAsset from "@/assets/phoelamin-logo.png.asset.json";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell, LogIn, LogOut, Store, User } from "lucide-react";
+import { Bell, Info, LogIn, LogOut, Store, User } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -22,6 +22,30 @@ function initials(name: string) {
     .map((part) => part[0]?.toUpperCase())
     .join("");
 }
+
+const MOCK_NOTIFICATIONS = [
+  {
+    id: "1",
+    title: "System Update",
+    message: "Phoelamin will undergo scheduled maintenance tonight at 2:00 AM.",
+    time: "2 hours ago",
+    type: "alert",
+  },
+  {
+    id: "2",
+    title: "New Feature",
+    message: "Nearby-food discovery is now available on the Map Explorer.",
+    time: "5 hours ago",
+    type: "info",
+  },
+  {
+    id: "3",
+    title: "Payment Reminder",
+    message: "Please upload your MMQR payment proof for pickup orders at checkout.",
+    time: "1 day ago",
+    type: "alert",
+  },
+];
 
 export function SiteHeader() {
   const navigate = useNavigate();
@@ -48,10 +72,38 @@ export function SiteHeader() {
         <div className="flex-1" />
 
         <div className="flex shrink-0 items-center gap-1">
-          <Button variant="ghost" size="icon" className="relative rounded-full" aria-label="Notifications">
-            <Bell className="size-5" />
-            <span className="absolute right-2 top-2 size-2 rounded-full bg-warning" />
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative rounded-full" aria-label="Notifications">
+                <Bell className="size-5" />
+                <span className="absolute right-2 top-2 size-2 rounded-full bg-warning" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-80">
+              <DropdownMenuLabel className="flex items-center justify-between">
+                <span>Notifications</span>
+                <span className="rounded-full bg-warning/15 px-2 py-0.5 text-xs font-medium text-warning">
+                  {MOCK_NOTIFICATIONS.length} new
+                </span>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {MOCK_NOTIFICATIONS.map((note) => (
+                <DropdownMenuItem
+                  key={note.id}
+                  className="flex cursor-default items-start gap-3 py-3 focus:bg-transparent"
+                >
+                  <div className="mt-0.5 shrink-0 rounded-full bg-primary/10 p-1.5 text-primary">
+                    <Info className="size-4" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium">{note.title}</p>
+                    <p className="text-xs text-muted-foreground">{note.message}</p>
+                    <p className="mt-1 text-xs text-muted-foreground/70">{note.time}</p>
+                  </div>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
           {!isAuthenticated ? (
             <>
