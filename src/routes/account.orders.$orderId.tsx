@@ -1,19 +1,15 @@
-import { useEffect, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { ArrowLeft, Ban, Check, Receipt } from "lucide-react";
-import { formatPrice, getBusiness } from "@/data/mock";
+import { formatPrice } from "@/data/mock";
 import { useAuth } from "@/lib/auth/auth-context";
-import { ensureDemoOrders } from "@/lib/demo-orders";
 import {
-  deriveStatus,
   flowFor,
   isTerminal,
   orderStatusDescriptions,
   orderStatusLabels,
   statusBadgeClass,
-  useLiveStatus,
 } from "@/lib/order-status";
-import { getPlacedOrder, type PlacedOrder } from "@/lib/orders";
+import { useMyOrder } from "@/lib/customer-orders";
 
 export const Route = createFileRoute("/account/orders/$orderId")({
   component: OrderTracking,
@@ -22,16 +18,7 @@ export const Route = createFileRoute("/account/orders/$orderId")({
 function OrderTracking() {
   const { orderId } = useParams({ from: "/account/orders/$orderId" });
   const { user } = useAuth();
-  const [order, setOrder] = useState<PlacedOrder | null | undefined>(undefined);
-
-  useEffect(() => {
-    if (!user) return;
-    ensureDemoOrders(user);
-    const found = getPlacedOrder(orderId);
-    setOrder(found && found.customerId === user.id ? found : null);
-  }, [orderId, user]);
-
-  const liveStatus = useLiveStatus(order ?? undefined);
+  const order = useMyOrder(orderId, Boolean(user));
 
   if (order === undefined) {
     return <div className="surface-card p-10 text-center text-muted-foreground">Loading order…</div>;
@@ -48,10 +35,9 @@ function OrderTracking() {
     );
   }
 
-  const status = liveStatus ?? deriveStatus(order);
+  const status = order.status;
   const flow = flowFor(order.method);
   const currentIndex = flow.indexOf(status);
-  const vendors = order.businessIds.map((id) => getBusiness(id)?.name).filter(Boolean);
 
   return (
     <div className="space-y-6">
@@ -65,7 +51,7 @@ function OrderTracking() {
             <h2 className="text-xl font-semibold">{order.receiptNumber}</h2>
             <p className="text-sm text-muted-foreground">
               Placed {new Date(order.placedAt).toLocaleString()} · {order.method === "delivery" ? "Delivery" : "Pickup"}
-              {vendors.length > 0 ? ` · ${vendors.join(", ")}` : ""}
+              {order.vendorName ? ` · ${order.vendorName}` : ""}
             </p>
           </div>
           <span className={`rounded-full border px-3 py-1 text-sm font-medium ${statusBadgeClass(status)}`}>
@@ -126,7 +112,7 @@ function OrderTracking() {
         <h3 className="font-semibold">Items</h3>
         <ul className="mt-3 space-y-2 text-sm">
           {order.items.map((item) => (
-            <li key={item.bagId} className="flex justify-between gap-4">
+            <li key={item.id} className="flex justify-between gap-4">
               <span>
                 {item.quantity} × {item.title}
               </span>
