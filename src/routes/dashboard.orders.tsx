@@ -114,6 +114,53 @@ function VendorOrdersPage() {
 
       {vendorId && !loading && (
         <>
+          <div className="surface-card flex flex-wrap items-center gap-3 p-4">
+            <div className="relative min-w-56 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="pl-9"
+                placeholder="Search by receipt number, item, address or note…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                {Object.entries(orderStatusLabels).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={methodFilter} onValueChange={setMethodFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Method" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Pickup & delivery</SelectItem>
+                <SelectItem value="pickup">Pickup</SelectItem>
+                <SelectItem value="delivery">Delivery</SelectItem>
+              </SelectContent>
+            </Select>
+            {(query || statusFilter !== "all" || methodFilter !== "all") && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setQuery("");
+                  setStatusFilter("all");
+                  setMethodFilter("all");
+                }}
+              >
+                Clear
+              </Button>
+            )}
+          </div>
+
           <div>
             <h2 className="flex items-center gap-2 text-lg font-semibold">
               Incoming orders
