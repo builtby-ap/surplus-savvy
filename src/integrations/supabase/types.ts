@@ -294,6 +294,8 @@ export type Database = {
           payment_rejection_reason: string | null
           payment_screenshot_url: string | null
           payment_status: Database["public"]["Enums"]["payment_status"]
+          payment_verified_at: string | null
+          payment_verified_by: string | null
           pickup_window: string | null
           placed_at: string
           receipt_number: string
@@ -325,6 +327,8 @@ export type Database = {
           payment_rejection_reason?: string | null
           payment_screenshot_url?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_verified_at?: string | null
+          payment_verified_by?: string | null
           pickup_window?: string | null
           placed_at?: string
           receipt_number: string
@@ -356,6 +360,8 @@ export type Database = {
           payment_rejection_reason?: string | null
           payment_screenshot_url?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"]
+          payment_verified_at?: string | null
+          payment_verified_by?: string | null
           pickup_window?: string | null
           placed_at?: string
           receipt_number?: string

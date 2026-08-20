@@ -19,6 +19,7 @@ export const Route = createFileRoute("/admin")({
         { to: "/admin/analytics", label: "Analytics" },
         { to: "/admin/users", label: "Users" },
         { to: "/admin/businesses", label: "Businesses" },
+        { to: "/admin/payments", label: "Payments" },
         { to: "/admin/settings", label: "Settings" },
       ]}
     >
