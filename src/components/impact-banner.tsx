@@ -10,7 +10,7 @@ export function ImpactBanner() {
     },
     {
       icon: PiggyBank,
-      value: `$${platformStats.moneySaved.toLocaleString()}`,
+      value: `${platformStats.moneySaved.toLocaleString()} MMK`,
       label: "saved by customers",
     },
     {
