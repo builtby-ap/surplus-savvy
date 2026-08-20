@@ -24,16 +24,42 @@ export const Route = createFileRoute("/order/$orderId")({
 function OrderReceipt() {
   const { orderId } = useParams({ from: "/order/$orderId" });
   const [order, setOrder] = useState<PlacedOrder | null | undefined>(undefined);
-  const [vendor, setVendor] = useState<{ name: string; type: string; address: string; neighborhood: string } | null>(
-    null,
-  );
+  const [vendor, setVendor] = useState<{
+    name: string;
+    type: string;
+    address: string;
+    neighborhood: string;
+    phone: string;
+  } | null>(null);
 
   useEffect(() => {
     let alive = true;
     const local = getPlacedOrder(orderId);
     if (local) {
       setOrder(local);
-      return;
+      // Still fetch the vendor's public contact details so pickup customers
+      // have a phone number to call if they can't find the shop.
+      import("@/integrations/supabase/client").then(({ supabase }) =>
+        supabase
+          .from("vendors_public")
+          .select("display_alias, type, address, neighborhood, phone")
+          .eq("id", local.businessId)
+          .maybeSingle()
+          .then(({ data }) => {
+            if (!alive || !data) return;
+            const v = data as Record<string, unknown>;
+            setVendor({
+              name: String(v['display_alias'] ?? ""),
+              type: String(v['type'] ?? ""),
+              address: String(v['address'] ?? ""),
+              neighborhood: String(v['neighborhood'] ?? ""),
+              phone: String(v['phone'] ?? ""),
+            });
+          }),
+      );
+      return () => {
+        alive = false;
+      };
     }
     fetchMyOrder(orderId)
       .then((row) => {
@@ -47,6 +73,7 @@ function OrderReceipt() {
           type: row.vendorType,
           address: row.vendorAddress,
           neighborhood: row.vendorNeighborhood,
+          phone: row.vendorPhone,
         });
         setOrder({
           id: row.id,
