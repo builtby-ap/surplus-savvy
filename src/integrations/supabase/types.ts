@@ -59,10 +59,12 @@ export type Database = {
       advertisements: {
         Row: {
           admin_note: string | null
+          clicks: number
           cost: number | null
           created_at: string
           end_date: string | null
           id: string
+          impressions: number
           requested_end_date: string
           requested_start_date: string
           start_date: string | null
@@ -73,10 +75,12 @@ export type Database = {
         }
         Insert: {
           admin_note?: string | null
+          clicks?: number
           cost?: number | null
           created_at?: string
           end_date?: string | null
           id?: string
+          impressions?: number
           requested_end_date: string
           requested_start_date: string
           start_date?: string | null
@@ -87,10 +91,12 @@ export type Database = {
         }
         Update: {
           admin_note?: string | null
+          clicks?: number
           cost?: number | null
           created_at?: string
           end_date?: string | null
           id?: string
+          impressions?: number
           requested_end_date?: string
           requested_start_date?: string
           start_date?: string | null
