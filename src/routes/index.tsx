@@ -4,6 +4,7 @@ import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { ImpactBanner } from "@/components/impact-banner";
 import { FeaturedBusinesses } from "@/components/featured-businesses";
+import heroAsset from "@/assets/hero-phoelamin.jpeg.asset.json";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -11,7 +12,6 @@ import {
   businessTypeLabels,
   mysteryBags,
   platformStats,
-  storefrontImage,
 } from "@/data/mock";
 
 
