@@ -1,10 +1,18 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { SiteHeader } from "./site-header";
+import { VendorRedirect } from "@/components/auth/vendor-guard";
 
-export function PublicLayout({ children }: { children: ReactNode }) {
+export function PublicLayout({
+  children,
+  allowVendor = false,
+}: {
+  children: ReactNode;
+  allowVendor?: boolean;
+}) {
   return (
     <div className="flex min-h-screen flex-col bg-background">
+      {allowVendor ? null : <VendorRedirect />}
       <SiteHeader />
       <main className="flex-1">{children}</main>
       <footer className="mt-16 border-t border-border/70 bg-secondary/60">

@@ -286,7 +286,7 @@ function VendorRegisterPage() {
   );
 
   return (
-    <PublicLayout>
+    <PublicLayout allowVendor>
       <div className="mx-auto max-w-3xl px-4 py-10">
         <header className="warm-hero rounded-3xl p-6 sm:p-8">
           <h1 className="text-3xl font-semibold">Register your food business</h1>

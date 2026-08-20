@@ -27,6 +27,7 @@ export function SiteHeader() {
   const navigate = useNavigate();
   const { user, vendorApplication, isAuthenticated, logout } = useAuth();
   const vendorApproved = vendorApplication?.verificationStatus === "approved";
+  const isVendor = user?.role === "vendor";
 
   function handleLogout() {
     logout();
@@ -46,6 +47,9 @@ export function SiteHeader() {
           </span>
         </Link>
 
+        {isVendor ? (
+          <div className="flex-1" />
+        ) : (
         <form
           className="relative ml-1 flex-1"
           onSubmit={(e) => e.preventDefault()}
@@ -58,6 +62,7 @@ export function SiteHeader() {
             className="h-10 rounded-full border-border bg-card pl-9"
           />
         </form>
+        )}
 
         <div className="flex shrink-0 items-center gap-1">
           <Button variant="ghost" size="icon" className="relative rounded-full" aria-label="Notifications">
@@ -98,27 +103,32 @@ export function SiteHeader() {
           ) : (
             <>
               <nav className="mr-1 hidden items-center gap-1 text-sm md:flex">
-                <Link
-                  to="/search"
-                  className="rounded-full px-3 py-1.5 hover:bg-secondary"
-                >
-                  {user?.role === "customer" ? "Browse Food" : "Marketplace"}
-                </Link>
+                {!isVendor ? (
+                  <Link
+                    to="/search"
+                    className="rounded-full px-3 py-1.5 hover:bg-secondary"
+                  >
+                    {user?.role === "customer" ? "Browse Food" : "Marketplace"}
+                  </Link>
+                ) : null}
                 {user?.role === "customer" ? (
                   <Link to="/account/orders" className="rounded-full px-3 py-1.5 hover:bg-secondary">
                     My Orders
                   </Link>
                 ) : null}
-                {user?.role === "vendor" && vendorApproved ? (
+                {isVendor && vendorApproved ? (
                   <>
-                    <Link to="/dashboard" className="rounded-full px-3 py-1.5 hover:bg-secondary">
-                      Vendor Dashboard
+                    <Link to="/dashboard/analytics" className="rounded-full px-3 py-1.5 hover:bg-secondary">
+                      Dashboard
                     </Link>
-                    <Link
-                      to="/dashboard/orders"
-                      className="rounded-full px-3 py-1.5 hover:bg-secondary"
-                    >
+                    <Link to="/dashboard/orders" className="rounded-full px-3 py-1.5 hover:bg-secondary">
                       Orders
+                    </Link>
+                    <Link to="/dashboard/mystery-bags" className="rounded-full px-3 py-1.5 hover:bg-secondary">
+                      Secret Bags
+                    </Link>
+                    <Link to="/dashboard/profile" className="rounded-full px-3 py-1.5 hover:bg-secondary">
+                      Store Profile
                     </Link>
                   </>
                 ) : null}
@@ -174,13 +184,16 @@ export function SiteHeader() {
                     vendorApproved ? (
                       <>
                         <DropdownMenuItem asChild>
-                          <Link to="/dashboard">Store Profile</Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/dashboard">Vendor Dashboard</Link>
+                          <Link to="/dashboard/analytics">Vendor Dashboard</Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link to="/dashboard/orders">Orders</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/dashboard/mystery-bags">Secret Bags</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/dashboard/profile">Store Profile</Link>
                         </DropdownMenuItem>
                       </>
                     ) : (

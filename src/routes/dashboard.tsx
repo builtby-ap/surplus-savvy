@@ -39,11 +39,10 @@ function DashboardLayout() {
       title="Business"
       subtitle="Manage your surplus listings, orders and impact."
       items={[
-        { to: "/dashboard/profile", label: "Store profile" },
-        { to: "/dashboard/mystery-bags", label: "Mystery bags" },
+        { to: "/dashboard/analytics", label: "Dashboard" },
         { to: "/dashboard/orders", label: "Orders", badge: pending },
-        { to: "/dashboard/delivery", label: "Delivery" },
-        { to: "/dashboard/analytics", label: "Analytics" },
+        { to: "/dashboard/mystery-bags", label: "Secret Bags" },
+        { to: "/dashboard/profile", label: "Store Profile" },
       ]}
     >
       <Outlet />
