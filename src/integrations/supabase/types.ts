@@ -56,6 +56,73 @@ export type Database = {
         }
         Relationships: []
       }
+      advertisements: {
+        Row: {
+          admin_note: string | null
+          cost: number | null
+          created_at: string
+          end_date: string | null
+          id: string
+          requested_end_date: string
+          requested_start_date: string
+          start_date: string | null
+          status: Database["public"]["Enums"]["ad_status"]
+          tagline: string | null
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          cost?: number | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          requested_end_date: string
+          requested_start_date: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["ad_status"]
+          tagline?: string | null
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          cost?: number | null
+          created_at?: string
+          end_date?: string | null
+          id?: string
+          requested_end_date?: string
+          requested_start_date?: string
+          start_date?: string | null
+          status?: Database["public"]["Enums"]["ad_status"]
+          tagline?: string | null
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "advertisements_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "advertised_vendors_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisements_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "advertisements_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_addresses: {
         Row: {
           address_line: string
@@ -751,6 +818,7 @@ export type Database = {
     }
     Enums: {
       account_status: "active" | "suspended"
+      ad_status: "pending" | "active" | "rejected" | "expired"
       app_role: "customer" | "food_vendor" | "admin"
       bag_category:
         | "mixed_meals"
@@ -915,6 +983,7 @@ export const Constants = {
   public: {
     Enums: {
       account_status: ["active", "suspended"],
+      ad_status: ["pending", "active", "rejected", "expired"],
       app_role: ["customer", "food_vendor", "admin"],
       bag_category: [
         "mixed_meals",
