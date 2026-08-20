@@ -75,6 +75,8 @@ function StoreProfilePage() {
       fulfillment: vendor.fulfillment,
       deliveryFee: vendor.deliveryFee,
       deliveryMinimum: vendor.deliveryMinimum,
+      imageUrl: vendor.imageUrl ?? "",
+
     });
   }, [vendor]);
 
