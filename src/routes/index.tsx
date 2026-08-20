@@ -71,8 +71,8 @@ function MarketplaceHome() {
             </div>
           </div>
           <img
-            src={storefrontImage}
-            alt="A warm neighbourhood cafe storefront at dusk"
+            src={heroAsset.url}
+            alt="Phoe La Min mascot holding a golden tray with a bunny and reusable bag"
             width={1024}
             height={640}
             className="rounded-3xl object-cover shadow-[var(--shadow-lifted)]"
