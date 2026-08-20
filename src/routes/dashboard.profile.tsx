@@ -34,7 +34,7 @@ const FULFILLMENTS: { value: FulfillmentType; label: string }[] = [
 
 const DEFAULT_POSITION = { latitude: 21.9588, longitude: 96.0891 };
 
-type FormState = Required<Omit<VendorProfileInput, "imageUrl">>;
+type FormState = Required<VendorProfileInput>;
 
 const emptyForm = (): FormState => ({
   name: "",
@@ -50,7 +50,9 @@ const emptyForm = (): FormState => ({
   fulfillment: "pickup",
   deliveryFee: 0,
   deliveryMinimum: 0,
+  imageUrl: "",
 });
+
 
 function StoreProfilePage() {
   const { vendor, loading, refresh } = useMyVendor();
