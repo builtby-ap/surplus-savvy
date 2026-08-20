@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, type LinkProps } from "@tanstack/react-router";
 import { Sprout } from "lucide-react";
 
 export interface NavItem {
-  to: string;
+  to: LinkProps["to"];
   label: string;
 }
 
@@ -34,9 +34,9 @@ export function NavShell({
           <nav className="ml-auto flex flex-wrap gap-1 text-sm">
             {items.map((item) => (
               <Link
-                key={item.to}
+                key={String(item.to)}
                 to={item.to}
-                activeOptions={{ exact: item.to.split("/").length === 2 }}
+                activeOptions={{ exact: String(item.to).split("/").length === 2 }}
                 activeProps={{ className: "bg-primary-foreground/20 font-medium" }}
                 className="rounded-full px-3 py-1.5 transition-colors hover:bg-primary-foreground/15"
               >
