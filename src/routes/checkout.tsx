@@ -50,8 +50,32 @@ function CheckoutPage() {
 
   const [method, setMethod] = useState<OrderMethod>("pickup");
   const [notes, setNotes] = useState("");
-  const [address, setAddress] = useState("12 Larkspur Terrace, Old Town");
   const [placing, setPlacing] = useState(false);
+
+  const { addresses, reload: reloadAddresses } = useMyAddresses(Boolean(user));
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [dialogInitial, setDialogInitial] = useState<CustomerAddressInput>(emptyAddress);
+  /** Address typed at checkout by a customer with no saved address yet. */
+  const [newAddress, setNewAddress] = useState<CustomerAddressInput>(emptyAddress);
+
+  const savedList = addresses ?? [];
+  const selected =
+    savedList.find((a) => a.id === selectedId) ?? savedList.find((a) => a.isDefault) ?? savedList[0];
+
+  useEffect(() => {
+    if (!selectedId && selected) setSelectedId(selected.id);
+  }, [selected, selectedId]);
+
+  useEffect(() => {
+    setNewAddress((prev) =>
+      prev.recipientName || prev.phone
+        ? prev
+        : { ...prev, recipientName: user?.fullName ?? "", phone: user?.phone ?? "" },
+    );
+  }, [user?.fullName, user?.phone]);
+
 
   if (!entry) {
     return (
