@@ -318,16 +318,183 @@ function CheckoutPage() {
                     {business.name}: fee <strong>{formatPrice(terms.fee)}</strong> · minimum{" "}
                     <strong>{formatPrice(terms.minimumOrder)}</strong>
                   </p>
-                  <div>
-                    <Label htmlFor="address">Delivery address</Label>
-                    <Textarea
-                      id="address"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      rows={2}
-                      className="mt-1 bg-background"
-                    />
-                  </div>
+                  {savedList.length > 0 ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <Label>Delivery address</Label>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingId(null);
+                            setDialogInitial({
+                              ...emptyAddress,
+                              recipientName: user?.fullName ?? "",
+                              phone: user?.phone ?? "",
+                            });
+                            setDialogOpen(true);
+                          }}
+                        >
+                          <Plus className="mr-1 size-4" /> Add new
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        {savedList.map((a) => (
+                          <div
+                            key={a.id}
+                            className={cn(
+                              "rounded-2xl border bg-background p-3 transition-colors",
+                              selected?.id === a.id
+                                ? "border-primary"
+                                : "border-border hover:border-primary/50",
+                            )}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => setSelectedId(a.id)}
+                              className="block w-full text-left"
+                            >
+                              <span className="flex items-center gap-2 font-medium">
+                                {a.label}
+                                {a.isDefault && (
+                                  <Badge variant="secondary" className="rounded-full text-[10px]">
+                                    Default
+                                  </Badge>
+                                )}
+                              </span>
+                              <span className="mt-0.5 block text-xs text-muted-foreground">
+                                {a.recipientName} · {a.phone}
+                              </span>
+                              <span className="mt-0.5 block text-xs text-muted-foreground">
+                                {formatAddress(a)}
+                              </span>
+                            </button>
+                            <div className="mt-2 flex flex-wrap gap-3 text-xs">
+                              <button
+                                type="button"
+                                className="text-primary hover:underline"
+                                onClick={() => {
+                                  const { id: _id, ...rest } = a;
+                                  setEditingId(a.id);
+                                  setDialogInitial(rest);
+                                  setDialogOpen(true);
+                                }}
+                              >
+                                Edit
+                              </button>
+                              {!a.isDefault && (
+                                <button
+                                  type="button"
+                                  className="text-primary hover:underline"
+                                  onClick={async () => {
+                                    await makeDefaultAddress(a.id);
+                                    await reloadAddresses();
+                                    setSelectedId(a.id);
+                                    toast.success(`${a.label} is now your default`);
+                                  }}
+                                >
+                                  Set as default
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <Label>Delivery address</Label>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Input
+                          placeholder="Recipient name"
+                          value={newAddress.recipientName}
+                          className="bg-background"
+                          onChange={(e) =>
+                            setNewAddress({ ...newAddress, recipientName: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="Phone"
+                          value={newAddress.phone}
+                          className="bg-background"
+                          onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                        />
+                      </div>
+                      <Input
+                        placeholder="Address"
+                        value={newAddress.addressLine}
+                        className="bg-background"
+                        onChange={(e) =>
+                          setNewAddress({ ...newAddress, addressLine: e.target.value })
+                        }
+                      />
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Input
+                          placeholder="Township"
+                          value={newAddress.township}
+                          className="bg-background"
+                          onChange={(e) =>
+                            setNewAddress({ ...newAddress, township: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="City"
+                          value={newAddress.city}
+                          className="bg-background"
+                          onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Input
+                          placeholder="Building / floor (optional)"
+                          value={newAddress.buildingFloor}
+                          className="bg-background"
+                          onChange={(e) =>
+                            setNewAddress({ ...newAddress, buildingFloor: e.target.value })
+                          }
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="bg-background"
+                          onClick={() => {
+                            if (typeof navigator === "undefined" || !navigator.geolocation) {
+                              toast.error("Location isn't available on this device.");
+                              return;
+                            }
+                            navigator.geolocation.getCurrentPosition(
+                              (pos) =>
+                                setNewAddress((f) => ({
+                                  ...f,
+                                  latitude: Number(pos.coords.latitude.toFixed(6)),
+                                  longitude: Number(pos.coords.longitude.toFixed(6)),
+                                })),
+                              () => toast.error("Couldn't get your location."),
+                            );
+                          }}
+                        >
+                          <LocateFixed className="mr-2 size-4" />
+                          {newAddress.latitude != null ? "Location pinned" : "Use my location"}
+                        </Button>
+                      </div>
+                      <Textarea
+                        placeholder="Delivery note (optional)"
+                        rows={2}
+                        value={newAddress.deliveryNote}
+                        className="bg-background"
+                        onChange={(e) =>
+                          setNewAddress({ ...newAddress, deliveryNote: e.target.value })
+                        }
+                      />
+                      {user && (
+                        <p className="text-xs text-muted-foreground">
+                          We'll save this as your default delivery address.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   {belowMinimum && (
                     <p className="text-sm font-medium text-destructive">
                       This vendor's delivery minimum isn't met. Choose pickup instead.
