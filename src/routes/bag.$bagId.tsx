@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { ArrowRight, Bike, MapPin, ShoppingBag, Star, Timer } from "lucide-react";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard, FulfillmentIcons } from "@/components/bag-card";
@@ -17,7 +17,6 @@ import {
   storefrontImage,
 } from "@/data/mock";
 import { toast } from "sonner";
-import { useCart } from "@/lib/cart";
 import { CLOSING_SOON_MS, formatDuration, useCountdown } from "@/lib/countdown";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +34,7 @@ export const Route = createFileRoute("/bag/$bagId")({
 
 function BagDetail() {
   const { bagId } = useParams({ from: "/bag/$bagId" });
-  const { add } = useCart();
+  const navigate = useNavigate();
   const bag = getBag(bagId);
   const business = bag ? getBusiness(bag.businessId) : undefined;
   const gallery = bag ? [bag.image, storefrontImage, categoryImages[bag.category]] : [];
@@ -168,8 +167,8 @@ function BagDetail() {
               className="mt-6 w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
               onClick={() => {
                 if (soldOut) return;
-                add(bag.id, 1, bag.quantityLeft);
-                toast.success(`${bag.title} added to your cart.`);
+                toast.success(`${bag.title} added — reserve it now.`);
+                void navigate({ to: "/checkout", search: { bag: bag.id } });
               }}
             >
               {soldOut ? "Sold out" : "Add to cart"}

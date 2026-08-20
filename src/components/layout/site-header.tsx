@@ -1,9 +1,8 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell, LogIn, LogOut, Search, ShoppingBag, Sprout, Store, User } from "lucide-react";
+import { Bell, LogIn, LogOut, Search, Sprout, Store, User } from "lucide-react";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
@@ -14,7 +13,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/auth/auth-context";
-import { useCart } from "@/lib/cart";
 
 function initials(name: string) {
   return name
@@ -28,7 +26,6 @@ function initials(name: string) {
 export function SiteHeader() {
   const navigate = useNavigate();
   const { user, vendorApplication, isAuthenticated, logout } = useAuth();
-  const { count: cartCount } = useCart();
   const vendorApproved = vendorApplication?.verificationStatus === "approved";
 
   function handleLogout() {
@@ -63,19 +60,6 @@ export function SiteHeader() {
         </form>
 
         <div className="flex shrink-0 items-center gap-1">
-          {!isAuthenticated || user?.role === "customer" ? (
-            <Button asChild variant="ghost" size="icon" className="relative rounded-full">
-              <Link to="/checkout" search={{ bag: "" }} aria-label="Your cart">
-                <ShoppingBag className="size-5" />
-                {cartCount > 0 && (
-                  <Badge className="absolute -right-0.5 -top-0.5 h-4 min-w-4 justify-center rounded-full bg-accent px-1 text-[10px] text-accent-foreground">
-                    {cartCount}
-                  </Badge>
-                )}
-              </Link>
-            </Button>
-          ) : null}
-
           <Button variant="ghost" size="icon" className="relative rounded-full" aria-label="Notifications">
             <Bell className="size-5" />
             <span className="absolute right-2 top-2 size-2 rounded-full bg-warning" />
