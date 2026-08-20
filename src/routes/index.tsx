@@ -40,10 +40,12 @@ export const Route = createFileRoute("/")({
 const categories = Object.keys(bagCategoryLabels) as BagCategory[];
 
 function MarketplaceHome() {
-  const featured = mysteryBags.filter((b) => b.quantityLeft > 0).slice(0, 8);
-  const closingSoon = mysteryBags.filter((b) => b.quantityLeft > 0 && b.quantityLeft <= 3).slice(0, 4);
+  const closingSoon = mysteryBags
+    .filter((b) => b.quantityLeft > 0 && msUntil(b.availableUntil) <= CLOSING_SOON_MS)
+    .slice(0, 8);
 
   return (
+
     <PublicLayout>
       <ImpactBanner />
       <section className="warm-hero">
