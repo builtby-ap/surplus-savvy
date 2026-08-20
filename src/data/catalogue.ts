@@ -23,6 +23,12 @@ let lastSignature = "";
 export const vendorUuidById = new Map<string, string>();
 export const postUuidById = new Map<string, string>();
 
+/** First emoji of the alias, used in place of a real logo. */
+function aliasBadge(alias: string) {
+  const first = Array.from(alias)[0] ?? "";
+  return /[\p{Emoji}]/u.test(first) ? first : "?";
+}
+
 function hhmm(value: string) {
   return value.slice(0, 5);
 }
@@ -35,9 +41,9 @@ export async function loadCatalogue(): Promise<boolean> {
   try {
     const [vendorRes, postRes] = await Promise.all([
       supabase
-        .from("vendors")
+        .from("vendors_public")
         .select(
-          "id, legacy_id, name, type, description, address, neighborhood, image_url, logo_initials, rating, review_count, fulfillment, meals_rescued, verified, latitude, longitude",
+          "id, legacy_id, display_alias, type, description, address, neighborhood, rating, review_count, fulfillment, meals_rescued, verified, latitude, longitude",
         )
         .eq("verification_status", "approved"),
       supabase
@@ -54,21 +60,22 @@ export async function loadCatalogue(): Promise<boolean> {
 
     const idByUuid = new Map<string, string>();
     const nextBusinesses: Business[] = vendorRows.map((v) => {
-      const id = v.legacy_id ?? v.id;
-      idByUuid.set(v.id, id);
-      vendorUuidById.set(id, v.id);
+      const uuid = String(v.id ?? "");
+      const id = v.legacy_id ?? uuid;
+      idByUuid.set(uuid, id);
+      vendorUuidById.set(id, uuid);
       return {
         id,
-        name: v.name,
+        name: v.display_alias ?? "Mystery Vendor",
         type: v.type as BusinessType,
-        description: v.description,
-        address: v.address,
-        neighborhood: v.neighborhood,
-        rating: Number(v.rating),
-        reviewCount: v.review_count,
-        image: safeImage(v.image_url, storefrontImage),
-        logoInitials: v.logo_initials,
-        fulfillment: v.fulfillment as FulfillmentType,
+        description: v.description ?? "",
+        address: v.address ?? "",
+        neighborhood: v.neighborhood ?? "",
+        rating: Number(v.rating ?? 0),
+        reviewCount: v.review_count ?? 0,
+        image: storefrontImage,
+        logoInitials: aliasBadge(v.display_alias ?? ""),
+        fulfillment: (v.fulfillment ?? "pickup") as FulfillmentType,
         mealsRescued: v.meals_rescued ?? 0,
         verified: Boolean(v.verified),
         lat: v.latitude ?? 0,

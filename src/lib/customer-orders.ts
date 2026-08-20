@@ -42,12 +42,12 @@ export interface CustomerOrder {
 }
 
 const ORDER_COLUMNS =
-  "id, receipt_number, method, status, notes, delivery_address, pickup_window, original_price, item_price, discount, delivery_fee, total, placed_at, vendor_id, vendors(name, type, address, neighborhood), order_items(id, title, quantity, original_price, unit_price)";
+  "id, receipt_number, method, status, notes, delivery_address, pickup_window, original_price, item_price, discount, delivery_fee, total, placed_at, vendor_id, vendors_public(display_alias, type, address, neighborhood), order_items(id, title, quantity, original_price, unit_price)";
 
 type Row = Record<string, unknown>;
 
 function toOrder(row: Row): CustomerOrder {
-  const vendor = (row['vendors'] as Row | null) ?? {};
+  const vendor = (row['vendors_public'] as Row | null) ?? {};
   const items = (row['order_items'] as Row[] | null) ?? [];
   const s = (v: unknown) => (v == null ? "" : String(v));
   const n = (v: unknown) => Number(v ?? 0);
@@ -66,7 +66,7 @@ function toOrder(row: Row): CustomerOrder {
     total: n(row['total']),
     placedAt: s(row['placed_at']) || new Date().toISOString(),
     vendorId: s(row['vendor_id']),
-    vendorName: s(vendor['name']) || "Vendor",
+    vendorName: s(vendor['display_alias']) || "Mystery Vendor",
     vendorType: s(vendor['type']),
     vendorAddress: s(vendor['address']),
     vendorNeighborhood: s(vendor['neighborhood']),
