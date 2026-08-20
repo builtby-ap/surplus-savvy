@@ -40,6 +40,7 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/checkout")({
   validateSearch: (search: Record<string, unknown>) => ({
     bag: typeof search["bag"] === "string" ? (search["bag"] as string) : "",
+    qty: Math.max(1, Number(search["qty"]) || 1),
   }),
   head: () => ({
     meta: [
@@ -53,7 +54,7 @@ export const Route = createFileRoute("/checkout")({
 });
 
 function CheckoutPage() {
-  const { bag: bagParam } = Route.useSearch();
+  const { bag: bagParam, qty: qtyParam } = Route.useSearch();
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -128,8 +129,9 @@ function CheckoutPage() {
 
   const { bag, business, terms } = entry;
   const canDeliver = bag.fulfillment !== "pickup" && terms.offersDelivery;
-  const subtotal = bag.discountedPrice;
-  const originalTotal = bag.originalPrice;
+  const qty = Math.max(1, Math.min(qtyParam, Math.max(1, bag.quantityLeft)));
+  const subtotal = bag.discountedPrice * qty;
+  const originalTotal = bag.originalPrice * qty;
   const deliveryFee = method === "delivery" ? terms.fee : 0;
   const total = subtotal + deliveryFee;
   const belowMinimum = method === "delivery" && subtotal < terms.minimumOrder;
@@ -186,7 +188,7 @@ function CheckoutPage() {
       food_post_id: postUuidById.get(bag.id) ?? null,
       vendor_id: vendorUuid,
       title: bag.title,
-      quantity: 1,
+      quantity: qty,
       original_price: bag.originalPrice,
       unit_price: bag.discountedPrice,
     } as never);
@@ -255,7 +257,7 @@ function CheckoutPage() {
         bagId: bag.id,
         businessId: business.id,
         title: bag.title,
-        quantity: 1,
+        quantity: qty,
         originalPrice: bag.originalPrice,
         unitPrice: bag.discountedPrice,
       },
@@ -327,7 +329,7 @@ function CheckoutPage() {
                     {bagCategoryLabels[bag.category]}
                   </Badge>
                   <p className="mt-2 text-xs text-muted-foreground">
-                    {bag.quantityLeft} left · quantity 1
+                    {bag.quantityLeft} left · quantity {qty}
                   </p>
                 </div>
                 <div className="text-right">
