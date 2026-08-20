@@ -60,7 +60,15 @@ function VendorApprovalPage() {
   const [deactivating, setDeactivating] = useState<VendorRecord | null>(null);
 
   useEffect(() => {
-    setVendors(listVendors());
+    let active = true;
+    fetchAdminVendors()
+      .then((rows) => {
+        if (active) setVendors(rows);
+      })
+      .catch(() => toast.error("Could not load vendors — admin access required."));
+    return () => {
+      active = false;
+    };
   }, []);
 
   const pending = useMemo(() => vendors.filter((v) => v.status === "pending"), [vendors]);
