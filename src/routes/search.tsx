@@ -22,6 +22,7 @@ import {
 import type { VendorPin } from "@/components/map/vendor-map";
 import { cn } from "@/lib/utils";
 import { getNearbyLocation, saveNearbyLocation } from "@/lib/nearby";
+import { useAuth } from "@/lib/auth/auth-context";
 
 
 
@@ -56,6 +57,7 @@ const VendorMap = lazy(() => import("@/components/map/vendor-map"));
 function BrowsePage() {
   const initial = Route.useSearch();
   const navigate = useNavigate({ from: "/search" });
+  const { user, isLoading: authLoading } = useAuth();
   // Derived from the live Supabase-backed catalogue.
   const cities = useMemo(
     () => Array.from(new Set(businesses.map((b) => b.neighborhood))).sort(),
@@ -215,6 +217,15 @@ function BrowsePage() {
 
   const addToCart = (bag: (typeof mysteryBags)[number]) => {
     toast.success(`${bag.title} added — reserve it now.`);
+    if (authLoading) return;
+    if (!user) {
+      toast.info("Log in to reserve this secret bag.");
+      void navigate({
+        to: "/login",
+        search: { redirect: `/checkout?bag=${encodeURIComponent(bag.id)}&qty=1` },
+      });
+      return;
+    }
     void navigate({ to: "/checkout", search: { bag: bag.id, qty: 1 } });
   };
 

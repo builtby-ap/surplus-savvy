@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, Navigate, useNavigate } from "@tanstack/react-router";
 import { Bike, Check, Info, LocateFixed, MapPin, Plus, QrCode, ShoppingBag, Timer, Upload } from "lucide-react";
 import { toast } from "sonner";
 
@@ -56,7 +56,7 @@ export const Route = createFileRoute("/checkout")({
 function CheckoutPage() {
   const { bag: bagParam, qty: qtyParam } = Route.useSearch();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
 
   const entry = useMemo(() => {
     const bag = getBag(bagParam);
@@ -110,6 +110,12 @@ function CheckoutPage() {
     );
   }, [user?.fullName, user?.phone]);
 
+
+  // Guests can browse, but reserving a bag requires an account.
+  if (!authLoading && !user) {
+    const target = `/checkout?bag=${encodeURIComponent(bagParam)}&qty=${qtyParam}`;
+    return <Navigate to="/login" search={{ redirect: target }} replace />;
+  }
 
   if (!entry) {
     return (
