@@ -28,6 +28,10 @@ function VendorOrdersPage() {
   const { vendorId, loading: vendorLoading } = useMyVendor();
   const [orders, setOrders] = useState<VendorOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [methodFilter, setMethodFilter] = useState<string>("all");
+
 
   const refresh = useCallback(async () => {
     if (!vendorId) return;
