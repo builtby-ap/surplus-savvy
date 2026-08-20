@@ -40,8 +40,6 @@ export const Route = createFileRoute("/search")({
 });
 
 const categories = Object.keys(bagCategoryLabels) as BagCategory[];
-const cities = Array.from(new Set(businesses.map((b) => b.neighborhood))).sort();
-const MAX_PRICE = Math.ceil(Math.max(...mysteryBags.map((b) => b.discountedPrice)));
 
 type Method = "all" | "pickup" | "delivery";
 type View = "grid" | "map";
