@@ -3,16 +3,15 @@ import { ArrowRight, Leaf, PiggyBank, Store } from "lucide-react";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { ImpactBanner } from "@/components/impact-banner";
+import { FeaturedBusinesses } from "@/components/featured-businesses";
 
 import { Button } from "@/components/ui/button";
 import {
-  bagCategoryLabels,
   businesses,
   businessTypeLabels,
   mysteryBags,
   platformStats,
   storefrontImage,
-  type BagCategory,
 } from "@/data/mock";
 
 
@@ -37,7 +36,6 @@ export const Route = createFileRoute("/")({
   component: MarketplaceHome,
 });
 
-const categories = Object.keys(bagCategoryLabels) as BagCategory[];
 
 function MarketplaceHome() {
   const closingSoon = mysteryBags.filter((b) => b.quantityLeft > 0 && b.quantityLeft <= 3).slice(0, 8);
