@@ -216,6 +216,7 @@ function BrowsePage() {
 
   const addToCart = (bag: (typeof mysteryBags)[number]) => {
     toast.success(`${bag.title} added — reserve it now.`);
+    if (authLoading) return;
     if (!user) {
       toast.info("Log in to reserve this secret bag.");
       void navigate({

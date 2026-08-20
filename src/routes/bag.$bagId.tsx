@@ -41,7 +41,7 @@ function BagDetail() {
   const bag = getBag(bagId);
   const business = bag ? getBusiness(bag.businessId) : undefined;
   const gallery = bag ? [bag.image, storefrontImage, categoryImages[bag.category]] : [];
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const [active, setActive] = useState(0);
   const [qty, setQty] = useState(1);
   const [location, setLocation] = useState<LatLng | null>(null);
@@ -218,6 +218,7 @@ function BagDetail() {
               className="mt-4 w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
               onClick={() => {
                 if (soldOut) return;
+                if (authLoading) return;
                 if (!user) {
                   toast.info("Log in to reserve this secret bag.");
                   void navigate({
