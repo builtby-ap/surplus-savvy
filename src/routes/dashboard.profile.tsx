@@ -17,6 +17,8 @@ import {
 import { businessTypeLabels, type BusinessType, type FulfillmentType } from "@/data/mock";
 import { useMyVendor } from "@/lib/use-my-vendor";
 import { createMyVendor, updateMyVendor, type VendorProfileInput } from "@/lib/vendor-db";
+import { AdvertisePanel } from "@/components/vendor/advertise-panel";
+
 
 export const Route = createFileRoute("/dashboard/profile")({
   component: StoreProfilePage,
@@ -326,6 +328,9 @@ function StoreProfilePage() {
           {saving ? "Saving…" : vendor ? "Save changes" : "Create store"}
         </Button>
       </form>
+
+      {vendor && <AdvertisePanel vendorId={vendor.id} />}
     </section>
+
   );
 }
