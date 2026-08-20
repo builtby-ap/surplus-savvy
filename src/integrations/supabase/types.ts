@@ -535,6 +535,7 @@ export type Database = {
           longitude: number | null
           meals_rescued: number | null
           neighborhood: string | null
+          phone: string | null
           rating: number | null
           review_count: number | null
           type: Database["public"]["Enums"]["business_type"] | null
@@ -558,6 +559,7 @@ export type Database = {
           longitude?: number | null
           meals_rescued?: number | null
           neighborhood?: string | null
+          phone?: string | null
           rating?: number | null
           review_count?: number | null
           type?: Database["public"]["Enums"]["business_type"] | null
@@ -581,6 +583,7 @@ export type Database = {
           longitude?: number | null
           meals_rescued?: number | null
           neighborhood?: string | null
+          phone?: string | null
           rating?: number | null
           review_count?: number | null
           type?: Database["public"]["Enums"]["business_type"] | null
