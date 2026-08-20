@@ -259,6 +259,34 @@ function BrowsePage() {
             </div>
 
             <div className="space-y-2">
+              <Label>Availability</Label>
+              <div className="flex flex-wrap gap-2">
+                {([
+                  [false, "All"],
+                  [true, "Closing soon"],
+                ] as const).map(([value, label]) => (
+                  <button
+                    key={String(value)}
+                    type="button"
+                    onClick={() => {
+                      setClosingSoon(value);
+                      void navigate({ to: "/search", search: { ...initial, closingSoon: value || undefined } });
+                    }}
+                    className={cn(
+                      "rounded-full border border-border px-3 py-1 text-xs transition-colors",
+                      closingSoon === value
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "hover:border-primary hover:text-primary",
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+
               <Label htmlFor="city">City / area</Label>
               <select
                 id="city"
