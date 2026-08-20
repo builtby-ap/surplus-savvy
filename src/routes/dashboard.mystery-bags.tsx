@@ -98,6 +98,19 @@ function VendorPostsPage() {
     [posts],
   );
 
+  const visiblePosts = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return posts.filter((p) => {
+      if (q && !`${p.title} ${p.description}`.toLowerCase().includes(q)) return false;
+      if (categoryFilter !== "all" && p.category !== categoryFilter) return false;
+      if (statusFilter === "live" && !(p.isAvailable && p.quantityLeft > 0)) return false;
+      if (statusFilter === "hidden" && p.isAvailable) return false;
+      if (statusFilter === "sold-out" && p.quantityLeft > 0) return false;
+      return true;
+    });
+  }, [posts, query, categoryFilter, statusFilter]);
+
+
   function openNew() {
     setEditingId(undefined);
     setForm(emptyVendorPost());
