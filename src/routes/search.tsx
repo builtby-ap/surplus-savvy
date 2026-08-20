@@ -1,7 +1,8 @@
-import { lazy, Suspense, useMemo, useState } from "react";
+import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { createFileRoute, ClientOnly } from "@tanstack/react-router";
 import { LayoutGrid, Loader2, LocateFixed, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
+import { visibleVendorIds } from "@/lib/vendor-registry";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { Button } from "@/components/ui/button";
@@ -95,6 +96,7 @@ function BrowsePage() {
     const q = query.trim().toLowerCase();
     return mysteryBags.filter((bag) => {
       const business = getBusiness(bag.businessId);
+      if (visibleVendors && !visibleVendors.has(bag.businessId)) return false;
       if (category !== "all" && bag.category !== category) return false;
       if (bag.discountedPrice > maxPrice) return false;
       if (method !== "all" && bag.fulfillment !== method && bag.fulfillment !== "both") return false;
@@ -106,7 +108,7 @@ function BrowsePage() {
         return false;
       return true;
     });
-  }, [query, category, maxPrice, method, city]);
+  }, [query, category, maxPrice, method, city, visibleVendors]);
 
   const sorted = useMemo(() => {
     if (!userLocation) return results;
