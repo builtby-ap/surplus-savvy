@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
+import logoAsset from "@/assets/phoelamin-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
-import { Sprout } from "lucide-react";
 
 export function AuthLayout({
   title,
@@ -16,9 +16,7 @@ export function AuthLayout({
   return (
     <div className="warm-hero flex min-h-screen flex-col items-center justify-center px-4 py-12">
       <Link to="/" className="mb-6 flex items-center gap-2 text-primary">
-        <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <Sprout className="size-5" />
-        </span>
+        <img src={logoAsset.url} alt="Phoe La Min logo" className="size-12 object-contain" />
         <span className="font-[family-name:var(--font-display)] text-lg font-semibold">
           Phoe La Min
         </span>
