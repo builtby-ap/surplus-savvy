@@ -26,8 +26,11 @@ function hhmm(value: string) {
   return value.slice(0, 5);
 }
 
+/**
+ * Refetches vendors + food posts from Supabase. Returns true when the data
+ * actually changed, so callers can re-render the marketplace.
+ */
 export async function loadCatalogue(): Promise<boolean> {
-  if (loaded) return false;
   try {
     const [vendorRes, postRes] = await Promise.all([
       supabase
