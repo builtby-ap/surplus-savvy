@@ -38,11 +38,12 @@ export interface CustomerOrder {
   vendorType: string;
   vendorAddress: string;
   vendorNeighborhood: string;
+  vendorPhone: string;
   items: CustomerOrderItem[];
 }
 
 const ORDER_COLUMNS =
-  "id, receipt_number, method, status, notes, delivery_address, pickup_window, original_price, item_price, discount, delivery_fee, total, placed_at, vendor_id, vendors_public(display_alias, type, address, neighborhood), order_items(id, title, quantity, original_price, unit_price)";
+  "id, receipt_number, method, status, notes, delivery_address, pickup_window, original_price, item_price, discount, delivery_fee, total, placed_at, vendor_id, vendors_public(display_alias, type, address, neighborhood, phone), order_items(id, title, quantity, original_price, unit_price)";
 
 type Row = Record<string, unknown>;
 
@@ -70,6 +71,7 @@ function toOrder(row: Row): CustomerOrder {
     vendorType: s(vendor['type']),
     vendorAddress: s(vendor['address']),
     vendorNeighborhood: s(vendor['neighborhood']),
+    vendorPhone: s(vendor['phone']),
     items: items.map((i) => ({
       id: s(i['id']),
       title: s(i['title']),
