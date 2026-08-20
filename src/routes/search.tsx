@@ -215,7 +215,7 @@ function BrowsePage() {
 
   const addToCart = (bag: (typeof mysteryBags)[number]) => {
     toast.success(`${bag.title} added — reserve it now.`);
-    void navigate({ to: "/checkout", search: { bag: bag.id } });
+    void navigate({ to: "/checkout", search: { bag: bag.id, qty: 1 } });
   };
 
   const reset = () => {
