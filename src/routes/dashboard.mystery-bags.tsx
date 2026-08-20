@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { fileToStoredImage } from "@/lib/image-upload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -406,11 +407,13 @@ function VendorPostsPage() {
                   id="image"
                   type="file"
                   accept="image/*"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (!file) return;
-                    setForm((prev) => ({ ...prev, image: URL.createObjectURL(file) }));
+                    const stored = await fileToStoredImage(file);
+                    setForm((prev) => ({ ...prev, image: stored }));
                   }}
+
                 />
               </div>
             </div>

@@ -5,6 +5,7 @@
  * vendors / food_posts / orders row-level security policies.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { safeImage } from "@/lib/image-upload";
 import type { BagCategory, FulfillmentType } from "@/data/mock";
 import { categoryImages } from "@/data/mock";
 import type { OrderMethod } from "@/lib/orders";
@@ -197,7 +198,7 @@ function toPost(row: VendorRow): VendorPost {
     discountedPrice: Number(row['discounted_price'] ?? 0),
     quantityLeft: Number(row['quantity_left'] ?? 0),
     totalQuantity: Number(row['total_quantity'] ?? 0),
-    image: (row['image_url'] as string) || categoryImages[category],
+    image: safeImage(row['image_url'] as string | null, categoryImages[category]),
     availableFrom: hhmm(String(row['available_from'] ?? "17:00")),
     availableUntil: hhmm(String(row['available_until'] ?? "19:00")),
     fulfillment: String(row['fulfillment'] ?? "pickup") as FulfillmentType,
@@ -215,7 +216,7 @@ function postPatch(input: VendorPostInput) {
     discounted_price: input.discountedPrice,
     quantity_left: input.quantityLeft,
     total_quantity: input.totalQuantity,
-    image_url: input.image || categoryImages[input.category],
+    image_url: safeImage(input.image, categoryImages[input.category]),
     available_from: `${input.availableFrom}:00`,
     available_until: `${input.availableUntil}:00`,
     fulfillment: input.fulfillment,
