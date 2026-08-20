@@ -117,6 +117,8 @@ function BrowsePage() {
       if (bag.discountedPrice > maxPrice) return false;
       if (method !== "all" && bag.fulfillment !== method && bag.fulfillment !== "both") return false;
       if (city !== "all" && business?.neighborhood !== city) return false;
+      if (closingSoon && (bag.quantityLeft === 0 || msUntil(bag.availableUntil) > CLOSING_SOON_MS))
+        return false;
       if (
         q &&
         !`${bag.title} ${bag.description} ${business?.name ?? ""}`.toLowerCase().includes(q)
@@ -124,7 +126,8 @@ function BrowsePage() {
         return false;
       return true;
     });
-  }, [query, category, maxPrice, method, city]);
+  }, [query, category, maxPrice, method, city, closingSoon]);
+
 
   const sorted = useMemo(() => {
     if (!userLocation) return results;
