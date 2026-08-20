@@ -56,8 +56,11 @@ export function getPlacedOrder(id: string) {
   return readAll().find((o) => o.id === id);
 }
 
-export function listPlacedOrders() {
-  return readAll();
+/** Without a customerId this returns every stored order (admin/analytics use). */
+export function listPlacedOrders(customerId?: string) {
+  const all = readAll();
+  if (!customerId) return all;
+  return all.filter((o) => o.customerId === customerId);
 }
 
 export function newOrderIds() {
