@@ -22,6 +22,7 @@ import {
 import type { VendorPin } from "@/components/map/vendor-map";
 import { cn } from "@/lib/utils";
 import { getNearbyLocation, saveNearbyLocation } from "@/lib/nearby";
+import { useAuth } from "@/lib/auth/auth-context";
 
 
 

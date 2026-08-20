@@ -18,6 +18,7 @@ import {
   haversineKm,
 } from "@/data/mock";
 import { getNearbyLocation, type LatLng } from "@/lib/nearby";
+import { useAuth } from "@/lib/auth/auth-context";
 import { toast } from "sonner";
 import { CLOSING_SOON_MS, formatDuration, useCountdown } from "@/lib/countdown";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,7 @@ function BagDetail() {
   const bag = getBag(bagId);
   const business = bag ? getBusiness(bag.businessId) : undefined;
   const gallery = bag ? [bag.image, storefrontImage, categoryImages[bag.category]] : [];
+  const { user } = useAuth();
   const [active, setActive] = useState(0);
   const [qty, setQty] = useState(1);
   const [location, setLocation] = useState<LatLng | null>(null);
@@ -216,6 +218,14 @@ function BagDetail() {
               className="mt-4 w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
               onClick={() => {
                 if (soldOut) return;
+                if (!user) {
+                  toast.info("Log in to reserve this secret bag.");
+                  void navigate({
+                    to: "/login",
+                    search: { redirect: `/checkout?bag=${encodeURIComponent(bag.id)}&qty=${qty}` },
+                  });
+                  return;
+                }
                 toast.success(`${bag.title} added — reserve it now.`);
                 void navigate({ to: "/checkout", search: { bag: bag.id, qty } });
               }}
