@@ -13,6 +13,8 @@ export interface AuthUser {
   provider: AuthProviderId;
   /** Only present for vendor accounts. */
   vendorId?: string;
+  /** Database UUID of the vendor's store row. */
+  vendorUuid?: string;
 }
 
 export interface VendorDocumentMeta {
