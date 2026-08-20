@@ -137,7 +137,11 @@ function CheckoutPage() {
   type Snapshot = CustomerAddressInput & { id: string | null };
 
   /** Mirrors the order into Supabase so the vendor dashboard sees it live. */
-  async function persistToSupabase(receiptNumber: string, snapshot: Snapshot | null) {
+  async function persistToSupabase(
+    receiptNumber: string,
+    snapshot: Snapshot | null,
+    screenshotPath: string | null,
+  ) {
     const vendorUuid = vendorUuidById.get(business.id);
     if (!user || !vendorUuid) return;
     const { data, error } = await supabase
@@ -149,7 +153,10 @@ function CheckoutPage() {
         method,
         delivery_method: method,
         status: "pending",
+        payment_status: method === "pickup" ? "awaiting_verification" : "not_required",
+        payment_screenshot_url: method === "pickup" ? screenshotPath : null,
         notes: notes.trim(),
+
         ...(method === "delivery" && snapshot
           ? {
               delivery_address_id: snapshot.id,
