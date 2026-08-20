@@ -22,6 +22,7 @@ import { Route as AccountAddressesRouteImport } from './routes/account.addresses
 import { Route as AccountFavoritesRouteImport } from './routes/account.favorites'
 import { Route as AccountSettingsRouteImport } from './routes/account.settings'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminAdvertisingRouteImport } from './routes/admin.advertising'
 import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
 import { Route as AdminBusinessesRouteImport } from './routes/admin.businesses'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
@@ -105,6 +106,11 @@ const AccountSettingsRoute = AccountSettingsRouteImport.update({
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminAdvertisingRoute = AdminAdvertisingRouteImport.update({
+  id: '/advertising',
+  path: '/advertising',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
@@ -215,6 +221,7 @@ export interface FileRoutesByFullPath {
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
   '/account/settings': typeof AccountSettingsRoute
+  '/admin/advertising': typeof AdminAdvertisingRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/businesses': typeof AdminBusinessesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -246,6 +253,7 @@ export interface FileRoutesByTo {
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
   '/account/settings': typeof AccountSettingsRoute
+  '/admin/advertising': typeof AdminAdvertisingRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/businesses': typeof AdminBusinessesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -281,6 +289,7 @@ export interface FileRoutesById {
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
   '/account/settings': typeof AccountSettingsRoute
+  '/admin/advertising': typeof AdminAdvertisingRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/businesses': typeof AdminBusinessesRoute
   '/admin/payments': typeof AdminPaymentsRoute
@@ -317,6 +326,7 @@ export interface FileRouteTypes {
     | '/account/addresses'
     | '/account/favorites'
     | '/account/settings'
+    | '/admin/advertising'
     | '/admin/analytics'
     | '/admin/businesses'
     | '/admin/payments'
@@ -348,6 +358,7 @@ export interface FileRouteTypes {
     | '/account/addresses'
     | '/account/favorites'
     | '/account/settings'
+    | '/admin/advertising'
     | '/admin/analytics'
     | '/admin/businesses'
     | '/admin/payments'
@@ -382,6 +393,7 @@ export interface FileRouteTypes {
     | '/account/addresses'
     | '/account/favorites'
     | '/account/settings'
+    | '/admin/advertising'
     | '/admin/analytics'
     | '/admin/businesses'
     | '/admin/payments'
@@ -513,6 +525,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/advertising': {
+      id: '/admin/advertising'
+      path: '/advertising'
+      fullPath: '/admin/advertising'
+      preLoaderRoute: typeof AdminAdvertisingRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/analytics': {
@@ -673,6 +692,7 @@ const AccountRouteWithChildren =
   AccountRoute._addFileChildren(AccountRouteChildren)
 
 interface AdminRouteChildren {
+  AdminAdvertisingRoute: typeof AdminAdvertisingRoute
   AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminBusinessesRoute: typeof AdminBusinessesRoute
   AdminPaymentsRoute: typeof AdminPaymentsRoute
@@ -682,6 +702,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAdvertisingRoute: AdminAdvertisingRoute,
   AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminBusinessesRoute: AdminBusinessesRoute,
   AdminPaymentsRoute: AdminPaymentsRoute,
