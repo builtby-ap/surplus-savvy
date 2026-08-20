@@ -1,7 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell, LogIn, LogOut, Search, Sprout, Store, User } from "lucide-react";
+import { Bell, LogIn, LogOut, Sprout, Store, User } from "lucide-react";
 import { toast } from "sonner";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
