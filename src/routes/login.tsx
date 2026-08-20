@@ -11,6 +11,9 @@ import { useAuth, homePathForSession } from "@/lib/auth/auth-context";
 import { DEMO_ACCOUNTS } from "@/lib/auth/auth-service";
 
 export const Route = createFileRoute("/login")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    redirect: typeof search["redirect"] === "string" ? (search["redirect"] as string) : "",
+  }),
   head: () => ({
     meta: [
       { title: "Log in — Phoe La Min" },
@@ -33,7 +36,16 @@ const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function LoginPage() {
   const navigate = useNavigate();
+  const { redirect: redirectTo } = Route.useSearch();
   const { login, loginWithGoogle } = useAuth();
+
+  /** Only same-origin app paths are allowed as a post-login destination. */
+  function destinationFor(session: Parameters<typeof homePathForSession>[0]) {
+    if (redirectTo && redirectTo.startsWith("/") && !redirectTo.startsWith("//")) {
+      return redirectTo;
+    }
+    return homePathForSession(session);
+  }
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -53,7 +65,7 @@ function LoginPage() {
     try {
       const session = await login(email, password);
       toast.success(`Welcome back, ${session.user.fullName}.`);
-      void navigate({ to: homePathForSession(session) });
+      void navigate({ to: destinationFor(session) });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not log you in.");
     } finally {
@@ -66,7 +78,7 @@ function LoginPage() {
     try {
       const session = await loginWithGoogle();
       toast.success("Signed in with Google.");
-      void navigate({ to: homePathForSession(session) });
+      void navigate({ to: destinationFor(session) });
     } catch {
       toast.error("Google sign-in failed. Please try again.");
     } finally {

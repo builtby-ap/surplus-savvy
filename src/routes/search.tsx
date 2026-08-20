@@ -215,6 +215,14 @@ function BrowsePage() {
 
   const addToCart = (bag: (typeof mysteryBags)[number]) => {
     toast.success(`${bag.title} added — reserve it now.`);
+    if (!user) {
+      toast.info("Log in to reserve this secret bag.");
+      void navigate({
+        to: "/login",
+        search: { redirect: `/checkout?bag=${encodeURIComponent(bag.id)}&qty=1` },
+      });
+      return;
+    }
     void navigate({ to: "/checkout", search: { bag: bag.id, qty: 1 } });
   };
 
