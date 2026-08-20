@@ -3,7 +3,7 @@ import { Link, type LinkProps } from "@tanstack/react-router";
 import { Sprout } from "lucide-react";
 
 export interface NavItem {
-  to: LinkProps["to"];
+  to: NonNullable<LinkProps["to"]>;
   label: string;
 }
 
