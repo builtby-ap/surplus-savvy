@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/lib/auth/auth-context";
+import { useCart } from "@/lib/cart";
 
 function initials(name: string) {
   return name
