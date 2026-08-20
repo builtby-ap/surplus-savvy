@@ -421,7 +421,7 @@ function VendorPostsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="discountedPrice">Selling price</Label>
+                <Label htmlFor="discountedPrice">Selling price (MMK)</Label>
                 <Input
                   id="discountedPrice"
                   type="text"
