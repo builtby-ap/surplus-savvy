@@ -40,6 +40,8 @@ export interface Business {
   fulfillment: FulfillmentType;
   mealsRescued: number;
   verified: boolean;
+  lat: number;
+  lng: number;
 }
 
 export interface MysteryBag {
@@ -108,6 +110,8 @@ export const businesses: Business[] = [
     fulfillment: "both",
     mealsRescued: 3120,
     verified: true,
+    lat: 51.5121,
+    lng: -0.123,
   },
   {
     id: "b2",
@@ -123,6 +127,8 @@ export const businesses: Business[] = [
     fulfillment: "both",
     mealsRescued: 2480,
     verified: true,
+    lat: 51.5052,
+    lng: -0.1108,
   },
   {
     id: "b3",
@@ -138,6 +144,8 @@ export const businesses: Business[] = [
     fulfillment: "pickup",
     mealsRescued: 1890,
     verified: true,
+    lat: 51.5194,
+    lng: -0.137,
   },
   {
     id: "b4",
@@ -153,6 +161,8 @@ export const businesses: Business[] = [
     fulfillment: "both",
     mealsRescued: 4210,
     verified: true,
+    lat: 51.5285,
+    lng: -0.118,
   },
   {
     id: "b5",
@@ -168,6 +178,8 @@ export const businesses: Business[] = [
     fulfillment: "pickup",
     mealsRescued: 2760,
     verified: false,
+    lat: 51.5142,
+    lng: -0.13,
   },
   {
     id: "b6",
@@ -183,6 +195,8 @@ export const businesses: Business[] = [
     fulfillment: "pickup",
     mealsRescued: 640,
     verified: false,
+    lat: 51.517,
+    lng: -0.142,
   },
   {
     id: "b7",
@@ -198,6 +212,8 @@ export const businesses: Business[] = [
     fulfillment: "both",
     mealsRescued: 1120,
     verified: true,
+    lat: 51.53,
+    lng: -0.125,
   },
   {
     id: "b8",
@@ -213,6 +229,8 @@ export const businesses: Business[] = [
     fulfillment: "delivery",
     mealsRescued: 980,
     verified: true,
+    lat: 51.495,
+    lng: -0.118,
   },
   {
     id: "b9",
@@ -228,6 +246,8 @@ export const businesses: Business[] = [
     fulfillment: "both",
     mealsRescued: 1740,
     verified: true,
+    lat: 51.503,
+    lng: -0.12,
   },
   {
     id: "b10",
@@ -243,6 +263,8 @@ export const businesses: Business[] = [
     fulfillment: "pickup",
     mealsRescued: 1330,
     verified: true,
+    lat: 51.532,
+    lng: -0.105,
   },
 ];
 
@@ -352,3 +374,19 @@ export function formatPrice(value: number) {
 export function discountPercent(bag: MysteryBag) {
   return Math.round((1 - bag.discountedPrice / bag.originalPrice) * 100);
 }
+
+export function haversineKm(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+) {
+  const R = 6371;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const lat1 = (a.lat * Math.PI) / 180;
+  const lat2 = (b.lat * Math.PI) / 180;
+  const h =
+    Math.sin(dLat / 2) ** 2 + Math.sin(dLng / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+export const cityCenter = { lat: 51.5145, lng: -0.122 };
