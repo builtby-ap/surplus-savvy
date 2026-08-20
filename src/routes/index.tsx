@@ -45,6 +45,48 @@ export const Route = createFileRoute("/")({
 function MarketplaceHome() {
   const closingSoon = mysteryBags.filter((b) => b.quantityLeft > 0 && b.quantityLeft <= 3).slice(0, 8);
 
+  const [coords, setCoords] = useState<LatLng | null>(null);
+  const [geoState, setGeoState] = useState<"idle" | "loading" | "ready" | "denied">("idle");
+
+  const requestLocation = () => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoState("denied");
+      return;
+    }
+    setGeoState("loading");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setCoords(loc);
+        saveNearbyLocation(loc);
+        setGeoState("ready");
+      },
+      () => setGeoState("denied"),
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  };
+
+  useEffect(() => {
+    const saved = getNearbyLocation();
+    if (saved) {
+      setCoords(saved);
+      setGeoState("ready");
+      return;
+    }
+    requestLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const nearbyBusinesses = useMemo(() => {
+    const list = businesses.map((business) => ({
+      business,
+      distanceKm: coords ? haversineKm(coords, { lat: business.lat, lng: business.lng }) : null,
+    }));
+    if (coords) list.sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
+    return list.slice(0, 6);
+  }, [coords]);
+
+
   return (
 
 
