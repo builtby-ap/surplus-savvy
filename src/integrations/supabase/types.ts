@@ -291,6 +291,9 @@ export type Database = {
           method: Database["public"]["Enums"]["order_method"]
           notes: string
           original_price: number
+          payment_rejection_reason: string | null
+          payment_screenshot_url: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"]
           pickup_window: string | null
           placed_at: string
           receipt_number: string
@@ -319,6 +322,9 @@ export type Database = {
           method?: Database["public"]["Enums"]["order_method"]
           notes?: string
           original_price?: number
+          payment_rejection_reason?: string | null
+          payment_screenshot_url?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
           pickup_window?: string | null
           placed_at?: string
           receipt_number: string
@@ -347,6 +353,9 @@ export type Database = {
           method?: Database["public"]["Enums"]["order_method"]
           notes?: string
           original_price?: number
+          payment_rejection_reason?: string | null
+          payment_screenshot_url?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"]
           pickup_window?: string | null
           placed_at?: string
           receipt_number?: string
@@ -385,6 +394,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      payment_settings: {
+        Row: {
+          account_name: string
+          created_at: string
+          id: string
+          instructions: string
+          qr_image_url: string
+          updated_at: string
+        }
+        Insert: {
+          account_name?: string
+          created_at?: string
+          id?: string
+          instructions?: string
+          qr_image_url?: string
+          updated_at?: string
+        }
+        Update: {
+          account_name?: string
+          created_at?: string
+          id?: string
+          instructions?: string
+          qr_image_url?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -702,6 +738,10 @@ export type Database = {
         Args: { _user_id: string; _vendor_id: string }
         Returns: boolean
       }
+      resubmit_payment: {
+        Args: { order_id: string; screenshot_url: string }
+        Returns: undefined
+      }
     }
     Enums: {
       account_status: "active" | "suspended"
@@ -734,6 +774,11 @@ export type Database = {
         | "picked_up"
         | "delivered"
         | "cancelled"
+        | "rejected"
+      payment_status:
+        | "not_required"
+        | "awaiting_verification"
+        | "verified"
         | "rejected"
       vendor_status: "pending" | "approved" | "rejected" | "deactivated"
     }
@@ -895,6 +940,12 @@ export const Constants = {
         "picked_up",
         "delivered",
         "cancelled",
+        "rejected",
+      ],
+      payment_status: [
+        "not_required",
+        "awaiting_verification",
+        "verified",
         "rejected",
       ],
       vendor_status: ["pending", "approved", "rejected", "deactivated"],
