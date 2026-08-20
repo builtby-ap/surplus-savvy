@@ -71,7 +71,7 @@ function DocumentUpload({
   id: string;
   label: string;
   value: VendorDocumentMeta | null;
-  error?: string;
+  error?: string | undefined;
   onChange: (doc: VendorDocumentMeta | null) => void;
 }) {
   const [localError, setLocalError] = useState<string | null>(null);

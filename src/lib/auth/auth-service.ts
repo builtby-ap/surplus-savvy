@@ -163,7 +163,10 @@ export function loadSession(): AuthSession | null {
   );
   const vendorApplication =
     stored?.vendorApplication ?? read<VendorApplication>(AUTH_KEYS.vendorApplication) ?? undefined;
-  return { user: stored?.user ?? user, vendorApplication };
+  return {
+    user: stored?.user ?? user,
+    ...(vendorApplication ? { vendorApplication } : {}),
+  };
 }
 
 export function clearSession() {
