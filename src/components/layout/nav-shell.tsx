@@ -5,6 +5,7 @@ import { Sprout } from "lucide-react";
 export interface NavItem {
   to: NonNullable<LinkProps["to"]>;
   label: string;
+  badge?: number;
 }
 
 export function NavShell({
@@ -41,6 +42,11 @@ export function NavShell({
                 className="rounded-full px-3 py-1.5 transition-colors hover:bg-primary-foreground/15"
               >
                 {item.label}
+                {item.badge ? (
+                  <span className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-[11px] font-semibold leading-none text-destructive-foreground">
+                    {item.badge}
+                  </span>
+                ) : null}
               </Link>
             ))}
           </nav>

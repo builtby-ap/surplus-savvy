@@ -62,3 +62,17 @@ export function newOrderIds() {
   const n = Math.floor(100000 + Math.random() * 899999);
   return { id: `ord-${n}`, receiptNumber: `SR-${n}` };
 }
+
+/** Vendor-set status override for an order (mock, localStorage-backed). */
+export function setOrderStatus(id: string, status: string) {
+  const all = readAll().map((o) =>
+    o.id === id ? ({ ...o, status } as PlacedOrder) : o,
+  );
+  writeAll(all);
+}
+
+export function listOrdersForBusiness(businessId: string) {
+  return readAll().filter(
+    (o) => o.businessIds?.includes(businessId) || o.businessId === businessId,
+  );
+}

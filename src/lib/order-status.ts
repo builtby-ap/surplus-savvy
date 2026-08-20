@@ -64,7 +64,8 @@ export const STAGE_SECONDS = 8;
  */
 export function deriveStatus(order: PlacedOrder, now: number = Date.now()): OrderStatus {
   const forced = (order as PlacedOrder & { status?: OrderStatus }).status;
-  if (forced && isTerminal(forced)) return forced;
+  // A vendor-set status always wins over the simulated timeline.
+  if (forced) return forced;
   const flow = flowFor(order.method);
   const elapsed = (now - new Date(order.placedAt).getTime()) / 1000;
   const index = Math.min(flow.length - 1, Math.max(0, Math.floor(elapsed / STAGE_SECONDS)));
