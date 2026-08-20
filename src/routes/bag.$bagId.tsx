@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, Link, useNavigate, useParams } from "@tanstack/react-router";
 import { ArrowRight, Bike, MapPin, ShoppingBag, Star, Timer } from "lucide-react";
 import { PublicLayout } from "@/components/layout/public-layout";
@@ -15,7 +15,9 @@ import {
   getBag,
   getBusiness,
   storefrontImage,
+  haversineKm,
 } from "@/data/mock";
+import { getNearbyLocation, type LatLng } from "@/lib/nearby";
 import { toast } from "sonner";
 import { CLOSING_SOON_MS, formatDuration, useCountdown } from "@/lib/countdown";
 import { cn } from "@/lib/utils";
@@ -39,6 +41,12 @@ function BagDetail() {
   const business = bag ? getBusiness(bag.businessId) : undefined;
   const gallery = bag ? [bag.image, storefrontImage, categoryImages[bag.category]] : [];
   const [active, setActive] = useState(0);
+  const [qty, setQty] = useState(1);
+  const [location, setLocation] = useState<LatLng | null>(null);
+
+  useEffect(() => {
+    setLocation(getNearbyLocation());
+  }, []);
   const remaining = useCountdown(bag?.availableUntil ?? "23:59");
 
   if (!bag) {
@@ -57,6 +65,8 @@ function BagDetail() {
 
   const soldOut = bag.quantityLeft === 0;
   const closingSoon = !soldOut && remaining !== null && remaining > 0 && remaining <= CLOSING_SOON_MS;
+  const distanceKm = location && business ? haversineKm(location, business) : null;
+  const maxQty = Math.max(1, bag.quantityLeft);
   const more = bagsForBusiness(bag.businessId).filter((b) => b.id !== bag.id);
 
   return (
@@ -152,6 +162,15 @@ function BagDetail() {
             </div>
 
             <div className="mt-6">
+              <h2 className="text-sm font-semibold">Store / pickup location</h2>
+              <p className="mt-2 flex items-center gap-1.5 text-sm text-muted-foreground">
+                <MapPin className="size-4" aria-hidden />
+                {business?.address}, {business?.neighborhood}
+                {distanceKm !== null ? ` · ${distanceKm.toFixed(1)} km from you` : ""}
+              </p>
+            </div>
+
+            <div className="mt-6">
               <h2 className="text-sm font-semibold">Pickup instructions</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 Head to {business?.name ?? "the shop"} at {business?.address ?? "the listed address"}
@@ -161,14 +180,44 @@ function BagDetail() {
               </p>
             </div>
 
+            {!soldOut && (
+              <div className="mt-6 flex items-center gap-3">
+                <span className="text-sm font-medium">Quantity</span>
+                <div className="flex items-center gap-1 rounded-full border border-border p-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="size-9 rounded-full p-0"
+                    aria-label="Decrease quantity"
+                    onClick={() => setQty((q) => Math.max(1, q - 1))}
+                  >
+                    −
+                  </Button>
+                  <span className="w-8 text-center text-sm font-semibold">{qty}</span>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="size-9 rounded-full p-0"
+                    aria-label="Increase quantity"
+                    onClick={() => setQty((q) => Math.min(maxQty, q + 1))}
+                  >
+                    +
+                  </Button>
+                </div>
+                <span className="text-xs text-muted-foreground">{maxQty} available</span>
+              </div>
+            )}
+
             <Button
               size="lg"
               disabled={soldOut}
-              className="mt-6 w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
+              className="mt-4 w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
               onClick={() => {
                 if (soldOut) return;
                 toast.success(`${bag.title} added — reserve it now.`);
-                void navigate({ to: "/checkout", search: { bag: bag.id } });
+                void navigate({ to: "/checkout", search: { bag: bag.id, qty } });
               }}
             >
               {soldOut ? "Sold out" : "Add to cart"}
@@ -190,7 +239,8 @@ function BagDetail() {
                   </p>
                   <p className="mt-1 flex items-center gap-3 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1">
-                      <MapPin className="size-3.5" /> ~1.2 km away
+                      <MapPin className="size-3.5" />{" "}
+                      {distanceKm !== null ? `${distanceKm.toFixed(1)} km away` : business.neighborhood}
                     </span>
                     <span className="flex items-center gap-1">
                       <Star className="size-3.5 fill-accent text-accent" />
