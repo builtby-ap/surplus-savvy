@@ -169,9 +169,10 @@ function BrowsePage() {
     setMethod("all");
     setCity("all");
     setClosingSoon(false);
-    void navigate({ to: "/search", search: { q: undefined, category: undefined, closingSoon: undefined } });
+    void navigate({ to: "/search", search: () => ({}) });
     setUserLocation(null);
   };
+
 
 
   return (
