@@ -71,6 +71,7 @@ function toOrder(row: Row): CustomerOrder {
     vendorType: s(vendor['type']),
     vendorAddress: s(vendor['address']),
     vendorNeighborhood: s(vendor['neighborhood']),
+    vendorPhone: s(vendor['phone']),
     items: items.map((i) => ({
       id: s(i['id']),
       title: s(i['title']),
