@@ -283,8 +283,11 @@ function OrderReceipt() {
           )}
 
           <p className="pt-4 text-center text-xs text-muted-foreground">
-            Surplus Rescue never takes online payment. Please bring exact change where possible.
+            {order.method === "pickup"
+              ? "Your MMQR payment is being verified. Show this receipt when you collect your order."
+              : "Delivery orders are paid in cash. Please bring exact change where possible."}
           </p>
+
         </article>
 
         <div className="mt-6 flex flex-wrap gap-3 print:hidden">
