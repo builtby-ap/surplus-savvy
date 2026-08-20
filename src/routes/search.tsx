@@ -118,9 +118,9 @@ function BrowsePage() {
       if (bag.discountedPrice > maxPrice) return false;
       if (method !== "all" && bag.fulfillment !== method && bag.fulfillment !== "both") return false;
       if (city !== "all" && business?.neighborhood !== city) return false;
-      if (closingSoon && (bag.quantityLeft === 0 || msUntil(bag.availableUntil) > CLOSING_SOON_MS))
-        return false;
+      if (closingSoon && (bag.quantityLeft === 0 || bag.quantityLeft > 3)) return false;
       if (
+
         q &&
         !`${bag.title} ${bag.description} ${business?.name ?? ""}`.toLowerCase().includes(q)
       )
