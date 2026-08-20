@@ -27,6 +27,7 @@ function initials(name: string) {
 export function SiteHeader() {
   const navigate = useNavigate();
   const { user, vendorApplication, isAuthenticated, logout } = useAuth();
+  const { count: cartCount } = useCart();
   const vendorApproved = vendorApplication?.verificationStatus === "approved";
 
   function handleLogout() {
