@@ -15,6 +15,7 @@ import {
   getBusiness,
   getDeliveryTerms,
 } from "@/data/mock";
+import { useAuth } from "@/lib/auth/auth-context";
 import { newOrderIds, saveOrder, type OrderItem, type OrderMethod } from "@/lib/orders";
 import { cn } from "@/lib/utils";
 
@@ -36,6 +37,7 @@ export const Route = createFileRoute("/checkout")({
 function CheckoutPage() {
   const { bag: bagParam } = Route.useSearch();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const entry = useMemo(() => {
     const bag = getBag(bagParam);
@@ -92,6 +94,7 @@ function CheckoutPage() {
     ];
     saveOrder({
       ...ids,
+      ...(user ? { customerId: user.id } : {}),
       items: orderItems,
       businessId: business.id,
       businessIds: [business.id],

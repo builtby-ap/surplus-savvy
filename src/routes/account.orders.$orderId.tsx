@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { ArrowLeft, Ban, Check, Receipt } from "lucide-react";
 import { formatPrice, getBusiness } from "@/data/mock";
+import { useAuth } from "@/lib/auth/auth-context";
 import { ensureDemoOrders } from "@/lib/demo-orders";
 import {
   deriveStatus,
@@ -20,12 +21,15 @@ export const Route = createFileRoute("/account/orders/$orderId")({
 
 function OrderTracking() {
   const { orderId } = useParams({ from: "/account/orders/$orderId" });
+  const { user } = useAuth();
   const [order, setOrder] = useState<PlacedOrder | null | undefined>(undefined);
 
   useEffect(() => {
-    ensureDemoOrders();
-    setOrder(getPlacedOrder(orderId) ?? null);
-  }, [orderId]);
+    if (!user) return;
+    ensureDemoOrders(user);
+    const found = getPlacedOrder(orderId);
+    setOrder(found && found.customerId === user.id ? found : null);
+  }, [orderId, user]);
 
   const liveStatus = useLiveStatus(order ?? undefined);
 

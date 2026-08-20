@@ -2,7 +2,11 @@ import { getBag } from "@/data/mock";
 import type { OrderStatus } from "./order-status";
 import { listPlacedOrders, saveOrder, type OrderMethod, type PlacedOrder } from "./orders";
 
+/** Only this seeded account gets sample order history. */
+const DEMO_CUSTOMER_EMAIL = "customer@example.com";
+
 function build(
+  customerId: string,
   n: number,
   bagIds: string[],
   method: OrderMethod,
@@ -25,6 +29,7 @@ function build(
   const deliveryFee = method === "delivery" ? 2.5 : 0;
   return {
     id: `ord-demo${n}`,
+    customerId,
     receiptNumber: `SR-90000${n}`,
     items,
     businessId: items[0]!.businessId,
@@ -42,14 +47,18 @@ function build(
   } as PlacedOrder;
 }
 
-/** Seeds a few sample orders the first time the customer opens their history. */
-export function ensureDemoOrders() {
+/**
+ * Seeds sample orders for the demo customer account only.
+ * Real (newly registered) accounts start with an empty order history.
+ */
+export function ensureDemoOrders(customer?: { id: string; email: string } | null) {
   if (typeof window === "undefined") return;
-  const existing = listPlacedOrders();
-  if (existing.length > 0) return;
+  if (!customer || customer.email.trim().toLowerCase() !== DEMO_CUSTOMER_EMAIL) return;
+  if (listPlacedOrders(customer.id).length > 0) return;
+  const id = customer.id;
   [
-    build(3, ["m9"], "pickup", 60 * 30, "refunded"),
-    build(2, ["m3", "m7"], "delivery", 60 * 6, "cancelled"),
-    build(1, ["m1", "m20"], "pickup", 0),
+    build(id, 3, ["m9"], "pickup", 60 * 30, "refunded"),
+    build(id, 2, ["m3", "m7"], "delivery", 60 * 6, "cancelled"),
+    build(id, 1, ["m1", "m20"], "pickup", 0),
   ].forEach(saveOrder);
 }

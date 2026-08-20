@@ -11,6 +11,8 @@ export interface OrderItem {
 
 export interface PlacedOrder {
   id: string;
+  /** Owner of the order — customer orders are scoped to this id. */
+  customerId?: string;
   receiptNumber: string;
   items: OrderItem[];
   /** Primary vendor (first item's vendor) — kept for quick lookups. */
@@ -54,8 +56,11 @@ export function getPlacedOrder(id: string) {
   return readAll().find((o) => o.id === id);
 }
 
-export function listPlacedOrders() {
-  return readAll();
+/** Without a customerId this returns every stored order (admin/analytics use). */
+export function listPlacedOrders(customerId?: string) {
+  const all = readAll();
+  if (!customerId) return all;
+  return all.filter((o) => o.customerId === customerId);
 }
 
 export function newOrderIds() {

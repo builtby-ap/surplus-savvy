@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Leaf, PiggyBank, Utensils } from "lucide-react";
 import { formatPrice } from "@/data/mock";
+import { useAuth } from "@/lib/auth/auth-context";
 import { ensureDemoOrders } from "@/lib/demo-orders";
 import { listPlacedOrders, type PlacedOrder } from "@/lib/orders";
 
@@ -18,12 +19,14 @@ const KG_CO2_PER_ITEM = 2.5;
 const KM_PER_KG_CO2 = 1 / 0.17;
 
 function ImpactDashboard() {
+  const { user } = useAuth();
   const [orders, setOrders] = useState<PlacedOrder[]>([]);
 
   useEffect(() => {
-    ensureDemoOrders();
-    setOrders(listPlacedOrders());
-  }, []);
+    if (!user) return;
+    ensureDemoOrders(user);
+    setOrders(listPlacedOrders(user.id));
+  }, [user]);
 
   const stats = useMemo(() => {
     const items = orders.flatMap((o) => o.items);

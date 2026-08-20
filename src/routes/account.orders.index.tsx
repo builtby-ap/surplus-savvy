@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bike, ChevronRight, ShoppingBag } from "lucide-react";
 import { formatPrice, getBusiness } from "@/data/mock";
+import { useAuth } from "@/lib/auth/auth-context";
 import { ensureDemoOrders } from "@/lib/demo-orders";
 import { deriveStatus, orderStatusLabels, statusBadgeClass } from "@/lib/order-status";
 import { listPlacedOrders, type PlacedOrder } from "@/lib/orders";
@@ -11,15 +12,17 @@ export const Route = createFileRoute("/account/orders/")({
 });
 
 function OrderHistory() {
+  const { user } = useAuth();
   const [orders, setOrders] = useState<PlacedOrder[]>([]);
   const [, setTick] = useState(0);
 
   useEffect(() => {
-    ensureDemoOrders();
-    setOrders(listPlacedOrders());
+    if (!user) return;
+    ensureDemoOrders(user);
+    setOrders(listPlacedOrders(user.id));
     const timer = window.setInterval(() => setTick((t) => t + 1), 1000);
     return () => window.clearInterval(timer);
-  }, []);
+  }, [user]);
 
   if (orders.length === 0) {
     return (
