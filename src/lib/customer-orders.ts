@@ -77,6 +77,9 @@ function toOrder(row: Row): CustomerOrder {
     vendorAddress: s(vendor['address']),
     vendorNeighborhood: s(vendor['neighborhood']),
     vendorPhone: s(vendor['phone']),
+    paymentStatus: ((row['payment_status'] as PaymentStatus) ?? "not_required") as PaymentStatus,
+    paymentScreenshotUrl: (row['payment_screenshot_url'] as string) ?? null,
+
     items: items.map((i) => ({
       id: s(i['id']),
       title: s(i['title']),
