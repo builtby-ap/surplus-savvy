@@ -57,6 +57,7 @@ const VendorMap = lazy(() => import("@/components/map/vendor-map"));
 function BrowsePage() {
   const initial = Route.useSearch();
   const navigate = useNavigate({ from: "/search" });
+  const { user, isLoading: authLoading } = useAuth();
   // Derived from the live Supabase-backed catalogue.
   const cities = useMemo(
     () => Array.from(new Set(businesses.map((b) => b.neighborhood))).sort(),
