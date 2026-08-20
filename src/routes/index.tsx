@@ -219,8 +219,8 @@ function MarketplaceHome() {
                 subtitle: "Place Your Order",
                 description:
                   "Add the Secret Bag to your cart, choose pickup or delivery, select your address if delivery is selected, and place your order.",
-                tone: "text-coral",
-                bg: "bg-coral/10",
+                tone: "text-destructive",
+                bg: "bg-destructive/10",
               },
               {
                 icon: Leaf,
