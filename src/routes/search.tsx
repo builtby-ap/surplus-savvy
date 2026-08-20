@@ -167,8 +167,11 @@ function BrowsePage() {
     setMaxPrice(priceCeiling);
     setMethod("all");
     setCity("all");
+    setClosingSoon(false);
+    void navigate({ to: "/search", search: { q: undefined, category: undefined, closingSoon: undefined } });
     setUserLocation(null);
   };
+
 
   return (
     <PublicLayout>
