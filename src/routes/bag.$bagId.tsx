@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { ArrowRight, Bike, MapPin, ShoppingBag, Star, Timer } from "lucide-react";
-import { toast } from "sonner";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard, FulfillmentIcons } from "@/components/bag-card";
 import { Badge } from "@/components/ui/badge";
