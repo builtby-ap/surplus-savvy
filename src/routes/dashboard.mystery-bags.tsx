@@ -181,6 +181,54 @@ function VendorPostsPage() {
         </p>
       )}
 
+      <div className="surface-card flex flex-wrap items-center gap-3 p-4">
+        <div className="relative min-w-56 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            className="pl-9"
+            placeholder="Search food posts by title or description…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+        <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+          <SelectTrigger className="w-48">
+            <SelectValue placeholder="Category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All categories</SelectItem>
+            {Object.entries(bagCategoryLabels).map(([value, label]) => (
+              <SelectItem key={value} value={value}>
+                {label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-44">
+            <SelectValue placeholder="Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All statuses</SelectItem>
+            <SelectItem value="live">Live</SelectItem>
+            <SelectItem value="hidden">Hidden</SelectItem>
+            <SelectItem value="sold-out">Sold out</SelectItem>
+          </SelectContent>
+        </Select>
+        {(query || categoryFilter !== "all" || statusFilter !== "all") && (
+          <Button
+            variant="ghost"
+            onClick={() => {
+              setQuery("");
+              setCategoryFilter("all");
+              setStatusFilter("all");
+            }}
+          >
+            Clear
+          </Button>
+        )}
+      </div>
+
       <div className="surface-card overflow-x-auto p-0">
         <Table>
           <TableHeader>
@@ -195,14 +243,17 @@ function VendorPostsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {posts.length === 0 && (
+            {visiblePosts.length === 0 && (
               <TableRow>
                 <TableCell colSpan={7} className="py-10 text-center text-muted-foreground">
-                  No food posts yet — create your first one.
+                  {posts.length === 0
+                    ? "No food posts yet — create your first one."
+                    : "No food posts match your search or filters."}
                 </TableCell>
               </TableRow>
             )}
-            {posts.map((post) => (
+            {visiblePosts.map((post) => (
+
               <TableRow key={post.id} className={post.isAvailable ? "" : "opacity-60"}>
                 <TableCell>
                   <div className="flex items-center gap-3">
