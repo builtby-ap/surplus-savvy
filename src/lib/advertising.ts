@@ -88,3 +88,107 @@ export function canRequestAgain(ad: Advertisement | null): boolean {
   if (ad.status === "active") return isExpired(ad);
   return true;
 }
+
+/* ------------------------------------------------------------------ */
+/* Admin                                                               */
+/* ------------------------------------------------------------------ */
+
+export interface AdminAdvertisement extends Advertisement {
+  vendorName: string;
+  vendorType: string;
+  impressions: number;
+  clicks: number;
+}
+
+const ADMIN_COLUMNS = `${COLUMNS}, impressions, clicks, vendors ( name, type )`;
+
+const statusRank: Record<AdStatus, number> = {
+  pending: 0,
+  active: 1,
+  rejected: 2,
+  expired: 3,
+};
+
+/** Every advertisement request with the vendor's real name, pending first. */
+export async function fetchAdminAdvertisements(): Promise<AdminAdvertisement[]> {
+  const { data, error } = await supabase
+    .from("advertisements")
+    .select(ADMIN_COLUMNS)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error(error.message);
+
+  return (data ?? [])
+    .map((row) => {
+      const r = row as Record<string, unknown>;
+      const vendor = (r["vendors"] ?? {}) as { name?: string; type?: string };
+      return {
+        ...mapAd(r),
+        vendorName: vendor.name ?? "Unknown vendor",
+        vendorType: vendor.type ?? "—",
+        impressions: Number(r["impressions"] ?? 0),
+        clicks: Number(r["clicks"] ?? 0),
+      };
+    })
+    .sort((a, b) => {
+      const diff = statusRank[a.status] - statusRank[b.status];
+      if (diff !== 0) return diff;
+      return b.createdAt.localeCompare(a.createdAt);
+    });
+}
+
+export interface ActivateAdInput {
+  id: string;
+  vendorId: string;
+  startDate: string;
+  endDate: string;
+  cost: number;
+  tagline?: string | null;
+}
+
+/** Approve a pending request: set final dates + cost and promote the vendor. */
+export async function activateAdvertisement(input: ActivateAdInput): Promise<void> {
+  const { error } = await supabase
+    .from("advertisements")
+    .update({
+      status: "active",
+      start_date: input.startDate,
+      end_date: input.endDate,
+      cost: input.cost,
+      admin_note: null,
+    })
+    .eq("id", input.id);
+  if (error) throw new Error(error.message);
+
+  const { error: vendorError } = await supabase
+    .from("vendors")
+    .update({
+      is_advertised: true,
+      ad_tagline: input.tagline?.trim() ? input.tagline.trim() : null,
+      ad_priority: 1,
+    })
+    .eq("id", input.vendorId);
+  if (vendorError) throw new Error(vendorError.message);
+}
+
+export async function rejectAdvertisement(id: string, note?: string): Promise<void> {
+  const { error } = await supabase
+    .from("advertisements")
+    .update({ status: "rejected", admin_note: note?.trim() || null })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+}
+
+/** End a running ad early: mark expired and un-promote the vendor. */
+export async function endAdvertisement(id: string, vendorId: string): Promise<void> {
+  const { error } = await supabase
+    .from("advertisements")
+    .update({ status: "expired", end_date: new Date().toISOString().slice(0, 10) })
+    .eq("id", id);
+  if (error) throw new Error(error.message);
+
+  const { error: vendorError } = await supabase
+    .from("vendors")
+    .update({ is_advertised: false, ad_tagline: null, ad_priority: 0 })
+    .eq("id", vendorId);
+  if (vendorError) throw new Error(vendorError.message);
+}
