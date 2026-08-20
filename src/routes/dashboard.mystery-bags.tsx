@@ -71,6 +71,15 @@ const FULFILLMENTS: { value: FulfillmentType; label: string }[] = [
   { value: "both", label: "Pickup & delivery" },
 ];
 
+function parseNumberInput(raw: string, fallback: number) {
+  const cleaned = raw.replace(/[^\d.]/g, "");
+  if (cleaned === "") return 0;
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+
+
 function VendorPostsPage() {
   const { vendorId, loading: vendorLoading } = useMyVendor();
 
@@ -405,42 +414,40 @@ function VendorPostsPage() {
                 <Label htmlFor="originalPrice">Original value</Label>
                 <Input
                   id="originalPrice"
-                  type="number"
-                  min={0}
-                  step="0.5"
-                  value={form.originalPrice}
-                  onChange={(e) => setForm({ ...form, originalPrice: Number(e.target.value) })}
+                  type="text"
+                  inputMode="decimal"
+                  value={form.originalPrice === 0 ? "" : form.originalPrice}
+                  onChange={(e) => setForm({ ...form, originalPrice: parseNumberInput(e.target.value, form.originalPrice) })}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="discountedPrice">Selling price</Label>
                 <Input
                   id="discountedPrice"
-                  type="number"
-                  min={0}
-                  step="0.5"
-                  value={form.discountedPrice}
-                  onChange={(e) => setForm({ ...form, discountedPrice: Number(e.target.value) })}
+                  type="text"
+                  inputMode="decimal"
+                  value={form.discountedPrice === 0 ? "" : form.discountedPrice}
+                  onChange={(e) => setForm({ ...form, discountedPrice: parseNumberInput(e.target.value, form.discountedPrice) })}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="quantityLeft">Quantity available</Label>
                 <Input
                   id="quantityLeft"
-                  type="number"
-                  min={0}
-                  value={form.quantityLeft}
-                  onChange={(e) => setForm({ ...form, quantityLeft: Number(e.target.value) })}
+                  type="text"
+                  inputMode="numeric"
+                  value={form.quantityLeft === 0 ? "" : form.quantityLeft}
+                  onChange={(e) => setForm({ ...form, quantityLeft: parseNumberInput(e.target.value, form.quantityLeft) })}
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="totalQuantity">Batch size</Label>
                 <Input
                   id="totalQuantity"
-                  type="number"
-                  min={0}
-                  value={form.totalQuantity}
-                  onChange={(e) => setForm({ ...form, totalQuantity: Number(e.target.value) })}
+                  type="text"
+                  inputMode="numeric"
+                  value={form.totalQuantity === 0 ? "" : form.totalQuantity}
+                  onChange={(e) => setForm({ ...form, totalQuantity: parseNumberInput(e.target.value, form.totalQuantity) })}
                 />
               </div>
               <div className="space-y-2">
