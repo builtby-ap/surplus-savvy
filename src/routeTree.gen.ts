@@ -33,6 +33,7 @@ import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard.analy
 import { Route as DashboardDeliveryRouteImport } from './routes/dashboard.delivery'
 import { Route as DashboardMysteryBagsRouteImport } from './routes/dashboard.mystery-bags'
 import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
+import { Route as DashboardProfileRouteImport } from './routes/dashboard.profile'
 import { Route as OrderOrderIdRouteImport } from './routes/order.$orderId'
 import { Route as VendorApplicationStatusRouteImport } from './routes/vendor.application-status'
 import { Route as VendorRegisterRouteImport } from './routes/vendor.register'
@@ -159,6 +160,11 @@ const DashboardOrdersRoute = DashboardOrdersRouteImport.update({
   path: '/orders',
   getParentRoute: () => DashboardRoute,
 } as any)
+const DashboardProfileRoute = DashboardProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => DashboardRoute,
+} as any)
 const OrderOrderIdRoute = OrderOrderIdRouteImport.update({
   id: '/order/$orderId',
   path: '/order/$orderId',
@@ -207,6 +213,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/delivery': typeof DashboardDeliveryRoute
   '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
   '/dashboard/orders': typeof DashboardOrdersRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
   '/order/$orderId': typeof OrderOrderIdRoute
   '/vendor/application-status': typeof VendorApplicationStatusRoute
   '/vendor/register': typeof VendorRegisterRoute
@@ -235,6 +242,7 @@ export interface FileRoutesByTo {
   '/dashboard/delivery': typeof DashboardDeliveryRoute
   '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
   '/dashboard/orders': typeof DashboardOrdersRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
   '/order/$orderId': typeof OrderOrderIdRoute
   '/vendor/application-status': typeof VendorApplicationStatusRoute
   '/vendor/register': typeof VendorRegisterRoute
@@ -267,6 +275,7 @@ export interface FileRoutesById {
   '/dashboard/delivery': typeof DashboardDeliveryRoute
   '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
   '/dashboard/orders': typeof DashboardOrdersRoute
+  '/dashboard/profile': typeof DashboardProfileRoute
   '/order/$orderId': typeof OrderOrderIdRoute
   '/vendor/application-status': typeof VendorApplicationStatusRoute
   '/vendor/register': typeof VendorRegisterRoute
@@ -300,6 +309,7 @@ export interface FileRouteTypes {
     | '/dashboard/delivery'
     | '/dashboard/mystery-bags'
     | '/dashboard/orders'
+    | '/dashboard/profile'
     | '/order/$orderId'
     | '/vendor/application-status'
     | '/vendor/register'
@@ -328,6 +338,7 @@ export interface FileRouteTypes {
     | '/dashboard/delivery'
     | '/dashboard/mystery-bags'
     | '/dashboard/orders'
+    | '/dashboard/profile'
     | '/order/$orderId'
     | '/vendor/application-status'
     | '/vendor/register'
@@ -359,6 +370,7 @@ export interface FileRouteTypes {
     | '/dashboard/delivery'
     | '/dashboard/mystery-bags'
     | '/dashboard/orders'
+    | '/dashboard/profile'
     | '/order/$orderId'
     | '/vendor/application-status'
     | '/vendor/register'
@@ -555,6 +567,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardOrdersRouteImport
       parentRoute: typeof DashboardRoute
     }
+    '/dashboard/profile': {
+      id: '/dashboard/profile'
+      path: '/profile'
+      fullPath: '/dashboard/profile'
+      preLoaderRoute: typeof DashboardProfileRouteImport
+      parentRoute: typeof DashboardRoute
+    }
     '/order/$orderId': {
       id: '/order/$orderId'
       path: '/order/$orderId'
@@ -637,6 +656,7 @@ interface DashboardRouteChildren {
   DashboardDeliveryRoute: typeof DashboardDeliveryRoute
   DashboardMysteryBagsRoute: typeof DashboardMysteryBagsRoute
   DashboardOrdersRoute: typeof DashboardOrdersRoute
+  DashboardProfileRoute: typeof DashboardProfileRoute
   DashboardIndexRoute: typeof DashboardIndexRoute
 }
 
@@ -645,6 +665,7 @@ const DashboardRouteChildren: DashboardRouteChildren = {
   DashboardDeliveryRoute: DashboardDeliveryRoute,
   DashboardMysteryBagsRoute: DashboardMysteryBagsRoute,
   DashboardOrdersRoute: DashboardOrdersRoute,
+  DashboardProfileRoute: DashboardProfileRoute,
   DashboardIndexRoute: DashboardIndexRoute,
 }
 
