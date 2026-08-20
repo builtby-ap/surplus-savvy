@@ -7,7 +7,9 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import * as authService from "./auth-service";
+
 import type {
   AuthSession,
   AuthUser,
@@ -36,15 +38,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
-    void authService.seedDemoAccounts().then(() => {
-      if (!active) return;
-      setSession(authService.loadSession());
-      setIsLoading(false);
+    const refresh = () => {
+      void authService.loadSession().then((next) => {
+        if (!active) return;
+        setSession(next);
+        setIsLoading(false);
+      });
+    };
+    refresh();
+    const { data } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") refresh();
     });
     return () => {
       active = false;
+      data.subscription.unsubscribe();
     };
   }, []);
+
 
   const login = useCallback(async (email: string, password: string) => {
     const next = await authService.login(email, password);
@@ -71,7 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const logout = useCallback(() => {
-    authService.logout();
+    void authService.logout();
     setSession(null);
   }, []);
 

@@ -1,18 +1,20 @@
 /**
- * Mock authentication service.
+ * Supabase-backed authentication service.
  *
- * This is the ONLY place that knows how auth is implemented. Swapping in
- * Supabase Auth later means re-implementing these functions — the React
- * provider, hook and UI stay unchanged.
+ * This is the ONLY place that knows how auth is implemented — the React
+ * provider, hooks and UI keep the exact same shape as before.
  */
+import { supabase } from "@/integrations/supabase/client";
 import type {
   AuthSession,
   AuthUser,
   CustomerRegistrationInput,
+  UserRole,
   VendorApplication,
   VendorRegistrationInput,
 } from "./types";
 
+/** Legacy localStorage keys — still read by the mock admin/analytics helpers. */
 export const AUTH_KEYS = {
   auth: "phoeLaMin_auth",
   user: "phoeLaMin_user",
@@ -20,268 +22,252 @@ export const AUTH_KEYS = {
   accounts: "phoeLaMin_accounts",
 } as const;
 
-interface StoredAccount {
-  user: AuthUser;
-  /** Hashed — plaintext passwords are never persisted. */
-  passwordHash: string | null;
-  vendorApplication?: VendorApplication;
-}
-
-const isBrowser = () => typeof window !== "undefined";
-
-/** SHA-256 hex digest, with a non-reversible fallback for old browsers. */
-export async function hashPassword(password: string): Promise<string> {
-  if (isBrowser() && window.crypto?.subtle) {
-    const bytes = new TextEncoder().encode(`phoe-la-min::${password}`);
-    const digest = await window.crypto.subtle.digest("SHA-256", bytes);
-    return Array.from(new Uint8Array(digest))
-      .map((b) => b.toString(16).padStart(2, "0"))
-      .join("");
-  }
-  let h = 0;
-  for (let i = 0; i < password.length; i += 1) h = (h * 31 + password.charCodeAt(i)) | 0;
-  return `fallback-${(h >>> 0).toString(16)}`;
-}
-
-function read<T>(key: string): T | null {
-  if (!isBrowser()) return null;
-  try {
-    const raw = window.localStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : null;
-  } catch {
-    return null;
-  }
-}
-
-function write(key: string, value: unknown) {
-  if (!isBrowser()) return;
-  window.localStorage.setItem(key, JSON.stringify(value));
-}
-
-function readAccounts(): StoredAccount[] {
-  return read<StoredAccount[]>(AUTH_KEYS.accounts) ?? [];
-}
-
-function writeAccounts(accounts: StoredAccount[]) {
-  write(AUTH_KEYS.accounts, accounts);
-}
-
-function upsertAccount(account: StoredAccount) {
-  const accounts = readAccounts().filter(
-    (a) => a.user.email.toLowerCase() !== account.user.email.toLowerCase(),
-  );
-  accounts.push(account);
-  writeAccounts(accounts);
-}
-
-/** Demo accounts so the mock login flow is usable out of the box. */
+/** Demo accounts seeded in the database. */
 export const DEMO_ACCOUNTS = [
   { label: "Customer", email: "customer@example.com", password: "customer123" },
   { label: "Vendor (approved)", email: "vendor@example.com", password: "vendor123" },
   { label: "Admin", email: "admin@phoelamin.com", password: "admin123" },
 ];
 
+/** Kept for API compatibility — demo accounts now live in Supabase. */
 export async function seedDemoAccounts() {
-  if (!isBrowser() || readAccounts().length > 0) return;
-  const approvedVendorApp: VendorApplication = {
-    id: "mock-vendor-id",
-    cafeName: "Shwe Pyi Cafe",
-    category: "Cafe",
-    phone: "09123456789",
-    email: "vendor@example.com",
-    address: "123 Example Street, Mandalay",
-    latitude: 21.9588,
-    longitude: 96.0891,
-    businessLicense: {
-      fileName: "business-license.pdf",
-      fileType: "application/pdf",
-      fileSize: 184_320,
-      status: "submitted",
-    },
-    fdaApproval: {
-      fileName: "fda-approval.pdf",
-      fileType: "application/pdf",
-      fileSize: 220_160,
-      status: "submitted",
-    },
-    role: "vendor",
-    verificationStatus: "approved",
-    submittedAt: new Date().toISOString(),
-  };
-
-  writeAccounts([
-    {
-      user: {
-        id: "mock-customer-id",
-        fullName: "Aye Pyae",
-        email: "customer@example.com",
-        phone: "09123456789",
-        role: "customer",
-        provider: "password",
-      },
-      passwordHash: await hashPassword("customer123"),
-    },
-    {
-      user: {
-        id: "mock-vendor-user-id",
-        fullName: "Shwe Pyi Cafe",
-        email: "vendor@example.com",
-        phone: "09123456789",
-        role: "vendor",
-        provider: "password",
-        vendorId: approvedVendorApp.id,
-      },
-      passwordHash: await hashPassword("vendor123"),
-      vendorApplication: approvedVendorApp,
-    },
-    {
-      user: {
-        id: "mock-admin-id",
-        fullName: "Platform Administrator",
-        email: "admin@phoelamin.com",
-        role: "admin",
-        provider: "password",
-      },
-      passwordHash: await hashPassword("admin123"),
-    },
-  ]);
+  return;
 }
 
-function persistSession(session: AuthSession) {
-  write(AUTH_KEYS.auth, { isAuthenticated: true, at: new Date().toISOString() });
-  write(AUTH_KEYS.user, session.user);
-  if (session.vendorApplication) write(AUTH_KEYS.vendorApplication, session.vendorApplication);
-  else if (isBrowser()) window.localStorage.removeItem(AUTH_KEYS.vendorApplication);
+type DbRole = "customer" | "food_vendor" | "admin";
+
+const CATEGORY_TO_TYPE: Record<string, string> = {
+  Cafe: "cafe",
+  Restaurant: "restaurant",
+  Bakery: "bakery",
+  "Grocery Store": "grocery",
+  "Fresh Market": "fresh_market",
+  "Snack Shop": "snack_shop",
+  "Convenience Store": "convenience",
+  "Food Producer": "producer",
+};
+
+const TYPE_TO_CATEGORY: Record<string, string> = Object.fromEntries(
+  Object.entries(CATEGORY_TO_TYPE).map(([label, value]) => [value, label]),
+);
+
+function appRole(roles: DbRole[]): UserRole {
+  if (roles.includes("admin")) return "admin";
+  if (roles.includes("food_vendor")) return "vendor";
+  return "customer";
 }
 
-export function loadSession(): AuthSession | null {
-  const auth = read<{ isAuthenticated?: boolean }>(AUTH_KEYS.auth);
-  const user = read<AuthUser>(AUTH_KEYS.user);
-  if (!auth?.isAuthenticated || !user) return null;
-  const stored = readAccounts().find(
-    (a) => a.user.email.toLowerCase() === user.email.toLowerCase(),
-  );
-  const vendorApplication =
-    stored?.vendorApplication ?? read<VendorApplication>(AUTH_KEYS.vendorApplication) ?? undefined;
+function documentMeta(fileName: string | null | undefined) {
   return {
-    user: stored?.user ?? user,
-    ...(vendorApplication ? { vendorApplication } : {}),
+    fileName: fileName ?? "document.pdf",
+    fileType: "application/pdf",
+    fileSize: 0,
+    status: "submitted" as const,
   };
 }
 
-export function clearSession() {
-  if (!isBrowser()) return;
-  window.localStorage.removeItem(AUTH_KEYS.auth);
-  window.localStorage.removeItem(AUTH_KEYS.user);
-  window.localStorage.removeItem(AUTH_KEYS.vendorApplication);
+type VendorRow = {
+  id: string;
+  legacy_id: string | null;
+  name: string;
+  type: string;
+  address: string;
+  phone: string | null;
+  email: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  verification_status: string;
+  rejection_reason: string | null;
+  business_license_name: string | null;
+  fda_approval_name: string | null;
+  created_at: string;
+};
+
+function toApplication(row: VendorRow): VendorApplication {
+  const status =
+    row.verification_status === "approved"
+      ? "approved"
+      : row.verification_status === "pending"
+        ? "pending"
+        : "rejected";
+  return {
+    id: row.legacy_id ?? row.id,
+    cafeName: row.name,
+    category: TYPE_TO_CATEGORY[row.type] ?? row.type,
+    phone: row.phone ?? "",
+    email: row.email ?? "",
+    address: row.address,
+    latitude: row.latitude ?? 0,
+    longitude: row.longitude ?? 0,
+    businessLicense: documentMeta(row.business_license_name),
+    fdaApproval: documentMeta(row.fda_approval_name),
+    role: "vendor",
+    verificationStatus: status,
+    ...(row.rejection_reason ? { rejectionReason: row.rejection_reason } : {}),
+    submittedAt: row.created_at,
+  };
 }
 
-const delay = (ms = 550) => new Promise((r) => setTimeout(r, ms));
+/** Builds the app session for the currently signed-in Supabase user. */
+export async function loadSession(): Promise<AuthSession | null> {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) return null;
+  const authUserId = data.user.id;
+
+  const [profileRes, rolesRes, vendorRes] = await Promise.all([
+    supabase.from("profiles").select("full_name, email, phone").eq("id", authUserId).maybeSingle(),
+    supabase.from("user_roles").select("role").eq("user_id", authUserId),
+    supabase
+      .from("vendors")
+      .select(
+        "id, legacy_id, name, type, address, phone, email, latitude, longitude, verification_status, rejection_reason, business_license_name, fda_approval_name, created_at",
+      )
+      .eq("owner_id", authUserId)
+      .maybeSingle(),
+  ]);
+
+  const roles = (rolesRes.data ?? []).map((r) => r.role as DbRole);
+  const role = appRole(roles);
+  const meta = data.user.user_metadata ?? {};
+  const vendor = (vendorRes.data as VendorRow | null) ?? null;
+  const application = vendor ? toApplication(vendor) : undefined;
+
+  const user: AuthUser = {
+    id: authUserId,
+    fullName: profileRes.data?.full_name || (meta['full_name'] as string) || "",
+    email: profileRes.data?.email || data.user.email || "",
+    ...(profileRes.data?.phone || meta['phone']
+      ? { phone: (profileRes.data?.phone ?? (meta['phone'] as string)) as string }
+      : {}),
+    role,
+    provider: data.user.app_metadata?.provider === "google" ? "google" : "password",
+    ...(application ? { vendorId: application.id } : {}),
+  };
+
+  return { user, ...(application ? { vendorApplication: application } : {}) };
+}
+
+async function sessionOrThrow(): Promise<AuthSession> {
+  const session = await loadSession();
+  if (!session) throw new Error("Could not load your account. Please try again.");
+  return session;
+}
 
 export async function login(email: string, password: string): Promise<AuthSession> {
-  await seedDemoAccounts();
-  await delay();
-  const account = readAccounts().find(
-    (a) => a.user.email.toLowerCase() === email.trim().toLowerCase(),
-  );
-  const passwordHash = await hashPassword(password);
-  if (!account || account.passwordHash !== passwordHash) {
-    throw new Error("Incorrect email or password.");
-  }
-  const session: AuthSession = {
-    user: account.user,
-    ...(account.vendorApplication ? { vendorApplication: account.vendorApplication } : {}),
-  };
-  persistSession(session);
-  return session;
+  const { error } = await supabase.auth.signInWithPassword({
+    email: email.trim().toLowerCase(),
+    password,
+  });
+  if (error) throw new Error("Incorrect email or password.");
+  return sessionOrThrow();
 }
 
 export async function registerCustomer(
   input: CustomerRegistrationInput,
 ): Promise<AuthSession> {
-  await seedDemoAccounts();
-  await delay();
   const email = input.email.trim().toLowerCase();
-  if (readAccounts().some((a) => a.user.email.toLowerCase() === email)) {
-    throw new Error("An account with this email already exists.");
-  }
-  // Role is assigned by the service, never by the client form.
-  const user: AuthUser = {
-    id: `customer-${Date.now()}`,
-    fullName: input.fullName.trim(),
+  const { data, error } = await supabase.auth.signUp({
     email,
-    phone: input.phone.trim(),
-    role: "customer",
-    provider: "password",
-  };
-  upsertAccount({ user, passwordHash: await hashPassword(input.password) });
-  const session = { user };
-  persistSession(session);
-  return session;
-}
-
-export async function loginWithGoogle(): Promise<AuthSession> {
-  await seedDemoAccounts();
-  await delay(700);
-  const user: AuthUser = {
-    id: "mock-google-user-id",
-    fullName: "Google Customer",
-    email: "google@example.com",
-    role: "customer",
-    provider: "google",
-  };
-  upsertAccount({ user, passwordHash: null });
-  const session = { user };
-  persistSession(session);
-  return session;
+    password: input.password,
+    options: {
+      emailRedirectTo: typeof window !== "undefined" ? window.location.origin : "",
+      data: {
+        full_name: input.fullName.trim(),
+        phone: input.phone.trim(),
+        role: "customer",
+      },
+    },
+  });
+  if (error) {
+    throw new Error(
+      error.message.toLowerCase().includes("already")
+        ? "An account with this email already exists."
+        : error.message,
+    );
+  }
+  if (!data.session) {
+    const retry = await supabase.auth.signInWithPassword({ email, password: input.password });
+    if (retry.error) {
+      throw new Error("Account created. Please confirm your email address, then log in.");
+    }
+  }
+  return sessionOrThrow();
 }
 
 export async function registerVendor(
   input: VendorRegistrationInput,
 ): Promise<AuthSession> {
-  await seedDemoAccounts();
-  await delay(800);
   const email = input.email.trim().toLowerCase();
-  if (readAccounts().some((a) => a.user.email.toLowerCase() === email)) {
-    throw new Error("An account with this email already exists.");
-  }
-  const application: VendorApplication = {
-    id: `vendor-${Date.now()}`,
-    cafeName: input.cafeName.trim(),
-    category: input.category,
-    phone: input.phone.trim(),
+  const { data, error } = await supabase.auth.signUp({
     email,
-    address: input.address.trim(),
-    latitude: input.latitude,
-    longitude: input.longitude,
-    businessLicense: input.businessLicense,
-    fdaApproval: input.fdaApproval,
-    role: "vendor",
-    // Vendors are never auto-approved — admin verification is required.
-    verificationStatus: "pending",
-    submittedAt: new Date().toISOString(),
-  };
-  const user: AuthUser = {
-    id: `vendor-user-${Date.now()}`,
-    fullName: application.cafeName,
-    email,
-    phone: application.phone,
-    role: "vendor",
-    provider: "password",
-    vendorId: application.id,
-  };
-  upsertAccount({
-    user,
-    passwordHash: await hashPassword(input.password),
-    vendorApplication: application,
+    password: input.password,
+    options: {
+      emailRedirectTo: typeof window !== "undefined" ? window.location.origin : "",
+      data: {
+        full_name: input.cafeName.trim(),
+        phone: input.phone.trim(),
+        role: "food_vendor",
+      },
+    },
   });
-  const session = { user, vendorApplication: application };
-  persistSession(session);
-  return session;
+  if (error) {
+    throw new Error(
+      error.message.toLowerCase().includes("already")
+        ? "An account with this email already exists."
+        : error.message,
+    );
+  }
+  if (!data.session) {
+    const retry = await supabase.auth.signInWithPassword({ email, password: input.password });
+    if (retry.error) {
+      throw new Error("Account created. Please confirm your email address, then log in.");
+    }
+  }
+
+  const { data: userData } = await supabase.auth.getUser();
+  const ownerId = userData.user?.id;
+  if (ownerId) {
+    // Vendors are never auto-approved — admin verification is required.
+    await supabase.from("vendors").insert({
+      owner_id: ownerId,
+      name: input.cafeName.trim(),
+      type: (CATEGORY_TO_TYPE[input.category] ?? "cafe") as never,
+      address: input.address.trim(),
+      phone: input.phone.trim(),
+      email,
+      latitude: input.latitude,
+      longitude: input.longitude,
+      logo_initials: input.cafeName
+        .split(" ")
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((w) => w[0]?.toUpperCase() ?? "")
+        .join(""),
+      business_license_name: input.businessLicense.fileName,
+      fda_approval_name: input.fdaApproval.fileName,
+      verification_status: "pending" as never,
+    });
+  }
+
+  return sessionOrThrow();
 }
 
-export function logout() {
-  clearSession();
+export async function loginWithGoogle(): Promise<AuthSession> {
+  const { error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: typeof window !== "undefined" ? window.location.origin : "",
+    },
+  });
+  if (error) {
+    throw new Error("Google sign-in isn't available yet. Please use email and password.");
+  }
+  // The browser navigates to Google; this resolves only if it did not.
+  return sessionOrThrow();
+}
+
+export async function logout() {
+  await supabase.auth.signOut();
 }
 
 /** Mock geocoding — replace with a real geocoding API later. */

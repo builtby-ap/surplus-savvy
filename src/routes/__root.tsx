@@ -7,10 +7,11 @@ import {
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
-import { useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth/auth-context";
+import { loadCatalogue } from "@/data/catalogue";
 import appCss from "../styles.css?url";
 
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -133,14 +134,26 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const [catalogueVersion, setCatalogueVersion] = useState(0);
+
+  useEffect(() => {
+    let active = true;
+    void loadCatalogue().then((changed) => {
+      if (active && changed) setCatalogueVersion((v) => v + 1);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <Outlet key={catalogueVersion} />
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>
   );
 }
+
