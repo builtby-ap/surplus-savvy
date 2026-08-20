@@ -1,19 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Leaf, PiggyBank, Store } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, Leaf, MapPin, PiggyBank, Store } from "lucide-react";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { ImpactBanner } from "@/components/impact-banner";
 import { FeaturedBusinesses } from "@/components/featured-businesses";
 import heroAsset from "@/assets/hero-phoelamin.jpeg.asset.json";
+import { getNearbyLocation, saveNearbyLocation, type LatLng } from "@/lib/nearby";
 
 import { Button } from "@/components/ui/button";
 import {
   businesses,
   businessTypeLabels,
   formatMoneySaved,
+  haversineKm,
   mysteryBags,
   platformStats,
 } from "@/data/mock";
+
 
 
 
@@ -40,6 +44,48 @@ export const Route = createFileRoute("/")({
 
 function MarketplaceHome() {
   const closingSoon = mysteryBags.filter((b) => b.quantityLeft > 0 && b.quantityLeft <= 3).slice(0, 8);
+
+  const [coords, setCoords] = useState<LatLng | null>(null);
+  const [geoState, setGeoState] = useState<"idle" | "loading" | "ready" | "denied">("idle");
+
+  const requestLocation = () => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGeoState("denied");
+      return;
+    }
+    setGeoState("loading");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setCoords(loc);
+        saveNearbyLocation(loc);
+        setGeoState("ready");
+      },
+      () => setGeoState("denied"),
+      { enableHighAccuracy: true, timeout: 10000 },
+    );
+  };
+
+  useEffect(() => {
+    const saved = getNearbyLocation();
+    if (saved) {
+      setCoords(saved);
+      setGeoState("ready");
+      return;
+    }
+    requestLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const nearbyBusinesses = useMemo(() => {
+    const list = businesses.map((business) => ({
+      business,
+      distanceKm: coords ? haversineKm(coords, { lat: business.lat, lng: business.lng }) : null,
+    }));
+    if (coords) list.sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
+    return list.slice(0, 6);
+  }, [coords]);
+
 
   return (
 
@@ -130,9 +176,34 @@ function MarketplaceHome() {
 
 
       <section className="mx-auto max-w-6xl px-4 py-12">
-        <h2 className="text-xl font-semibold">Businesses rescuing food nearby</h2>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="text-xl font-semibold">Businesses rescuing food nearby</h2>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            {geoState === "ready" ? (
+              <span className="inline-flex items-center gap-1 text-success">
+                <MapPin className="size-3.5" /> Sorted by your location
+              </span>
+            ) : geoState === "loading" ? (
+              <span>Finding your location…</span>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                className="rounded-full"
+                onClick={requestLocation}
+              >
+                <MapPin className="size-3.5" /> Use my location
+              </Button>
+            )}
+          </div>
+        </div>
+        {geoState === "denied" ? (
+          <p className="mt-2 text-xs text-muted-foreground">
+            Location unavailable — showing businesses across the city.
+          </p>
+        ) : null}
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {businesses.slice(0, 6).map((b) => (
+          {nearbyBusinesses.map(({ business: b, distanceKm }) => (
             <Link
               key={b.id}
               to="/business/$businessId"
@@ -146,12 +217,14 @@ function MarketplaceHome() {
                 <p className="truncate font-medium">{b.name}</p>
                 <p className="truncate text-xs text-muted-foreground">
                   {businessTypeLabels[b.type]} · {b.neighborhood}
+                  {distanceKm != null ? ` · ${distanceKm.toFixed(1)} km away` : ""}
                 </p>
               </div>
             </Link>
           ))}
         </div>
       </section>
+
     </PublicLayout>
   );
 }
