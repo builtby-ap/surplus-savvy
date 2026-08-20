@@ -138,11 +138,22 @@ function RootComponent() {
 
   useEffect(() => {
     let active = true;
-    void loadCatalogue().then((changed) => {
-      if (active && changed) setCatalogueVersion((v) => v + 1);
-    });
+    const refresh = () => {
+      void loadCatalogue().then((changed) => {
+        if (active && changed) setCatalogueVersion((v) => v + 1);
+      });
+    };
+    refresh();
+    // Pick up newly published / edited food posts without a hard reload.
+    const interval = window.setInterval(refresh, 20_000);
+    const onFocus = () => refresh();
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
     return () => {
       active = false;
+      window.clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
     };
   }, []);
 
