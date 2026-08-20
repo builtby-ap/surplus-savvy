@@ -10,7 +10,9 @@
 import { supabase } from "@/integrations/supabase/client";
 import { signedScreenshotUrl, type PaymentSettings } from "@/lib/payments";
 
-export interface PendingPayment {
+export type AdminPaymentStatus = "awaiting_verification" | "verified" | "rejected" | "not_required";
+
+export interface AdminPayment {
   id: string;
   receiptNumber: string;
   placedAt: string;
@@ -29,31 +31,54 @@ export interface PendingPayment {
   customerEmail: string;
   customerPhone: string | null;
   items: { id: string; title: string; quantity: number; unitPrice: number }[];
+  paymentStatus: AdminPaymentStatus;
+  paymentVerifiedAt: string | null;
+  paymentVerifiedBy: string | null;
+  paymentVerifiedByName: string | null;
+  paymentRejectionReason: string | null;
 }
 
-export async function fetchPendingPayments(): Promise<PendingPayment[]> {
+/** @deprecated Use AdminPayment instead. */
+export type PendingPayment = AdminPayment;
+
+export async function fetchAdminPayments(): Promise<AdminPayment[]> {
   const { data, error } = await supabase
     .from("orders")
     .select(
-      "id, receipt_number, placed_at, method, total, item_price, discount, delivery_fee, notes, pickup_window, delivery_address, delivery_recipient_name, delivery_phone, delivery_township, delivery_city, payment_screenshot_url, customer_id, vendors(name), order_items(id, title, quantity, unit_price)",
+      "id, receipt_number, placed_at, method, total, item_price, discount, delivery_fee, notes, pickup_window, delivery_address, delivery_recipient_name, delivery_phone, delivery_township, delivery_city, payment_screenshot_url, payment_status, payment_verified_at, payment_verified_by, payment_rejection_reason, customer_id, vendors(name), order_items(id, title, quantity, unit_price)",
     )
-    .eq("payment_status", "awaiting_verification")
+    .neq("payment_status", "not_required")
     .order("placed_at", { ascending: false });
   if (error) throw error;
 
   const rows = (data ?? []) as unknown as Record<string, unknown>[];
   const customerIds = [...new Set(rows.map((r) => String(r['customer_id'])))];
-  const profiles = customerIds.length
-    ? await supabase.from("profiles").select("id, full_name, email, phone").in("id", customerIds)
-    : { data: [], error: null };
+  const adminIds = [...new Set(rows.map((r) => r['payment_verified_by'] ? String(r['payment_verified_by']) : null).filter((id): id is string => Boolean(id)))];
+
+  const [profiles, adminProfiles] = await Promise.all([
+    customerIds.length
+      ? supabase.from("profiles").select("id, full_name, email, phone").in("id", customerIds)
+      : Promise.resolve({ data: [], error: null }),
+    adminIds.length
+      ? supabase.from("profiles").select("id, full_name").in("id", adminIds)
+      : Promise.resolve({ data: [], error: null }),
+  ]);
+  if (profiles.error) throw profiles.error;
+  if (adminProfiles.error) throw adminProfiles.error;
+
   const byId = new Map(
     (profiles.data ?? []).map((p) => [p.id, p as { full_name: string; email: string; phone: string | null }]),
+  );
+  const adminById = new Map(
+    (adminProfiles.data ?? []).map((p) => [p.id, p as { full_name: string }]),
   );
 
   return Promise.all(
     rows.map(async (row) => {
       const path = (row['payment_screenshot_url'] as string) ?? null;
       const profile = byId.get(String(row['customer_id']));
+      const adminId = row['payment_verified_by'] ? String(row['payment_verified_by']) : null;
+      const adminProfile = adminId ? adminById.get(adminId) : null;
       const vendor = row['vendors'] as { name?: string } | null;
       const address =
         (row['delivery_address'] as string) ??
@@ -83,10 +108,18 @@ export async function fetchPendingPayments(): Promise<PendingPayment[]> {
           quantity: Number(i['quantity'] ?? 1),
           unitPrice: Number(i['unit_price'] ?? 0),
         })),
-      } satisfies PendingPayment;
+        paymentStatus: (row['payment_status'] as AdminPaymentStatus) ?? "awaiting_verification",
+        paymentVerifiedAt: (row['payment_verified_at'] as string) ?? null,
+        paymentVerifiedBy: adminId,
+        paymentVerifiedByName: adminProfile?.full_name ?? null,
+        paymentRejectionReason: (row['payment_rejection_reason'] as string) ?? null,
+      } satisfies AdminPayment;
     }),
   );
 }
+
+/** @deprecated Use fetchAdminPayments instead. */
+export const fetchPendingPayments = fetchAdminPayments;
 
 export async function approvePayment(orderId: string, adminId: string) {
   const { error } = await supabase
