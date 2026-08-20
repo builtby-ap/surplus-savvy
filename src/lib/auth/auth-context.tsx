@@ -103,10 +103,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
+/** Signed-out placeholder so a missing provider degrades instead of blanking the page. */
+const signedOutContext: AuthContextValue = {
+  user: null,
+  vendorApplication: null,
+  isAuthenticated: false,
+  isLoading: true,
+  login: () => Promise.reject(new Error("Auth is not ready yet.")),
+  registerCustomer: () => Promise.reject(new Error("Auth is not ready yet.")),
+  registerVendor: () => Promise.reject(new Error("Auth is not ready yet.")),
+  loginWithGoogle: () => Promise.reject(new Error("Auth is not ready yet.")),
+  logout: () => undefined,
+};
+
 export function useAuth() {
-  const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used within an AuthProvider");
-  return ctx;
+  return useContext(AuthContext) ?? signedOutContext;
 }
 
 /** Where a signed-in user should land, based on role + vendor verification. */
