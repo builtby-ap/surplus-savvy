@@ -10,7 +10,9 @@
 import { supabase } from "@/integrations/supabase/client";
 import { signedScreenshotUrl, type PaymentSettings } from "@/lib/payments";
 
-export interface PendingPayment {
+export type AdminPaymentStatus = "awaiting_verification" | "verified" | "rejected" | "not_required";
+
+export interface AdminPayment {
   id: string;
   receiptNumber: string;
   placedAt: string;
@@ -29,7 +31,15 @@ export interface PendingPayment {
   customerEmail: string;
   customerPhone: string | null;
   items: { id: string; title: string; quantity: number; unitPrice: number }[];
+  paymentStatus: AdminPaymentStatus;
+  paymentVerifiedAt: string | null;
+  paymentVerifiedBy: string | null;
+  paymentVerifiedByName: string | null;
+  paymentRejectionReason: string | null;
 }
+
+/** @deprecated Use AdminPayment instead. */
+export type PendingPayment = AdminPayment;
 
 export async function fetchPendingPayments(): Promise<PendingPayment[]> {
   const { data, error } = await supabase
