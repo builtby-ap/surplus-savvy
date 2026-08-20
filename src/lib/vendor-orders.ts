@@ -32,7 +32,7 @@ function buildOrder(
   const itemPrice = items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
   const business = getBusiness(businessId);
   const deliveryFee =
-    method === "delivery" && business ? getDeliveryTerms(business).deliveryFee : 0;
+    method === "delivery" && business ? getDeliveryTerms(business).fee : 0;
   return {
     id: `ord-v${businessId}-${n}`,
     receiptNumber: `SR-80${n}00${n}`,
@@ -51,7 +51,7 @@ function buildOrder(
       : { pickupWindow: "17:30 – 19:00" }),
     placedAt: new Date(Date.now() - minutesAgo * 60_000).toISOString(),
     status,
-  } as PlacedOrder;
+  } as PlacedOrder & { status: OrderStatus };
 }
 
 /** Seeds a handful of incoming orders the first time a vendor opens the page. */
