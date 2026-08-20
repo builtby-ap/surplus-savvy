@@ -4,6 +4,7 @@
  * unchanged while the data now comes from the database.
  */
 import { supabase } from "@/integrations/supabase/client";
+import { safeImage } from "@/lib/image-upload";
 import {
   businesses,
   mysteryBags,
@@ -65,7 +66,7 @@ export async function loadCatalogue(): Promise<boolean> {
         neighborhood: v.neighborhood,
         rating: Number(v.rating),
         reviewCount: v.review_count,
-        image: v.image_url ?? storefrontImage,
+        image: safeImage(v.image_url, storefrontImage),
         logoInitials: v.logo_initials,
         fulfillment: v.fulfillment as FulfillmentType,
         mealsRescued: v.meals_rescued ?? 0,
@@ -94,7 +95,7 @@ export async function loadCatalogue(): Promise<boolean> {
           availableFrom: hhmm(p.available_from),
           availableUntil: hhmm(p.available_until),
           fulfillment: p.fulfillment as FulfillmentType,
-          image: p.image_url ?? categoryImages[category] ?? storefrontImage,
+          image: safeImage(p.image_url, categoryImages[category] ?? storefrontImage),
           rating: Number(p.rating ?? 0),
         };
       });
