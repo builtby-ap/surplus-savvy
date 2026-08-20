@@ -354,6 +354,32 @@ function BrowsePage() {
               </select>
             </div>
 
+            <div className="space-y-2">
+              <Label>Search radius</Label>
+              <div className="flex flex-wrap gap-2">
+                {[1, 2, 5, 10, 20].map((km) => (
+                  <button
+                    key={km}
+                    type="button"
+                    onClick={() => setRadiusKm(km)}
+                    className={cn(
+                      "rounded-full border border-border px-3 py-1 text-xs transition-colors",
+                      radiusKm === km
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "hover:border-primary hover:text-primary",
+                    )}
+                  >
+                    {km} km
+                  </button>
+                ))}
+              </div>
+              {!userLocation && (
+                <p className="text-xs text-muted-foreground">
+                  Set a location to filter by radius.
+                </p>
+              )}
+            </div>
+
             <Button
               type="button"
               variant={userLocation ? "default" : "outline"}
@@ -368,7 +394,38 @@ function BrowsePage() {
               )}
               {userLocation ? "Clear my location" : "Use my location"}
             </Button>
+
+            {userLocation && locationLabel && (
+              <p className="text-xs text-muted-foreground">Near {locationLabel}</p>
+            )}
+
+            <div className="space-y-2">
+              {!manualOpen ? (
+                <button
+                  type="button"
+                  onClick={() => setManualOpen(true)}
+                  className="text-xs text-primary underline-offset-2 hover:underline"
+                >
+                  Or search a location
+                </button>
+              ) : (
+                <form onSubmit={searchLocation} className="space-y-2">
+                  <Label htmlFor="place">Search a location</Label>
+                  <Input
+                    id="place"
+                    value={manualQuery}
+                    onChange={(e) => setManualQuery(e.target.value)}
+                    placeholder="Township, street or landmark"
+                  />
+                  <Button type="submit" variant="outline" className="w-full" disabled={geocoding}>
+                    {geocoding ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+                    Set location
+                  </Button>
+                </form>
+              )}
+            </div>
           </aside>
+
 
           <div>
             <div className="flex flex-wrap items-center justify-between gap-3">
