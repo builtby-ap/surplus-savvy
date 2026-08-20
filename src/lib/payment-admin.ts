@@ -53,7 +53,7 @@ export async function fetchAdminPayments(): Promise<AdminPayment[]> {
 
   const rows = (data ?? []) as unknown as Record<string, unknown>[];
   const customerIds = [...new Set(rows.map((r) => String(r['customer_id'])))];
-  const adminIds = [...new Set(rows.map((r) => (r['payment_verified_by'] ? String(r['payment_verified_by']) : null)).filter(Boolean))];
+  const adminIds = [...new Set(rows.map((r) => r['payment_verified_by'] ? String(r['payment_verified_by']) : null).filter((id): id is string => Boolean(id)))];
 
   const [profiles, adminProfiles] = await Promise.all([
     customerIds.length
