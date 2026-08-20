@@ -97,7 +97,7 @@ function OrderTracking() {
           ) : (
             <ol className="relative space-y-6 pl-2">
               {flow.map((step, i) => {
-                const done = i < currentIndex;
+                const done = i <= currentIndex;
                 const active = i === currentIndex;
                 return (
                   <li key={step} className="relative flex gap-4">
