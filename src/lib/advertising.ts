@@ -22,17 +22,17 @@ const COLUMNS =
 
 function mapAd(row: Record<string, unknown>): Advertisement {
   return {
-    id: row.id as string,
-    vendorId: row.vendor_id as string,
-    requestedStartDate: row.requested_start_date as string,
-    requestedEndDate: row.requested_end_date as string,
-    startDate: (row.start_date as string) ?? null,
-    endDate: (row.end_date as string) ?? null,
-    tagline: (row.tagline as string) ?? null,
-    cost: row.cost === null || row.cost === undefined ? null : Number(row.cost),
-    status: row.status as AdStatus,
-    adminNote: (row.admin_note as string) ?? null,
-    createdAt: row.created_at as string,
+    id: row["id"] as string,
+    vendorId: row["vendor_id"] as string,
+    requestedStartDate: row["requested_start_date"] as string,
+    requestedEndDate: row["requested_end_date"] as string,
+    startDate: (row["start_date"] as string) ?? null,
+    endDate: (row["end_date"] as string) ?? null,
+    tagline: (row["tagline"] as string) ?? null,
+    cost: row["cost"] === null || row["cost"] === undefined ? null : Number(row["cost"]),
+    status: row["status"] as AdStatus,
+    adminNote: (row["admin_note"] as string) ?? null,
+    createdAt: row["created_at"] as string,
   };
 }
 
