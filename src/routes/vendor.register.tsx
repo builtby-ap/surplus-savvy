@@ -13,9 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth/auth-context";
 import { geocodeAddress } from "@/lib/auth/auth-service";
+import { fileToStoredImage } from "@/lib/image-upload";
 import type { VendorDocumentMeta } from "@/lib/auth/types";
+
 
 export const Route = createFileRoute("/vendor/register")({
   head: () => ({
@@ -191,12 +194,31 @@ function VendorRegisterPage() {
     confirmPassword: "",
   });
   const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [logoError, setLogoError] = useState<string | null>(null);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [license, setLicense] = useState<VendorDocumentMeta | null>(null);
   const [fda, setFda] = useState<VendorDocumentMeta | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<ErrorKey, string>>>({});
   const [submitting, setSubmitting] = useState(false);
+
+  async function handleLogo(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!["image/jpeg", "image/jpg", "image/png"].includes(file.type)) {
+      setLogoError("Only JPG, JPEG or PNG images are accepted.");
+      return;
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      setLogoError("Image must be 5 MB or smaller.");
+      return;
+    }
+    setLogoError(null);
+    setLogoUrl(await fileToStoredImage(file, 600));
+  }
+
 
   const set = (f: TextField) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setValues((v) => ({ ...v, [f]: e.target.value }));
