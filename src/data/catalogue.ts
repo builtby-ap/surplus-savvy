@@ -1,0 +1,99 @@
+/**
+ * Hydrates the marketplace catalogue from Supabase into the existing
+ * `businesses` / `mysteryBags` arrays, so every page keeps working
+ * unchanged while the data now comes from the database.
+ */
+import { supabase } from "@/integrations/supabase/client";
+import {
+  businesses,
+  mysteryBags,
+  categoryImages,
+  storefrontImage,
+  type BagCategory,
+  type Business,
+  type BusinessType,
+  type FulfillmentType,
+  type MysteryBag,
+} from "./mock";
+
+let loaded = false;
+
+function hhmm(value: string) {
+  return value.slice(0, 5);
+}
+
+export async function loadCatalogue(): Promise<boolean> {
+  if (loaded) return false;
+  try {
+    const [vendorRes, postRes] = await Promise.all([
+      supabase
+        .from("vendors")
+        .select(
+          "id, legacy_id, name, type, description, address, neighborhood, image_url, logo_initials, rating, review_count, fulfillment, meals_rescued, verified, latitude, longitude",
+        )
+        .eq("verification_status", "approved"),
+      supabase
+        .from("food_posts")
+        .select(
+          "id, legacy_id, vendor_id, title, description, category, original_price, discounted_price, quantity_left, total_quantity, available_from, available_until, fulfillment, image_url, rating",
+        )
+        .eq("is_available", true),
+    ]);
+
+    const vendorRows = vendorRes.data ?? [];
+    const postRows = postRes.data ?? [];
+    if (vendorRows.length === 0) return false;
+
+    const idByUuid = new Map<string, string>();
+    const nextBusinesses: Business[] = vendorRows.map((v) => {
+      const id = v.legacy_id ?? v.id;
+      idByUuid.set(v.id, id);
+      return {
+        id,
+        name: v.name,
+        type: v.type as BusinessType,
+        description: v.description,
+        address: v.address,
+        neighborhood: v.neighborhood,
+        rating: Number(v.rating),
+        reviewCount: v.review_count,
+        image: v.image_url ?? storefrontImage,
+        logoInitials: v.logo_initials,
+        fulfillment: v.fulfillment as FulfillmentType,
+        mealsRescued: v.meals_rescued ?? 0,
+        verified: Boolean(v.verified),
+        lat: v.latitude ?? 0,
+        lng: v.longitude ?? 0,
+      };
+    });
+
+    const nextBags: MysteryBag[] = postRows
+      .filter((p) => idByUuid.has(p.vendor_id))
+      .map((p) => {
+        const category = p.category as BagCategory;
+        return {
+          id: p.legacy_id ?? p.id,
+          businessId: idByUuid.get(p.vendor_id) as string,
+          title: p.title,
+          category,
+          description: p.description,
+          originalPrice: Number(p.original_price),
+          discountedPrice: Number(p.discounted_price),
+          quantityLeft: p.quantity_left,
+          totalQuantity: p.total_quantity,
+          availableFrom: hhmm(p.available_from),
+          availableUntil: hhmm(p.available_until),
+          fulfillment: p.fulfillment as FulfillmentType,
+          image: p.image_url ?? categoryImages[category] ?? storefrontImage,
+          rating: Number(p.rating ?? 0),
+        };
+      });
+
+    businesses.splice(0, businesses.length, ...nextBusinesses);
+    mysteryBags.splice(0, mysteryBags.length, ...nextBags);
+    loaded = true;
+    return true;
+  } catch {
+    return false;
+  }
+}
