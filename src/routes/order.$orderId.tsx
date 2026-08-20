@@ -53,8 +53,10 @@ function OrderReceipt() {
     );
   }
 
-  const bag = getBag(order.bagId);
-  const business = getBusiness(order.businessId);
+  const businesses = (order.businessIds ?? [order.businessId])
+    .map((id) => getBusiness(id))
+    .filter((b): b is NonNullable<typeof b> => Boolean(b));
+  const business = businesses[0];
   const placed = new Date(order.placedAt);
 
   return (
