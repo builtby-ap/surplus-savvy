@@ -167,7 +167,7 @@ function VendorPostsPage() {
         <div>
           <h2 className="text-2xl font-semibold text-foreground">Food posts</h2>
           <p className="text-sm text-muted-foreground">
-            {posts.length} total · {liveCount} live right now
+            {posts.length} total · {liveCount} live right now · showing {visiblePosts.length}
           </p>
         </div>
         <Button onClick={openNew} disabled={!vendorId}>
