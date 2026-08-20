@@ -10,6 +10,8 @@ import {
   statusBadgeClass,
 } from "@/lib/order-status";
 import { useMyOrder } from "@/lib/customer-orders";
+import { PaymentReviewPanel } from "@/components/checkout/payment-review";
+
 
 export const Route = createFileRoute("/account/orders/$orderId")({
   component: OrderTracking,
