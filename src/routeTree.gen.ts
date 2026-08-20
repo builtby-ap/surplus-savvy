@@ -35,6 +35,8 @@ import { Route as DashboardDeliveryRouteImport } from './routes/dashboard.delive
 import { Route as DashboardMysteryBagsRouteImport } from './routes/dashboard.mystery-bags'
 import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
 import { Route as OrderOrderIdRouteImport } from './routes/order.$orderId'
+import { Route as VendorApplicationStatusRouteImport } from './routes/vendor.application-status'
+import { Route as VendorRegisterRouteImport } from './routes/vendor.register'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -166,6 +168,16 @@ const OrderOrderIdRoute = OrderOrderIdRouteImport.update({
   path: '/order/$orderId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const VendorApplicationStatusRoute = VendorApplicationStatusRouteImport.update({
+  id: '/vendor/application-status',
+  path: '/vendor/application-status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VendorRegisterRoute = VendorRegisterRouteImport.update({
+  id: '/vendor/register',
+  path: '/vendor/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -191,6 +203,8 @@ export interface FileRoutesByFullPath {
   '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
   '/dashboard/orders': typeof DashboardOrdersRoute
   '/order/$orderId': typeof OrderOrderIdRoute
+  '/vendor/application-status': typeof VendorApplicationStatusRoute
+  '/vendor/register': typeof VendorRegisterRoute
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -216,6 +230,8 @@ export interface FileRoutesByTo {
   '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
   '/dashboard/orders': typeof DashboardOrdersRoute
   '/order/$orderId': typeof OrderOrderIdRoute
+  '/vendor/application-status': typeof VendorApplicationStatusRoute
+  '/vendor/register': typeof VendorRegisterRoute
   '/account': typeof AccountIndexRoute
   '/admin': typeof AdminIndexRoute
   '/dashboard': typeof DashboardIndexRoute
@@ -245,6 +261,8 @@ export interface FileRoutesById {
   '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
   '/dashboard/orders': typeof DashboardOrdersRoute
   '/order/$orderId': typeof OrderOrderIdRoute
+  '/vendor/application-status': typeof VendorApplicationStatusRoute
+  '/vendor/register': typeof VendorRegisterRoute
   '/account/': typeof AccountIndexRoute
   '/admin/': typeof AdminIndexRoute
   '/dashboard/': typeof DashboardIndexRoute
@@ -275,6 +293,8 @@ export interface FileRouteTypes {
     | '/dashboard/mystery-bags'
     | '/dashboard/orders'
     | '/order/$orderId'
+    | '/vendor/application-status'
+    | '/vendor/register'
     | '/account/'
     | '/admin/'
     | '/dashboard/'
@@ -300,6 +320,8 @@ export interface FileRouteTypes {
     | '/dashboard/mystery-bags'
     | '/dashboard/orders'
     | '/order/$orderId'
+    | '/vendor/application-status'
+    | '/vendor/register'
     | '/account'
     | '/admin'
     | '/dashboard'
@@ -328,6 +350,8 @@ export interface FileRouteTypes {
     | '/dashboard/mystery-bags'
     | '/dashboard/orders'
     | '/order/$orderId'
+    | '/vendor/application-status'
+    | '/vendor/register'
     | '/account/'
     | '/admin/'
     | '/dashboard/'
@@ -346,6 +370,8 @@ export interface RootRouteChildren {
   BagBagIdRoute: typeof BagBagIdRoute
   BusinessBusinessIdRoute: typeof BusinessBusinessIdRoute
   OrderOrderIdRoute: typeof OrderOrderIdRoute
+  VendorApplicationStatusRoute: typeof VendorApplicationStatusRoute
+  VendorRegisterRoute: typeof VendorRegisterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -532,6 +558,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof OrderOrderIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/vendor/application-status': {
+      id: '/vendor/application-status'
+      path: '/vendor/application-status'
+      fullPath: '/vendor/application-status'
+      preLoaderRoute: typeof VendorApplicationStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vendor/register': {
+      id: '/vendor/register'
+      path: '/vendor/register'
+      fullPath: '/vendor/register'
+      preLoaderRoute: typeof VendorRegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -603,6 +643,8 @@ const rootRouteChildren: RootRouteChildren = {
   BagBagIdRoute: BagBagIdRoute,
   BusinessBusinessIdRoute: BusinessBusinessIdRoute,
   OrderOrderIdRoute: OrderOrderIdRoute,
+  VendorApplicationStatusRoute: VendorApplicationStatusRoute,
+  VendorRegisterRoute: VendorRegisterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
