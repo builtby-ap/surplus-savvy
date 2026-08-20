@@ -2,6 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Leaf, PiggyBank, Store } from "lucide-react";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
+import { ImpactBanner } from "@/components/impact-banner";
+
 import { Button } from "@/components/ui/button";
 import {
   bagCategoryLabels,
@@ -41,7 +43,9 @@ function MarketplaceHome() {
 
   return (
     <PublicLayout>
+      <ImpactBanner />
       <section className="warm-hero">
+
         <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-12 md:grid-cols-2 md:py-16">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-success/15 px-3 py-1 text-xs font-medium text-success">

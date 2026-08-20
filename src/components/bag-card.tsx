@@ -1,25 +1,47 @@
 import { Link } from "@tanstack/react-router";
-import { Clock, MapPin, Star } from "lucide-react";
+import { Bike, MapPin, ShoppingBag, Star, Timer } from "lucide-react";
 import {
   bagCategoryLabels,
+  businessTypeLabels,
   discountPercent,
   formatPrice,
   getBusiness,
   type MysteryBag,
 } from "@/data/mock";
 import { Badge } from "@/components/ui/badge";
+import { CLOSING_SOON_MS, formatDuration, useCountdown } from "@/lib/countdown";
+import { cn } from "@/lib/utils";
+
+export function FulfillmentIcons({ bag }: { bag: MysteryBag }) {
+  const pickup = bag.fulfillment === "pickup" || bag.fulfillment === "both";
+  const delivery = bag.fulfillment === "delivery" || bag.fulfillment === "both";
+  return (
+    <span className="flex items-center gap-2 text-muted-foreground">
+      {pickup && (
+        <span className="flex items-center gap-1" title="Pickup available">
+          <ShoppingBag className="size-3.5" aria-hidden />
+          <span className="sr-only">Pickup available</span>
+        </span>
+      )}
+      {delivery && (
+        <span className="flex items-center gap-1" title="Delivery available">
+          <Bike className="size-3.5" aria-hidden />
+          <span className="sr-only">Delivery available</span>
+        </span>
+      )}
+    </span>
+  );
+}
 
 export function BagCard({ bag, eager = false }: { bag: MysteryBag; eager?: boolean }) {
   const business = getBusiness(bag.businessId);
   const soldOut = bag.quantityLeft === 0;
   const low = bag.quantityLeft > 0 && bag.quantityLeft <= 3;
+  const remaining = useCountdown(bag.availableUntil, 30000);
+  const closingSoon = !soldOut && remaining !== null && remaining > 0 && remaining <= CLOSING_SOON_MS;
 
-  return (
-    <Link
-      to="/bag/$bagId"
-      params={{ bagId: bag.id }}
-      className="surface-card group block overflow-hidden transition-transform hover:-translate-y-0.5"
-    >
+  const inner = (
+    <>
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={bag.image}
@@ -27,7 +49,10 @@ export function BagCard({ bag, eager = false }: { bag: MysteryBag; eager?: boole
           loading={eager ? "eager" : "lazy"}
           width={1024}
           height={768}
-          className="size-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className={cn(
+            "size-full object-cover transition-transform duration-500",
+            soldOut ? "grayscale" : "group-hover:scale-105",
+          )}
         />
         <Badge className="absolute left-3 top-3 rounded-full bg-accent text-accent-foreground">
           -{discountPercent(bag)}%
@@ -45,6 +70,11 @@ export function BagCard({ bag, eager = false }: { bag: MysteryBag; eager?: boole
             {bag.quantityLeft} available
           </Badge>
         )}
+        {closingSoon && (
+          <Badge className="absolute bottom-3 left-3 rounded-full bg-destructive text-destructive-foreground">
+            <Timer className="size-3.5" /> Closing soon
+          </Badge>
+        )}
       </div>
 
       <div className="space-y-2 p-4">
@@ -56,16 +86,30 @@ export function BagCard({ bag, eager = false }: { bag: MysteryBag; eager?: boole
           </span>
         </div>
         <h3 className="truncate text-base font-semibold">{bag.title}</h3>
-        <p className="text-xs text-muted-foreground">{bagCategoryLabels[bag.category]}</p>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex flex-wrap items-center gap-2">
+          {business && (
+            <Badge variant="outline" className="rounded-full text-[11px] font-normal">
+              {businessTypeLabels[business.type]}
+            </Badge>
+          )}
+          <Badge variant="secondary" className="rounded-full text-[11px] font-normal">
+            {bagCategoryLabels[bag.category]}
+          </Badge>
+        </div>
+        <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
-            <Clock className="size-3.5" />
-            {bag.availableFrom}–{bag.availableUntil}
+            <Timer className="size-3.5" />
+            {soldOut
+              ? "Unavailable"
+              : remaining === null
+                ? `Until ${bag.availableUntil}`
+                : formatDuration(remaining)}
           </span>
-          <span className="flex items-center gap-1 truncate">
-            <MapPin className="size-3.5" />
-            {business?.neighborhood}
-          </span>
+          <FulfillmentIcons bag={bag} />
+        </div>
+        <div className="flex items-center gap-1 truncate text-xs text-muted-foreground">
+          <MapPin className="size-3.5" />
+          {business?.neighborhood}
         </div>
         <div className="flex items-baseline gap-2 pt-1">
           <span className="text-lg font-semibold text-accent">
@@ -74,8 +118,30 @@ export function BagCard({ bag, eager = false }: { bag: MysteryBag; eager?: boole
           <span className="text-sm text-muted-foreground line-through">
             {formatPrice(bag.originalPrice)}
           </span>
+          <span className="text-xs font-medium text-success">-{discountPercent(bag)}%</span>
         </div>
       </div>
+    </>
+  );
+
+  if (soldOut) {
+    return (
+      <div
+        aria-disabled="true"
+        className="surface-card pointer-events-none block overflow-hidden opacity-60"
+      >
+        {inner}
+      </div>
+    );
+  }
+
+  return (
+    <Link
+      to="/bag/$bagId"
+      params={{ bagId: bag.id }}
+      className="surface-card group block overflow-hidden transition-transform hover:-translate-y-0.5"
+    >
+      {inner}
     </Link>
   );
 }

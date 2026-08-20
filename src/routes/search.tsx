@@ -1,5 +1,19 @@
+import { useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { PublicLayout, PagePlaceholder } from "@/components/layout/public-layout";
+import { PublicLayout } from "@/components/layout/public-layout";
+import { BagCard } from "@/components/bag-card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+import {
+  bagCategoryLabels,
+  businesses,
+  getBusiness,
+  mysteryBags,
+  type BagCategory,
+} from "@/data/mock";
+import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/search")({
   validateSearch: (search: Record<string, unknown>): { q?: string; category?: string } => {
@@ -10,18 +24,178 @@ export const Route = createFileRoute("/search")({
   },
   head: () => ({
     meta: [
-      { title: "Search mystery bags — Surplus Rescue" },
-      { name: "description", content: "Filter surplus mystery bags by category, price, distance and pickup window." },
-      { property: "og:title", content: "Search mystery bags — Surplus Rescue" },
-      { property: "og:description", content: "Filter surplus mystery bags by category, price, distance and pickup window." },
+      { title: "Browse mystery bags — Surplus Rescue" },
+      { name: "description", content: "Filter surplus mystery bags by category, price, delivery or pickup and city, and reserve before the window closes." },
+      { property: "og:title", content: "Browse mystery bags — Surplus Rescue" },
+      { property: "og:description", content: "Filter surplus mystery bags by category, price, delivery or pickup and city." },
     ],
   }),
-  component: () => (
-    <PublicLayout>
-      <PagePlaceholder
-        title="Search & filters"
-        description="Full search results with category, price, distance and pickup-window filters land here."
-      />
-    </PublicLayout>
-  ),
+  component: BrowsePage,
 });
+
+const categories = Object.keys(bagCategoryLabels) as BagCategory[];
+const cities = Array.from(new Set(businesses.map((b) => b.neighborhood))).sort();
+const MAX_PRICE = Math.ceil(Math.max(...mysteryBags.map((b) => b.discountedPrice)));
+
+type Method = "all" | "pickup" | "delivery";
+
+function BrowsePage() {
+  const initial = Route.useSearch();
+  const [query, setQuery] = useState(initial.q ?? "");
+  const [category, setCategory] = useState<string>(initial.category ?? "all");
+  const [maxPrice, setMaxPrice] = useState<number>(MAX_PRICE);
+  const [method, setMethod] = useState<Method>("all");
+  const [city, setCity] = useState<string>("all");
+
+  const results = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return mysteryBags.filter((bag) => {
+      const business = getBusiness(bag.businessId);
+      if (category !== "all" && bag.category !== category) return false;
+      if (bag.discountedPrice > maxPrice) return false;
+      if (method !== "all" && bag.fulfillment !== method && bag.fulfillment !== "both") return false;
+      if (city !== "all" && business?.neighborhood !== city) return false;
+      if (
+        q &&
+        !`${bag.title} ${bag.description} ${business?.name ?? ""}`.toLowerCase().includes(q)
+      )
+        return false;
+      return true;
+    });
+  }, [query, category, maxPrice, method, city]);
+
+  const available = results.filter((b) => b.quantityLeft > 0);
+  const soldOut = results.filter((b) => b.quantityLeft === 0);
+
+  const reset = () => {
+    setQuery("");
+    setCategory("all");
+    setMaxPrice(MAX_PRICE);
+    setMethod("all");
+    setCity("all");
+  };
+
+  return (
+    <PublicLayout>
+      <section className="mx-auto max-w-6xl px-4 py-10">
+        <h1 className="text-3xl font-semibold">Browse food posts</h1>
+        <p className="mt-2 max-w-xl text-muted-foreground">
+          Surplus bags from local kitchens, bakeries and markets — reserve before the pickup
+          window closes.
+        </p>
+
+        <div className="mt-8 grid gap-8 lg:grid-cols-[260px_1fr]">
+          <aside className="surface-card h-fit space-y-6 p-5">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-semibold">Filters</h2>
+              <Button variant="ghost" size="sm" onClick={reset} className="h-7 px-2 text-xs">
+                Reset
+              </Button>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="q">Search</Label>
+              <Input
+                id="q"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Bag, vendor or dish"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <div className="flex flex-wrap gap-2">
+                {(["all", ...categories] as const).map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setCategory(c)}
+                    className={cn(
+                      "rounded-full border border-border px-3 py-1 text-xs transition-colors",
+                      category === c
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "hover:border-primary hover:text-primary",
+                    )}
+                  >
+                    {c === "all" ? "All" : bagCategoryLabels[c as BagCategory]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <Label>Max price: ${maxPrice.toFixed(2)}</Label>
+              <Slider
+                value={[maxPrice]}
+                min={1}
+                max={MAX_PRICE}
+                step={0.5}
+                onValueChange={(v) => setMaxPrice(v[0] ?? MAX_PRICE)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Fulfilment</Label>
+              <div className="flex flex-wrap gap-2">
+                {([
+                  ["all", "Any"],
+                  ["pickup", "Pickup"],
+                  ["delivery", "Delivery"],
+                ] as const).map(([value, label]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setMethod(value)}
+                    className={cn(
+                      "rounded-full border border-border px-3 py-1 text-xs transition-colors",
+                      method === value
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "hover:border-primary hover:text-primary",
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="city">City / area</Label>
+              <select
+                id="city"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
+              >
+                <option value="all">All areas</option>
+                {cities.map((c) => (
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </aside>
+
+          <div>
+            <p className="text-sm text-muted-foreground">
+              {results.length} food post{results.length === 1 ? "" : "s"} match your filters
+            </p>
+            {results.length === 0 ? (
+              <div className="surface-card mt-4 p-10 text-center text-sm text-muted-foreground">
+                Nothing matches yet — try widening your price range or area.
+              </div>
+            ) : (
+              <div className="mt-4 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {[...available, ...soldOut].map((bag, i) => (
+                  <BagCard key={bag.id} bag={bag} eager={i < 3} />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+    </PublicLayout>
+  );
+}
