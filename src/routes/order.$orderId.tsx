@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { Bike, Check, Download, MapPin, Printer, ShoppingBag, Timer } from "lucide-react";
+import { Bike, Check, Download, MapPin, Phone, Printer, ShoppingBag, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { Button } from "@/components/ui/button";
