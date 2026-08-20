@@ -68,9 +68,11 @@ export type Database = {
           id: string
           image_url: string | null
           is_available: boolean
+          legacy_id: string | null
           original_price: number
           pickup_instructions: string
           quantity_left: number
+          rating: number
           title: string
           total_quantity: number
           updated_at: string
@@ -87,9 +89,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_available?: boolean
+          legacy_id?: string | null
           original_price?: number
           pickup_instructions?: string
           quantity_left?: number
+          rating?: number
           title: string
           total_quantity?: number
           updated_at?: string
@@ -106,9 +110,11 @@ export type Database = {
           id?: string
           image_url?: string | null
           is_available?: boolean
+          legacy_id?: string | null
           original_price?: number
           pickup_instructions?: string
           quantity_left?: number
+          rating?: number
           title?: string
           total_quantity?: number
           updated_at?: string
@@ -339,11 +345,13 @@ export type Database = {
           id: string
           image_url: string | null
           latitude: number | null
+          legacy_id: string | null
           logo_initials: string
           longitude: number | null
+          meals_rescued: number
           name: string
           neighborhood: string
-          owner_id: string
+          owner_id: string | null
           phone: string | null
           rating: number
           rejection_reason: string | null
@@ -351,6 +359,7 @@ export type Database = {
           type: Database["public"]["Enums"]["business_type"]
           updated_at: string
           verification_status: Database["public"]["Enums"]["vendor_status"]
+          verified: boolean
         }
         Insert: {
           address?: string
@@ -368,11 +377,13 @@ export type Database = {
           id?: string
           image_url?: string | null
           latitude?: number | null
+          legacy_id?: string | null
           logo_initials?: string
           longitude?: number | null
+          meals_rescued?: number
           name: string
           neighborhood?: string
-          owner_id: string
+          owner_id?: string | null
           phone?: string | null
           rating?: number
           rejection_reason?: string | null
@@ -380,6 +391,7 @@ export type Database = {
           type?: Database["public"]["Enums"]["business_type"]
           updated_at?: string
           verification_status?: Database["public"]["Enums"]["vendor_status"]
+          verified?: boolean
         }
         Update: {
           address?: string
@@ -397,11 +409,13 @@ export type Database = {
           id?: string
           image_url?: string | null
           latitude?: number | null
+          legacy_id?: string | null
           logo_initials?: string
           longitude?: number | null
+          meals_rescued?: number
           name?: string
           neighborhood?: string
-          owner_id?: string
+          owner_id?: string | null
           phone?: string | null
           rating?: number
           rejection_reason?: string | null
@@ -409,6 +423,7 @@ export type Database = {
           type?: Database["public"]["Enums"]["business_type"]
           updated_at?: string
           verification_status?: Database["public"]["Enums"]["vendor_status"]
+          verified?: boolean
         }
         Relationships: []
       }
