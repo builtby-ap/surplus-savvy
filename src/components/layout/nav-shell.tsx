@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
-import { Link, type LinkProps } from "@tanstack/react-router";
-import { Sprout } from "lucide-react";
+import { Link, useNavigate, type LinkProps } from "@tanstack/react-router";
+import { LogOut, Sprout } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/lib/auth/auth-context";
 
 export interface NavItem {
   to: NonNullable<LinkProps["to"]>;
@@ -19,6 +21,14 @@ export function NavShell({
   items: NavItem[];
   children: ReactNode;
 }) {
+  const navigate = useNavigate();
+  const { logout, isAuthenticated } = useAuth();
+
+  async function handleLogout() {
+    await logout();
+    void navigate({ to: "/login" });
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-50 border-b border-border/70 bg-primary text-primary-foreground">
@@ -32,7 +42,7 @@ export function NavShell({
           <span className="rounded-full bg-primary-foreground/15 px-3 py-1 text-xs uppercase tracking-wide">
             {title}
           </span>
-          <nav className="ml-auto flex flex-wrap gap-1 text-sm">
+          <nav className="ml-auto flex flex-wrap items-center gap-1 text-sm">
             {items.map((item) => (
               <Link
                 key={String(item.to)}
@@ -49,6 +59,17 @@ export function NavShell({
                 ) : null}
               </Link>
             ))}
+            {isAuthenticated ? (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleLogout}
+                className="rounded-full text-primary-foreground hover:bg-primary-foreground/15 hover:text-primary-foreground"
+              >
+                <LogOut className="size-4" />
+                <span className="hidden sm:inline">Log Out</span>
+              </Button>
+            ) : null}
           </nav>
         </div>
       </header>
@@ -59,6 +80,7 @@ export function NavShell({
     </div>
   );
 }
+
 
 export function SectionPlaceholder({
   title,
