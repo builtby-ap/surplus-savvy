@@ -13,9 +13,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/lib/auth/auth-context";
 import { geocodeAddress } from "@/lib/auth/auth-service";
+import { fileToStoredImage } from "@/lib/image-upload";
 import type { VendorDocumentMeta } from "@/lib/auth/types";
+
 
 export const Route = createFileRoute("/vendor/register")({
   head: () => ({
@@ -191,12 +194,31 @@ function VendorRegisterPage() {
     confirmPassword: "",
   });
   const [category, setCategory] = useState("");
+  const [description, setDescription] = useState("");
+  const [logoUrl, setLogoUrl] = useState("");
+  const [logoError, setLogoError] = useState<string | null>(null);
   const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
   const [license, setLicense] = useState<VendorDocumentMeta | null>(null);
   const [fda, setFda] = useState<VendorDocumentMeta | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Partial<Record<ErrorKey, string>>>({});
   const [submitting, setSubmitting] = useState(false);
+
+  async function handleLogo(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!["image/jpeg", "image/jpg", "image/png"].includes(file.type)) {
+      setLogoError("Only JPG, JPEG or PNG images are accepted.");
+      return;
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      setLogoError("Image must be 5 MB or smaller.");
+      return;
+    }
+    setLogoError(null);
+    setLogoUrl(await fileToStoredImage(file, 600));
+  }
+
 
   const set = (f: TextField) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setValues((v) => ({ ...v, [f]: e.target.value }));
@@ -245,6 +267,9 @@ function VendorRegisterPage() {
         category,
         phone: values.phone,
         email: values.email,
+        description,
+        imageUrl: logoUrl,
+
         address: values.address,
         latitude: coords!.latitude,
         longitude: coords!.longitude,
@@ -332,6 +357,68 @@ function VendorRegisterPage() {
               ) : null}
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="logo">Business Logo</Label>
+              {logoUrl ? (
+                <div className="flex flex-wrap items-center gap-3 rounded-xl border border-border bg-secondary/50 p-3">
+                  <img
+                    src={logoUrl}
+                    alt="Business logo preview"
+                    className="size-16 rounded-lg object-cover"
+                  />
+                  <p className="min-w-0 flex-1 truncate text-sm text-muted-foreground">
+                    Logo ready to upload
+                  </p>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-lg"
+                    onClick={() => setLogoUrl("")}
+                  >
+                    <X className="size-4" /> Remove
+                  </Button>
+                </div>
+              ) : (
+                <label
+                  htmlFor="logo"
+                  className="flex min-h-24 cursor-pointer flex-col items-center justify-center gap-1 rounded-xl border border-dashed border-border p-4 text-center text-sm text-muted-foreground transition-colors hover:border-primary/60 hover:text-foreground focus-within:ring-2 focus-within:ring-ring"
+                >
+                  <Upload className="size-5" />
+                  <span>Upload your business logo</span>
+                  <span className="text-xs">JPG, JPEG or PNG · max 5 MB</span>
+                </label>
+              )}
+              <input
+                id="logo"
+                name="logo"
+                type="file"
+                accept="image/jpeg,image/png"
+                className="sr-only"
+                onChange={handleLogo}
+              />
+              {logoError ? (
+                <p role="alert" className="text-sm text-destructive">
+                  {logoError}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Short Description</Label>
+              <Textarea
+                id="description"
+                name="description"
+                rows={3}
+                maxLength={280}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Tell customers what your shop is known for (max 280 characters)."
+                className="rounded-xl"
+              />
+              <p className="text-xs text-muted-foreground">{description.length}/280</p>
+            </div>
+
             <div className="grid gap-4 sm:grid-cols-2">
               {field("phone", "Phone Number", {
                 type: "tel",
@@ -344,6 +431,7 @@ function VendorRegisterPage() {
                 placeholder: "cafe@example.com",
               })}
             </div>
+
           </Section>
 
           <Section
