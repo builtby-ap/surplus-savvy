@@ -338,7 +338,7 @@ export function bagsForBusiness(id: string) {
 
 export const platformStats = {
   mealsRescued: 20470,
-  co2SavedKg: 51175,
+  co2SavedKg: 29500,
   activeBusinesses: businesses.length,
   moneySaved: 6140000,
 };
