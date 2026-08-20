@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { createFileRoute, ClientOnly, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, ClientOnly, Link, useNavigate } from "@tanstack/react-router";
 import { LayoutGrid, Loader2, LocateFixed, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
 
