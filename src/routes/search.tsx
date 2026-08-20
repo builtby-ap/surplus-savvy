@@ -24,13 +24,14 @@ import { cn } from "@/lib/utils";
 
 
 export const Route = createFileRoute("/search")({
-  validateSearch: (search: Record<string, unknown>): { q?: string; category?: string; closingSoon?: boolean } => {
-    const parsed: { q?: string; category?: string; closingSoon?: boolean } = {};
+  validateSearch: (search: Record<string, unknown>): { q?: string | undefined; category?: string | undefined; closingSoon?: boolean | undefined } => {
+    const parsed: { q?: string | undefined; category?: string | undefined; closingSoon?: boolean | undefined } = {};
     if (typeof search["q"] === "string") parsed.q = search["q"];
     if (typeof search["category"] === "string") parsed.category = search["category"];
     if (search["closingSoon"] === true || search["closingSoon"] === "true") parsed.closingSoon = true;
     return parsed;
   },
+
   head: () => ({
 
     meta: [
