@@ -158,6 +158,54 @@ function StoreProfilePage() {
       <form onSubmit={submit} className="space-y-6">
         <div className="surface-card grid gap-4 p-5 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="logo">Business logo</Label>
+            <div className="flex flex-wrap items-center gap-4">
+              {form.imageUrl ? (
+                <img
+                  src={safeImage(form.imageUrl, "")}
+                  alt="Business logo preview"
+                  className="h-20 w-20 rounded-2xl object-cover"
+                />
+              ) : (
+                <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-secondary/50 text-xs text-muted-foreground">
+                  No logo
+                </div>
+              )}
+              <div className="flex flex-wrap items-center gap-2">
+                <Input
+                  id="logo"
+                  type="file"
+                  accept="image/*"
+                  className="max-w-xs"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    try {
+                      const stored = await fileToStoredImage(file, 600);
+                      setForm((prev) => ({ ...prev, imageUrl: stored }));
+                    } catch {
+                      toast.error("Could not read that image.");
+                    }
+                  }}
+                />
+                {form.imageUrl && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setForm((prev) => ({ ...prev, imageUrl: "" }))}
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Shown on your featured-business ads. Square images work best.
+            </p>
+          </div>
+
+          <div className="space-y-2 sm:col-span-2">
             <Label htmlFor="name">Store name</Label>
             <Input
               id="name"
