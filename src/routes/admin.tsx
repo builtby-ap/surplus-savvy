@@ -15,7 +15,6 @@ export const Route = createFileRoute("/admin")({
       title="Admin"
       subtitle="Platform oversight for users, businesses and settings."
       items={[
-        { to: "/admin", label: "Overview" },
         { to: "/admin/users", label: "Users" },
         { to: "/admin/businesses", label: "Businesses" },
         { to: "/admin/settings", label: "Settings" },
