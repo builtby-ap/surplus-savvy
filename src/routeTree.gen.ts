@@ -20,7 +20,6 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as AccountIndexRouteImport } from './routes/account.index'
 import { Route as AccountAddressesRouteImport } from './routes/account.addresses'
 import { Route as AccountFavoritesRouteImport } from './routes/account.favorites'
-import { Route as AccountOrdersRouteImport } from './routes/account.orders'
 import { Route as AccountSettingsRouteImport } from './routes/account.settings'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminBusinessesRouteImport } from './routes/admin.businesses'
@@ -90,11 +89,6 @@ const AccountAddressesRoute = AccountAddressesRouteImport.update({
 const AccountFavoritesRoute = AccountFavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
-  getParentRoute: () => AccountRoute,
-} as any)
-const AccountOrdersRoute = AccountOrdersRouteImport.update({
-  id: '/orders',
-  path: '/orders',
   getParentRoute: () => AccountRoute,
 } as any)
 const AccountSettingsRoute = AccountSettingsRouteImport.update({
@@ -184,7 +178,6 @@ export interface FileRoutesByFullPath {
   '/search': typeof SearchRoute
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
-  '/account/orders': typeof AccountOrdersRoute
   '/account/settings': typeof AccountSettingsRoute
   '/admin/businesses': typeof AdminBusinessesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -210,7 +203,6 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
-  '/account/orders': typeof AccountOrdersRoute
   '/account/settings': typeof AccountSettingsRoute
   '/admin/businesses': typeof AdminBusinessesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -240,7 +232,6 @@ export interface FileRoutesById {
   '/search': typeof SearchRoute
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
-  '/account/orders': typeof AccountOrdersRoute
   '/account/settings': typeof AccountSettingsRoute
   '/admin/businesses': typeof AdminBusinessesRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -271,7 +262,6 @@ export interface FileRouteTypes {
     | '/search'
     | '/account/addresses'
     | '/account/favorites'
-    | '/account/orders'
     | '/account/settings'
     | '/admin/businesses'
     | '/admin/settings'
@@ -297,7 +287,6 @@ export interface FileRouteTypes {
     | '/search'
     | '/account/addresses'
     | '/account/favorites'
-    | '/account/orders'
     | '/account/settings'
     | '/admin/businesses'
     | '/admin/settings'
@@ -326,7 +315,6 @@ export interface FileRouteTypes {
     | '/search'
     | '/account/addresses'
     | '/account/favorites'
-    | '/account/orders'
     | '/account/settings'
     | '/admin/businesses'
     | '/admin/settings'
@@ -440,13 +428,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AccountFavoritesRouteImport
       parentRoute: typeof AccountRoute
     }
-    '/account/orders': {
-      id: '/account/orders'
-      path: '/orders'
-      fullPath: '/account/orders'
-      preLoaderRoute: typeof AccountOrdersRouteImport
-      parentRoute: typeof AccountRoute
-    }
     '/account/settings': {
       id: '/account/settings'
       path: '/settings'
@@ -558,7 +539,6 @@ declare module '@tanstack/react-router' {
 interface AccountRouteChildren {
   AccountAddressesRoute: typeof AccountAddressesRoute
   AccountFavoritesRoute: typeof AccountFavoritesRoute
-  AccountOrdersRoute: typeof AccountOrdersRoute
   AccountSettingsRoute: typeof AccountSettingsRoute
   AccountIndexRoute: typeof AccountIndexRoute
 }
@@ -566,7 +546,6 @@ interface AccountRouteChildren {
 const AccountRouteChildren: AccountRouteChildren = {
   AccountAddressesRoute: AccountAddressesRoute,
   AccountFavoritesRoute: AccountFavoritesRoute,
-  AccountOrdersRoute: AccountOrdersRoute,
   AccountSettingsRoute: AccountSettingsRoute,
   AccountIndexRoute: AccountIndexRoute,
 }
