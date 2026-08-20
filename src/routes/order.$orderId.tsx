@@ -22,9 +22,59 @@ export const Route = createFileRoute("/order/$orderId")({
 function OrderReceipt() {
   const { orderId } = useParams({ from: "/order/$orderId" });
   const [order, setOrder] = useState<PlacedOrder | null | undefined>(undefined);
+  const [vendor, setVendor] = useState<{ name: string; type: string; address: string; neighborhood: string } | null>(
+    null,
+  );
 
   useEffect(() => {
-    setOrder(getPlacedOrder(orderId) ?? null);
+    let alive = true;
+    const local = getPlacedOrder(orderId);
+    if (local) {
+      setOrder(local);
+      return;
+    }
+    fetchMyOrder(orderId)
+      .then((row) => {
+        if (!alive) return;
+        if (!row) {
+          setOrder(null);
+          return;
+        }
+        setVendor({
+          name: row.vendorName,
+          type: row.vendorType,
+          address: row.vendorAddress,
+          neighborhood: row.vendorNeighborhood,
+        });
+        setOrder({
+          id: row.id,
+          receiptNumber: row.receiptNumber,
+          items: row.items.map((i) => ({
+            bagId: i.id,
+            businessId: row.vendorId,
+            title: i.title,
+            quantity: i.quantity,
+            originalPrice: i.originalPrice,
+            unitPrice: i.unitPrice,
+          })),
+          businessId: row.vendorId,
+          businessIds: [row.vendorId],
+          method: row.method,
+          notes: row.notes,
+          originalPrice: row.originalPrice,
+          itemPrice: row.itemPrice,
+          discount: row.discount,
+          deliveryFee: row.deliveryFee,
+          total: row.total,
+          ...(row.deliveryAddress ? { deliveryAddress: row.deliveryAddress } : {}),
+          ...(row.pickupWindow ? { pickupWindow: row.pickupWindow } : {}),
+          placedAt: row.placedAt,
+        });
+      })
+      .catch(() => alive && setOrder(null));
+    return () => {
+      alive = false;
+    };
   }, [orderId]);
 
   if (order === undefined) {
@@ -53,11 +103,31 @@ function OrderReceipt() {
     );
   }
 
-  const businesses = (order.businessIds ?? [order.businessId])
+  const mocked = (order.businessIds ?? [order.businessId])
     .map((id) => getBusiness(id))
-    .filter((b): b is NonNullable<typeof b> => Boolean(b));
+    .filter((b): b is NonNullable<ReturnType<typeof getBusiness>> => Boolean(b));
+  const businesses = mocked.length
+    ? mocked.map((b) => ({
+        id: b.id,
+        name: b.name,
+        typeLabel: businessTypeLabels[b.type],
+        address: b.address,
+        neighborhood: b.neighborhood,
+      }))
+    : vendor
+      ? [
+          {
+            id: order.businessId,
+            name: vendor.name,
+            typeLabel: vendor.type.replace(/_/g, " "),
+            address: vendor.address,
+            neighborhood: vendor.neighborhood,
+          },
+        ]
+      : [];
   const business = businesses[0];
   const placed = new Date(order.placedAt);
+
 
   return (
     <PublicLayout>
