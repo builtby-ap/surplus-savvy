@@ -1,13 +1,23 @@
 export type OrderMethod = "pickup" | "delivery";
 
+export interface OrderItem {
+  bagId: string;
+  businessId: string;
+  title: string;
+  quantity: number;
+  originalPrice: number;
+  unitPrice: number;
+}
+
 export interface PlacedOrder {
   id: string;
   receiptNumber: string;
-  bagId: string;
+  items: OrderItem[];
+  /** Primary vendor (first item's vendor) — kept for quick lookups. */
   businessId: string;
+  businessIds: string[];
   method: OrderMethod;
   notes: string;
-  quantity: number;
   originalPrice: number;
   itemPrice: number;
   discount: number;
@@ -24,7 +34,8 @@ function readAll(): PlacedOrder[] {
   if (typeof window === "undefined") return [];
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as PlacedOrder[]) : [];
+    const parsed = raw ? (JSON.parse(raw) as PlacedOrder[]) : [];
+    return Array.isArray(parsed) ? parsed.filter((o) => Array.isArray(o?.items)) : [];
   } catch {
     return [];
   }
