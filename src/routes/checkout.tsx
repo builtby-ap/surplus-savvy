@@ -234,6 +234,21 @@ function CheckoutPage() {
         return;
       }
     }
+    let screenshotPath: string | null = null;
+    if (method === "pickup") {
+      if (!screenshot || !user) {
+        toast.error("Upload your payment screenshot first.");
+        setPlacing(false);
+        return;
+      }
+      try {
+        screenshotPath = await uploadPaymentScreenshot(screenshot, user.id);
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Screenshot upload failed");
+        setPlacing(false);
+        return;
+      }
+    }
     const ids = newOrderIds();
     const orderItems: OrderItem[] = [
       {
@@ -258,15 +273,21 @@ function CheckoutPage() {
       discount: Number((originalTotal - subtotal).toFixed(2)),
       deliveryFee: Number(deliveryFee.toFixed(2)),
       total: Number(total.toFixed(2)),
+      paymentStatus: method === "pickup" ? "awaiting_verification" : "not_required",
       ...(method === "delivery" && snapshot
         ? { deliveryAddress: formatAddress(snapshot) }
         : {}),
       pickupWindow: `${bag.availableFrom} – ${bag.availableUntil}`,
       placedAt: new Date().toISOString(),
     });
-    void persistToSupabase(ids.receiptNumber, snapshot);
-    toast.success("Order placed — pay cash on collection.");
+    void persistToSupabase(ids.receiptNumber, snapshot, screenshotPath);
+    toast.success(
+      method === "pickup"
+        ? "Payment under review — the vendor will start preparing once your payment is verified."
+        : "Order placed — pay cash on delivery.",
+    );
     navigate({ to: "/order/$orderId", params: { orderId: ids.id } });
+
   }
 
 
