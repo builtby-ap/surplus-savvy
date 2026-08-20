@@ -73,7 +73,7 @@ function BrowsePage() {
   const [method, setMethod] = useState<Method>("all");
   const [city, setCity] = useState<string>("all");
   const [closingSoon, setClosingSoon] = useState<boolean>(initial.closingSoon ?? false);
-  const [view, setView] = useState<View>("grid");
+  const [view, setView] = useState<View>("map");
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationLabel, setLocationLabel] = useState<string>("");
   const [locating, setLocating] = useState(false);
