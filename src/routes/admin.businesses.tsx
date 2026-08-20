@@ -83,7 +83,9 @@ function VendorApprovalPage() {
   );
 
   const apply = (vendor: VendorRecord, status: VendorStatus, note?: string) => {
-    setVendors(setVendorStatus(vendor.id, status, note));
+    void updateVendorStatus(vendor.id, status, note)
+      .then(setVendors)
+      .catch(() => toast.error("Could not update this vendor."));
   };
 
   const approve = (vendor: VendorRecord) => {
