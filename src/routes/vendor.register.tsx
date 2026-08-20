@@ -20,13 +20,13 @@ import type { VendorDocumentMeta } from "@/lib/auth/types";
 export const Route = createFileRoute("/vendor/register")({
   head: () => ({
     meta: [
-      { title: "Register your food business — Surplus Rescue" },
+      { title: "Register your food business — Phoe La Min" },
       {
         name: "description",
         content:
-          "Apply to sell surplus food on Surplus Rescue: business details, location, verification documents and account security.",
+          "Apply to sell surplus food on Phoe La Min: business details, location, verification documents and account security.",
       },
-      { property: "og:title", content: "Register your food business — Surplus Rescue" },
+      { property: "og:title", content: "Register your food business — Phoe La Min" },
       {
         property: "og:description",
         content: "Submit your vendor application to start rescuing surplus food revenue.",

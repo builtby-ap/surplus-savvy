@@ -23,9 +23,9 @@ import { cn } from "@/lib/utils";
 export const Route = createFileRoute("/bag/$bagId")({
   head: () => ({
     meta: [
-      { title: "Mystery bag details — Surplus Rescue" },
+      { title: "Mystery bag details — Phoe La Min" },
       { name: "description", content: "See what's inside this surplus mystery bag, its pickup window, price and how many are left." },
-      { property: "og:title", content: "Mystery bag details — Surplus Rescue" },
+      { property: "og:title", content: "Mystery bag details — Phoe La Min" },
       { property: "og:description", content: "See what's inside this surplus mystery bag, its pickup window, price and how many are left." },
     ],
   }),

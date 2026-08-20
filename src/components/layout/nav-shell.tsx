@@ -36,7 +36,7 @@ export function NavShell({
           <Link to="/" className="flex items-center gap-2">
             <Sprout className="size-5" />
             <span className="font-[family-name:var(--font-display)] text-base font-semibold">
-              Surplus Rescue
+              Phoe La Min
             </span>
           </Link>
           <span className="rounded-full bg-primary-foreground/15 px-3 py-1 text-xs uppercase tracking-wide">

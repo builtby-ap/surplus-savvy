@@ -13,13 +13,13 @@ import { DEMO_ACCOUNTS } from "@/lib/auth/auth-service";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
-      { title: "Log in — Surplus Rescue" },
+      { title: "Log in — Phoe La Min" },
       {
         name: "description",
         content:
-          "Log in to reserve mystery bags, track orders and manage your Surplus Rescue account.",
+          "Log in to reserve mystery bags, track orders and manage your Phoe La Min account.",
       },
-      { property: "og:title", content: "Log in — Surplus Rescue" },
+      { property: "og:title", content: "Log in — Phoe La Min" },
       {
         property: "og:description",
         content: "Log in to reserve mystery bags and track your rescued food orders.",

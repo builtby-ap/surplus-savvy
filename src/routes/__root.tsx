@@ -81,14 +81,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Surplus Rescue — Rescue surplus food near you" },
+      { title: "Phoe La Min — Rescue surplus food near you" },
       {
         name: "description",
         content:
           "Reserve discounted mystery bags of surplus food from local restaurants, bakeries, cafes, markets and grocers.",
       },
-      { name: "author", content: "Surplus Rescue" },
-      { property: "og:title", content: "Surplus Rescue — Rescue surplus food near you" },
+      { name: "author", content: "Phoe La Min" },
+      { property: "og:title", content: "Phoe La Min — Rescue surplus food near you" },
       {
         property: "og:description",
         content:

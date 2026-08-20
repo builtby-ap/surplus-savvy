@@ -27,7 +27,7 @@ export function ImpactBanner() {
     >
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-8 gap-y-2 px-4 py-2.5 text-sm">
         <span className="text-xs font-medium uppercase tracking-wide text-success">
-          So far on Surplus Rescue
+          So far on Phoe La Min
         </span>
         {items.map((item) => (
           <span key={item.label} className="flex items-center gap-2">

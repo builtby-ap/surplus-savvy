@@ -7,9 +7,9 @@ import { fetchVendorOrders } from "@/lib/vendor-db";
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
-      { title: "Business dashboard — Surplus Rescue" },
+      { title: "Business dashboard — Phoe La Min" },
       { name: "description", content: "Manage mystery bags, incoming orders, delivery and analytics for your food business." },
-      { property: "og:title", content: "Business dashboard — Surplus Rescue" },
+      { property: "og:title", content: "Business dashboard — Phoe La Min" },
       { property: "og:description", content: "Manage mystery bags, orders, delivery and analytics for your food business." },
     ],
   }),

@@ -12,13 +12,13 @@ import { useAuth, homePathForSession } from "@/lib/auth/auth-context";
 export const Route = createFileRoute("/register")({
   head: () => ({
     meta: [
-      { title: "Create a customer account — Surplus Rescue" },
+      { title: "Create a customer account — Phoe La Min" },
       {
         name: "description",
         content:
           "Sign up as a customer to reserve discounted surplus food from local cafes, bakeries and markets.",
       },
-      { property: "og:title", content: "Create a customer account — Surplus Rescue" },
+      { property: "og:title", content: "Create a customer account — Phoe La Min" },
       {
         property: "og:description",
         content: "Sign up as a customer to rescue surplus food near you.",
@@ -77,7 +77,7 @@ function RegisterPage() {
         phone: values.phone,
         password: values.password,
       });
-      toast.success("Customer account created. Welcome to Surplus Rescue!");
+      toast.success("Customer account created. Welcome to Phoe La Min!");
       void navigate({ to: homePathForSession(session) });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not create your account.");

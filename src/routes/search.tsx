@@ -35,9 +35,9 @@ export const Route = createFileRoute("/search")({
   head: () => ({
 
     meta: [
-      { title: "Browse mystery bags — Surplus Rescue" },
+      { title: "Browse mystery bags — Phoe La Min" },
       { name: "description", content: "Filter surplus mystery bags by category, price, delivery or pickup and city, and reserve before the window closes." },
-      { property: "og:title", content: "Browse mystery bags — Surplus Rescue" },
+      { property: "og:title", content: "Browse mystery bags — Phoe La Min" },
       { property: "og:description", content: "Filter surplus mystery bags by category, price, delivery or pickup and city." },
     ],
   }),

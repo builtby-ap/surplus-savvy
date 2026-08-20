@@ -20,7 +20,7 @@ export function AuthLayout({
           <Sprout className="size-5" />
         </span>
         <span className="font-[family-name:var(--font-display)] text-lg font-semibold">
-          Surplus Rescue
+          Phoe La Min
         </span>
       </Link>
       <div className="surface-card w-full max-w-md p-8">

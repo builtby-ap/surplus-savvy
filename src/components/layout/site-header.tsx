@@ -42,7 +42,7 @@ export function SiteHeader() {
             <Sprout className="size-5" />
           </span>
           <span className="hidden font-[family-name:var(--font-display)] text-lg font-semibold text-primary sm:block">
-            Surplus Rescue
+            Phoe La Min
           </span>
         </Link>
 

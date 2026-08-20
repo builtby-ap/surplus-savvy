@@ -5,9 +5,9 @@ import { getBusiness } from "@/data/mock";
 export const Route = createFileRoute("/business/$businessId")({
   head: () => ({
     meta: [
-      { title: "Business profile — Surplus Rescue" },
+      { title: "Business profile — Phoe La Min" },
       { name: "description", content: "See a local food business, its story, ratings and the surplus bags it has available today." },
-      { property: "og:title", content: "Business profile — Surplus Rescue" },
+      { property: "og:title", content: "Business profile — Phoe La Min" },
       { property: "og:description", content: "See a local food business, its story, ratings and the surplus bags it has available today." },
     ],
   }),
