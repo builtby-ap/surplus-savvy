@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { fromDbStatus } from "@/lib/vendor-db";
 import type { OrderMethod } from "@/lib/orders";
 import type { OrderStatus } from "@/lib/order-status";
+import type { PaymentStatus } from "@/lib/payments";
+
 
 export interface CustomerOrderItem {
   id: string;
