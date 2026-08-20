@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { createFileRoute, ClientOnly, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, ClientOnly, Link, useNavigate } from "@tanstack/react-router";
 import { LayoutGrid, Loader2, LocateFixed, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,6 +21,7 @@ import {
 } from "@/data/mock";
 import type { VendorPin } from "@/components/map/vendor-map";
 import { cn } from "@/lib/utils";
+import { getNearbyLocation, saveNearbyLocation } from "@/lib/nearby";
 
 
 
@@ -72,44 +73,92 @@ function BrowsePage() {
   const [closingSoon, setClosingSoon] = useState<boolean>(initial.closingSoon ?? false);
   const [view, setView] = useState<View>("grid");
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationLabel, setLocationLabel] = useState<string>("");
   const [locating, setLocating] = useState(false);
+  const [radiusKm, setRadiusKm] = useState<number>(5);
+  const [manualQuery, setManualQuery] = useState("");
+  const [manualOpen, setManualOpen] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
 
   useEffect(() => {
     setMaxPrice(priceCeiling);
   }, [priceCeiling]);
 
+  // Reuse the last location the customer picked, so distances stay consistent.
+  useEffect(() => {
+    const saved = getNearbyLocation();
+    if (saved) setUserLocation(saved);
+  }, []);
+
+  useEffect(() => {
+    saveNearbyLocation(userLocation);
+  }, [userLocation]);
+
   useEffect(() => {
     setClosingSoon(initial.closingSoon ?? false);
   }, [initial.closingSoon]);
 
-
-
-
   const useMyLocation = () => {
     if (userLocation) {
       setUserLocation(null);
+      setLocationLabel("");
       return;
     }
     setLocating(true);
-    const finish = (loc: { lat: number; lng: number }, note: string) => {
+    const finish = (loc: { lat: number; lng: number }, label: string, note: string) => {
       setUserLocation(loc);
+      setLocationLabel(label);
       setLocating(false);
       toast.success(note);
     };
     if (!navigator.geolocation) {
-      finish(cityCenter, "Using a demo location near the city centre");
+      setLocating(false);
+      setManualOpen(true);
+      toast.error("This browser can't share your location — search for a place instead.");
       return;
     }
     navigator.geolocation.getCurrentPosition(
       (pos) =>
         finish(
           { lat: pos.coords.latitude, lng: pos.coords.longitude },
-          "Sorting food posts by distance from you",
+          "Your current location",
+          "Showing secret bags near you",
         ),
-      () => finish(cityCenter, "Location unavailable — using a demo city-centre location"),
-      { timeout: 8000 },
+      () => {
+        setLocating(false);
+        setManualOpen(true);
+        toast.error("Location permission denied — search for a place instead.");
+      },
+      { timeout: 8000, enableHighAccuracy: true },
     );
   };
+
+  /** Manual fallback when geolocation is unavailable or denied. */
+  async function searchLocation(e: React.FormEvent) {
+    e.preventDefault();
+    const q = manualQuery.trim();
+    if (!q) return;
+    setGeocoding(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`,
+        { headers: { Accept: "application/json" } },
+      );
+      const rows = (await res.json()) as Array<{ lat: string; lon: string; display_name: string }>;
+      const hit = rows[0];
+      if (!hit) {
+        toast.error("No place found — try a nearby township or landmark.");
+        return;
+      }
+      setUserLocation({ lat: Number(hit.lat), lng: Number(hit.lon) });
+      setLocationLabel(hit.display_name.split(",").slice(0, 2).join(",").trim());
+      toast.success("Showing secret bags near that location");
+    } catch {
+      toast.error("Couldn't look up that place. Please try again.");
+    } finally {
+      setGeocoding(false);
+    }
+  }
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -120,15 +169,16 @@ function BrowsePage() {
       if (method !== "all" && bag.fulfillment !== method && bag.fulfillment !== "both") return false;
       if (city !== "all" && business?.neighborhood !== city) return false;
       if (closingSoon && (bag.quantityLeft === 0 || bag.quantityLeft > 3)) return false;
+      if (userLocation && business && haversineKm(userLocation, business) > radiusKm) return false;
       if (
-
         q &&
         !`${bag.title} ${bag.description} ${business?.name ?? ""}`.toLowerCase().includes(q)
       )
         return false;
       return true;
     });
-  }, [query, category, maxPrice, method, city, closingSoon]);
+  }, [query, category, maxPrice, method, city, closingSoon, userLocation, radiusKm]);
+
 
 
   const sorted = useMemo(() => {
@@ -163,6 +213,11 @@ function BrowsePage() {
   const available = sorted.filter((b) => b.quantityLeft > 0);
   const soldOut = sorted.filter((b) => b.quantityLeft === 0);
 
+  const addToCart = (bag: (typeof mysteryBags)[number]) => {
+    toast.success(`${bag.title} added — reserve it now.`);
+    void navigate({ to: "/checkout", search: { bag: bag.id, qty: 1 } });
+  };
+
   const reset = () => {
     setQuery("");
     setCategory("all");
@@ -170,9 +225,12 @@ function BrowsePage() {
     setMethod("all");
     setCity("all");
     setClosingSoon(false);
+    setRadiusKm(5);
     void navigate({ to: "/search", search: () => ({}) });
     setUserLocation(null);
+    setLocationLabel("");
   };
+
 
 
 
@@ -307,6 +365,32 @@ function BrowsePage() {
               </select>
             </div>
 
+            <div className="space-y-2">
+              <Label>Search radius</Label>
+              <div className="flex flex-wrap gap-2">
+                {[1, 2, 5, 10, 20].map((km) => (
+                  <button
+                    key={km}
+                    type="button"
+                    onClick={() => setRadiusKm(km)}
+                    className={cn(
+                      "rounded-full border border-border px-3 py-1 text-xs transition-colors",
+                      radiusKm === km
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "hover:border-primary hover:text-primary",
+                    )}
+                  >
+                    {km} km
+                  </button>
+                ))}
+              </div>
+              {!userLocation && (
+                <p className="text-xs text-muted-foreground">
+                  Set a location to filter by radius.
+                </p>
+              )}
+            </div>
+
             <Button
               type="button"
               variant={userLocation ? "default" : "outline"}
@@ -321,13 +405,44 @@ function BrowsePage() {
               )}
               {userLocation ? "Clear my location" : "Use my location"}
             </Button>
+
+            {userLocation && locationLabel && (
+              <p className="text-xs text-muted-foreground">Near {locationLabel}</p>
+            )}
+
+            <div className="space-y-2">
+              {!manualOpen ? (
+                <button
+                  type="button"
+                  onClick={() => setManualOpen(true)}
+                  className="text-xs text-primary underline-offset-2 hover:underline"
+                >
+                  Or search a location
+                </button>
+              ) : (
+                <form onSubmit={searchLocation} className="space-y-2">
+                  <Label htmlFor="place">Search a location</Label>
+                  <Input
+                    id="place"
+                    value={manualQuery}
+                    onChange={(e) => setManualQuery(e.target.value)}
+                    placeholder="Township, street or landmark"
+                  />
+                  <Button type="submit" variant="outline" className="w-full" disabled={geocoding}>
+                    {geocoding ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
+                    Set location
+                  </Button>
+                </form>
+              )}
+            </div>
           </aside>
+
 
           <div>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-muted-foreground">
                 {results.length} food post{results.length === 1 ? "" : "s"} match your filters
-                {userLocation ? " · sorted by distance" : ""}
+                {userLocation ? ` · within ${radiusKm} km · sorted by distance` : ""}
               </p>
               <div className="flex rounded-full border border-border p-1">
                 {([
@@ -352,28 +467,90 @@ function BrowsePage() {
               </div>
             </div>
             {view === "map" ? (
-              <div className="surface-card mt-4 overflow-hidden p-0">
-                <ClientOnly
-                  fallback={
-                    <div className="flex h-[560px] items-center justify-center text-sm text-muted-foreground">
-                      Loading map…
-                    </div>
-                  }
-                >
-                  <Suspense
+              <div className="mt-4 grid gap-4 xl:grid-cols-[1fr_320px]">
+                <div className="surface-card overflow-hidden p-0">
+                  <ClientOnly
                     fallback={
-                      <div className="flex h-[560px] items-center justify-center text-sm text-muted-foreground">
+                      <div className="flex h-[420px] items-center justify-center text-sm text-muted-foreground sm:h-[560px]">
                         Loading map…
                       </div>
                     }
                   >
-                    <VendorMap pins={pins} userLocation={userLocation} />
-                  </Suspense>
-                </ClientOnly>
-                <p className="border-t border-border px-4 py-3 text-xs text-muted-foreground">
-                  {pins.length} vendor{pins.length === 1 ? "" : "s"} with available food posts
-                </p>
+                    <Suspense
+                      fallback={
+                        <div className="flex h-[420px] items-center justify-center text-sm text-muted-foreground sm:h-[560px]">
+                          Loading map…
+                        </div>
+                      }
+                    >
+                      <VendorMap
+                        pins={pins}
+                        userLocation={userLocation}
+                        radiusKm={radiusKm}
+                        onAddToCart={addToCart}
+                      />
+                    </Suspense>
+                  </ClientOnly>
+                  <p className="border-t border-border px-4 py-3 text-xs text-muted-foreground">
+                    {pins.length} vendor{pins.length === 1 ? "" : "s"} with available food posts
+                    {userLocation ? ` within ${radiusKm} km` : ""}
+                  </p>
+                </div>
+
+                <div className="surface-card max-h-[560px] space-y-3 overflow-y-auto p-4">
+                  <h2 className="text-sm font-semibold">
+                    Nearby secret bags ({available.length})
+                  </h2>
+                  {available.length === 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      Nothing in this radius yet — try a wider radius.
+                    </p>
+                  )}
+                  {available.map((bag) => {
+                    const b = getBusiness(bag.businessId);
+                    const dist = userLocation && b ? haversineKm(userLocation, b) : null;
+                    return (
+                      <div
+                        key={bag.id}
+                        className="flex gap-3 rounded-2xl border border-border p-2"
+                      >
+                        <img
+                          src={bag.image}
+                          alt={bag.title}
+                          loading="lazy"
+                          className="size-16 shrink-0 rounded-xl object-cover"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs text-primary">{b?.name}</p>
+                          <p className="truncate text-sm font-medium">{bag.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            <span className="font-semibold text-accent">
+                              {formatPrice(bag.discountedPrice)}
+                            </span>{" "}
+                            <span className="line-through">{formatPrice(bag.originalPrice)}</span>
+                            {dist !== null ? ` · ${dist.toFixed(1)} km` : ""}
+                          </p>
+                          <div className="mt-1.5 flex gap-1.5">
+                            <Button asChild size="sm" variant="outline" className="h-8 flex-1 text-xs">
+                              <Link to="/bag/$bagId" params={{ bagId: bag.id }}>
+                                Details
+                              </Link>
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="h-8 flex-1 bg-accent text-xs text-accent-foreground hover:bg-accent/90"
+                              onClick={() => addToCart(bag)}
+                            >
+                              Add to cart
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
+
             ) : results.length === 0 ? (
               <div className="surface-card mt-4 p-10 text-center text-sm text-muted-foreground">
                 Nothing matches yet — try widening your price range or area.
