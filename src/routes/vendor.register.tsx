@@ -267,6 +267,9 @@ function VendorRegisterPage() {
         category,
         phone: values.phone,
         email: values.email,
+        description,
+        imageUrl: logoUrl,
+
         address: values.address,
         latitude: coords!.latitude,
         longitude: coords!.longitude,
