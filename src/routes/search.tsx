@@ -53,13 +53,13 @@ function BrowsePage() {
     () => Array.from(new Set(businesses.map((b) => b.neighborhood))).sort(),
     [],
   );
-  const MAX_PRICE = useMemo(
+  const priceCeiling = useMemo(
     () => Math.ceil(Math.max(1, ...mysteryBags.map((b) => b.discountedPrice))),
     [],
   );
   const [query, setQuery] = useState(initial.q ?? "");
   const [category, setCategory] = useState<string>(initial.category ?? "all");
-  const [maxPrice, setMaxPrice] = useState<number>(MAX_PRICE);
+  const [maxPrice, setMaxPrice] = useState<number>(priceCeiling);
   const [method, setMethod] = useState<Method>("all");
   const [city, setCity] = useState<string>("all");
   const [view, setView] = useState<View>("grid");
@@ -67,8 +67,8 @@ function BrowsePage() {
   const [locating, setLocating] = useState(false);
 
   useEffect(() => {
-    setMaxPrice(MAX_PRICE);
-  }, [MAX_PRICE]);
+    setMaxPrice(priceCeiling);
+  }, [priceCeiling]);
 
 
 
@@ -150,7 +150,7 @@ function BrowsePage() {
   const reset = () => {
     setQuery("");
     setCategory("all");
-    setMaxPrice(MAX_PRICE);
+    setMaxPrice(priceCeiling);
     setMethod("all");
     setCity("all");
     setUserLocation(null);
@@ -210,9 +210,9 @@ function BrowsePage() {
               <Slider
                 value={[maxPrice]}
                 min={1}
-                max={MAX_PRICE}
+                max={priceCeiling}
                 step={0.5}
-                onValueChange={(v) => setMaxPrice(v[0] ?? MAX_PRICE)}
+                onValueChange={(v) => setMaxPrice(v[0] ?? priceCeiling)}
               />
             </div>
 
