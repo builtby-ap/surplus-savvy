@@ -52,6 +52,7 @@ const VendorMap = lazy(() => import("@/components/map/vendor-map"));
 
 function BrowsePage() {
   const initial = Route.useSearch();
+  const navigate = useNavigate({ from: "/search" });
   // Derived from the live Supabase-backed catalogue.
   const cities = useMemo(
     () => Array.from(new Set(businesses.map((b) => b.neighborhood))).sort(),
@@ -66,6 +67,7 @@ function BrowsePage() {
   const [maxPrice, setMaxPrice] = useState<number>(priceCeiling);
   const [method, setMethod] = useState<Method>("all");
   const [city, setCity] = useState<string>("all");
+  const [closingSoon, setClosingSoon] = useState<boolean>(initial.closingSoon ?? false);
   const [view, setView] = useState<View>("grid");
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
@@ -73,6 +75,11 @@ function BrowsePage() {
   useEffect(() => {
     setMaxPrice(priceCeiling);
   }, [priceCeiling]);
+
+  useEffect(() => {
+    setClosingSoon(initial.closingSoon ?? false);
+  }, [initial.closingSoon]);
+
 
 
 
