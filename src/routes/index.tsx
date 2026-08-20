@@ -1,6 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowRight, Leaf, MapPin, PiggyBank, Store } from "lucide-react";
+import {
+  ArrowDown,
+  ArrowRight,
+  Leaf,
+  MapPin,
+  Package,
+  PiggyBank,
+  Search,
+  ShoppingCart,
+  Store,
+} from "lucide-react";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { ImpactBanner } from "@/components/impact-banner";
