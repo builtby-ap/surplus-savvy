@@ -806,6 +806,7 @@ export type Database = {
         Args: { _type: Database["public"]["Enums"]["business_type"] }
         Returns: string
       }
+      expire_food_posts: { Args: never; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
