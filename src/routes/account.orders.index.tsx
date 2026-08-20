@@ -47,9 +47,20 @@ function OrderHistory() {
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">
               <span className="font-semibold">{order.receiptNumber}</span>
-              <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusBadgeClass(order.status)}`}>
-                {orderStatusLabels[order.status]}
-              </span>
+              {order.paymentStatus === "awaiting_verification" ? (
+                <span className="rounded-full border border-accent/40 bg-accent/15 px-2.5 py-0.5 text-xs font-medium">
+                  Payment under review
+                </span>
+              ) : order.paymentStatus === "rejected" ? (
+                <span className="rounded-full border border-destructive/30 bg-destructive/10 px-2.5 py-0.5 text-xs font-medium text-destructive">
+                  Payment rejected
+                </span>
+              ) : (
+                <span className={`rounded-full border px-2.5 py-0.5 text-xs font-medium ${statusBadgeClass(order.status)}`}>
+                  {orderStatusLabels[order.status]}
+                </span>
+              )}
+
             </div>
             <p className="truncate text-sm text-muted-foreground">
               {order.items.length} item{order.items.length === 1 ? "" : "s"} · {order.vendorName}

@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Bike, Info, LocateFixed, MapPin, Plus, ShoppingBag, Timer } from "lucide-react";
+import { Bike, Check, Info, LocateFixed, MapPin, Plus, QrCode, ShoppingBag, Timer, Upload } from "lucide-react";
 import { toast } from "sonner";
+
 import { PublicLayout } from "@/components/layout/public-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,9 @@ import {
   validateAddress,
   type CustomerAddressInput,
 } from "@/lib/customer-addresses";
+import { usePaymentSettings, uploadPaymentScreenshot } from "@/lib/payments";
 import { cn } from "@/lib/utils";
+
 
 
 export const Route = createFileRoute("/checkout")({
@@ -64,6 +67,23 @@ function CheckoutPage() {
   const [method, setMethod] = useState<OrderMethod>("pickup");
   const [notes, setNotes] = useState("");
   const [placing, setPlacing] = useState(false);
+
+  // Pickup orders are prepaid via MMQR and need a payment screenshot.
+  const paymentSettings = usePaymentSettings();
+  const screenshotInput = useRef<HTMLInputElement | null>(null);
+  const [screenshot, setScreenshot] = useState<File | null>(null);
+  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!screenshot) {
+      setScreenshotPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(screenshot);
+    setScreenshotPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [screenshot]);
+
 
   const { addresses, reload: reloadAddresses } = useMyAddresses(Boolean(user));
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -117,7 +137,11 @@ function CheckoutPage() {
   type Snapshot = CustomerAddressInput & { id: string | null };
 
   /** Mirrors the order into Supabase so the vendor dashboard sees it live. */
-  async function persistToSupabase(receiptNumber: string, snapshot: Snapshot | null) {
+  async function persistToSupabase(
+    receiptNumber: string,
+    snapshot: Snapshot | null,
+    screenshotPath: string | null,
+  ) {
     const vendorUuid = vendorUuidById.get(business.id);
     if (!user || !vendorUuid) return;
     const { data, error } = await supabase
@@ -129,7 +153,10 @@ function CheckoutPage() {
         method,
         delivery_method: method,
         status: "pending",
+        payment_status: method === "pickup" ? "awaiting_verification" : "not_required",
+        payment_screenshot_url: method === "pickup" ? screenshotPath : null,
         notes: notes.trim(),
+
         ...(method === "delivery" && snapshot
           ? {
               delivery_address_id: snapshot.id,
@@ -207,6 +234,21 @@ function CheckoutPage() {
         return;
       }
     }
+    let screenshotPath: string | null = null;
+    if (method === "pickup") {
+      if (!screenshot || !user) {
+        toast.error("Upload your payment screenshot first.");
+        setPlacing(false);
+        return;
+      }
+      try {
+        screenshotPath = await uploadPaymentScreenshot(screenshot, user.id);
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Screenshot upload failed");
+        setPlacing(false);
+        return;
+      }
+    }
     const ids = newOrderIds();
     const orderItems: OrderItem[] = [
       {
@@ -231,15 +273,21 @@ function CheckoutPage() {
       discount: Number((originalTotal - subtotal).toFixed(2)),
       deliveryFee: Number(deliveryFee.toFixed(2)),
       total: Number(total.toFixed(2)),
+      paymentStatus: method === "pickup" ? "awaiting_verification" : "not_required",
       ...(method === "delivery" && snapshot
         ? { deliveryAddress: formatAddress(snapshot) }
         : {}),
       pickupWindow: `${bag.availableFrom} – ${bag.availableUntil}`,
       placedAt: new Date().toISOString(),
     });
-    void persistToSupabase(ids.receiptNumber, snapshot);
-    toast.success("Order placed — pay cash on collection.");
+    void persistToSupabase(ids.receiptNumber, snapshot, screenshotPath);
+    toast.success(
+      method === "pickup"
+        ? "Payment under review — the vendor will start preparing once your payment is verified."
+        : "Order placed — pay cash on delivery.",
+    );
     navigate({ to: "/order/$orderId", params: { orderId: ids.id } });
+
   }
 
 
@@ -248,7 +296,9 @@ function CheckoutPage() {
       <section className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="font-[family-name:var(--font-display)] text-3xl">Checkout</h1>
         <p className="mt-2 text-muted-foreground">
-          One secret bag per order. No online payment — you pay cash when you collect or receive it.
+          One secret bag per order. Pickup orders are prepaid by MMQR; delivery orders are paid in
+          cash when your food arrives.
+
         </p>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
@@ -578,18 +628,99 @@ function CheckoutPage() {
               </div>
             </dl>
 
-            <p className="mt-4 flex items-start gap-2 rounded-2xl bg-accent/15 p-3 text-xs">
-              <Info className="mt-0.5 size-4 shrink-0" />
-              Pay cash on {method === "delivery" ? "delivery" : "pickup"} — Surplus Rescue never
-              takes online payment.
-            </p>
+            {method === "delivery" ? (
+              <p className="mt-4 flex items-start gap-2 rounded-2xl bg-accent/15 p-3 text-xs">
+                <Info className="mt-0.5 size-4 shrink-0" />
+                Pay cash on delivery — no online payment needed.
+              </p>
+            ) : (
+              <div className="mt-5 space-y-4 rounded-2xl border border-border p-4">
+                <div>
+                  <p className="flex items-center gap-2 text-sm font-semibold">
+                    <QrCode className="size-4 text-primary" /> Pay with MMQR
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {paymentSettings?.instructions ||
+                      "Scan the QR code with any MMQR-supporting banking app and pay the total above."}
+                  </p>
+                </div>
+
+                {paymentSettings === undefined ? (
+                  <p className="text-xs text-muted-foreground">Loading payment details…</p>
+                ) : paymentSettings?.qrImageUrl ? (
+                  <div className="text-center">
+                    <img
+                      src={paymentSettings.qrImageUrl}
+                      alt="MMQR payment QR code"
+                      className="mx-auto max-h-56 rounded-2xl border border-border bg-background object-contain p-2"
+                    />
+                    {paymentSettings.accountName && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Account name: <strong>{paymentSettings.accountName}</strong>
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="rounded-2xl bg-secondary/60 p-3 text-xs text-muted-foreground">
+                    The payment QR code isn't configured yet. Please contact support before ordering.
+                  </p>
+                )}
+
+                <div>
+                  <p className="text-sm font-medium">Upload payment screenshot</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Required — the vendor verifies it before preparing your order.
+                  </p>
+                  <input
+                    ref={screenshotInput}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-3 w-full rounded-full"
+                    onClick={() => screenshotInput.current?.click()}
+                  >
+                    {screenshot ? (
+                      <>
+                        <Check className="mr-2 size-4 text-success" /> Change screenshot
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 size-4" /> Choose screenshot
+                      </>
+                    )}
+                  </Button>
+                  {screenshotPreview && (
+                    <img
+                      src={screenshotPreview}
+                      alt="Payment screenshot preview"
+                      className="mt-3 max-h-48 w-full rounded-2xl border border-border object-contain"
+                    />
+                  )}
+                  {!user && (
+                    <p className="mt-2 text-xs text-destructive">
+                      Sign in to upload your payment screenshot.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
 
             <Button
               size="lg"
-              disabled={placing || bag.quantityLeft === 0}
+              disabled={
+                placing ||
+                bag.quantityLeft === 0 ||
+                (method === "pickup" && (!screenshot || !user))
+              }
               onClick={placeOrder}
               className="mt-4 w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
             >
+
               {placing ? "Placing order…" : "Place order"}
             </Button>
             <Button asChild variant="ghost" className="mt-2 w-full rounded-full">

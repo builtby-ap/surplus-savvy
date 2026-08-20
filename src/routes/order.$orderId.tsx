@@ -165,12 +165,16 @@ function OrderReceipt() {
           <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-success/20 text-success">
             <Check className="size-6" />
           </span>
-          <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl">Order confirmed</h1>
+          <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl">
+            {order.method === "pickup" ? "Payment under review" : "Order confirmed"}
+          </h1>
           <p className="mt-2 text-muted-foreground">
-            Show this receipt to {business?.name ?? "the vendor"} and pay cash on{" "}
-            {order.method === "delivery" ? "delivery" : "pickup"}.
+            {order.method === "pickup"
+              ? "The vendor will start preparing once your payment is verified."
+              : `Show this receipt to ${business?.name ?? "the vendor"} and pay cash on delivery.`}
           </p>
         </div>
+
 
         <article className="surface-card mt-8 p-6 print:border-0 print:shadow-none">
           <header className="flex items-start justify-between gap-4 border-b border-dashed border-border pb-4">
@@ -262,9 +266,10 @@ function OrderReceipt() {
                 <dd>{order.deliveryFee > 0 ? formatPrice(order.deliveryFee) : "—"}</dd>
               </div>
               <div className="flex justify-between border-t border-border pt-3 text-base font-semibold">
-                <dt>Total due in cash</dt>
+                <dt>{order.method === "pickup" ? "Total paid by MMQR" : "Total due in cash"}</dt>
                 <dd>{formatPrice(order.total)}</dd>
               </div>
+
             </dl>
           </div>
 
@@ -278,8 +283,11 @@ function OrderReceipt() {
           )}
 
           <p className="pt-4 text-center text-xs text-muted-foreground">
-            Surplus Rescue never takes online payment. Please bring exact change where possible.
+            {order.method === "pickup"
+              ? "Your MMQR payment is being verified. Show this receipt when you collect your order."
+              : "Delivery orders are paid in cash. Please bring exact change where possible."}
           </p>
+
         </article>
 
         <div className="mt-6 flex flex-wrap gap-3 print:hidden">

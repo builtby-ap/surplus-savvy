@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { fromDbStatus } from "@/lib/vendor-db";
 import type { OrderMethod } from "@/lib/orders";
 import type { OrderStatus } from "@/lib/order-status";
+import type { PaymentStatus } from "@/lib/payments";
+
 
 export interface CustomerOrderItem {
   id: string;
@@ -39,11 +41,14 @@ export interface CustomerOrder {
   vendorAddress: string;
   vendorNeighborhood: string;
   vendorPhone: string;
+  paymentStatus: PaymentStatus;
+  paymentScreenshotUrl: string | null;
   items: CustomerOrderItem[];
 }
 
 const ORDER_COLUMNS =
-  "id, receipt_number, method, status, notes, delivery_address, pickup_window, original_price, item_price, discount, delivery_fee, total, placed_at, vendor_id, vendors_public(display_alias, type, address, neighborhood, phone), order_items(id, title, quantity, original_price, unit_price)";
+  "id, receipt_number, method, status, notes, delivery_address, pickup_window, original_price, item_price, discount, delivery_fee, total, placed_at, vendor_id, payment_status, payment_screenshot_url, vendors_public(display_alias, type, address, neighborhood, phone), order_items(id, title, quantity, original_price, unit_price)";
+
 
 type Row = Record<string, unknown>;
 
@@ -72,6 +77,9 @@ function toOrder(row: Row): CustomerOrder {
     vendorAddress: s(vendor['address']),
     vendorNeighborhood: s(vendor['neighborhood']),
     vendorPhone: s(vendor['phone']),
+    paymentStatus: ((row['payment_status'] as PaymentStatus) ?? "not_required") as PaymentStatus,
+    paymentScreenshotUrl: (row['payment_screenshot_url'] as string) ?? null,
+
     items: items.map((i) => ({
       id: s(i['id']),
       title: s(i['title']),
