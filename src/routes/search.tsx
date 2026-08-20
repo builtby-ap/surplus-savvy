@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { createFileRoute, ClientOnly } from "@tanstack/react-router";
+import { createFileRoute, ClientOnly, useNavigate } from "@tanstack/react-router";
 import { LayoutGrid, Loader2, LocateFixed, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,14 +21,19 @@ import {
 import type { VendorPin } from "@/components/map/vendor-map";
 import { cn } from "@/lib/utils";
 
+
+
 export const Route = createFileRoute("/search")({
-  validateSearch: (search: Record<string, unknown>): { q?: string; category?: string } => {
-    const parsed: { q?: string; category?: string } = {};
+  validateSearch: (search: Record<string, unknown>): { q?: string | undefined; category?: string | undefined; closingSoon?: boolean | undefined } => {
+    const parsed: { q?: string | undefined; category?: string | undefined; closingSoon?: boolean | undefined } = {};
     if (typeof search["q"] === "string") parsed.q = search["q"];
     if (typeof search["category"] === "string") parsed.category = search["category"];
+    if (search["closingSoon"] === true || search["closingSoon"] === "true") parsed.closingSoon = true;
     return parsed;
   },
+
   head: () => ({
+
     meta: [
       { title: "Browse mystery bags — Surplus Rescue" },
       { name: "description", content: "Filter surplus mystery bags by category, price, delivery or pickup and city, and reserve before the window closes." },
@@ -48,6 +53,7 @@ const VendorMap = lazy(() => import("@/components/map/vendor-map"));
 
 function BrowsePage() {
   const initial = Route.useSearch();
+  const navigate = useNavigate({ from: "/search" });
   // Derived from the live Supabase-backed catalogue.
   const cities = useMemo(
     () => Array.from(new Set(businesses.map((b) => b.neighborhood))).sort(),
@@ -62,6 +68,7 @@ function BrowsePage() {
   const [maxPrice, setMaxPrice] = useState<number>(priceCeiling);
   const [method, setMethod] = useState<Method>("all");
   const [city, setCity] = useState<string>("all");
+  const [closingSoon, setClosingSoon] = useState<boolean>(initial.closingSoon ?? false);
   const [view, setView] = useState<View>("grid");
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
@@ -69,6 +76,11 @@ function BrowsePage() {
   useEffect(() => {
     setMaxPrice(priceCeiling);
   }, [priceCeiling]);
+
+  useEffect(() => {
+    setClosingSoon(initial.closingSoon ?? false);
+  }, [initial.closingSoon]);
+
 
 
 
@@ -106,14 +118,17 @@ function BrowsePage() {
       if (bag.discountedPrice > maxPrice) return false;
       if (method !== "all" && bag.fulfillment !== method && bag.fulfillment !== "both") return false;
       if (city !== "all" && business?.neighborhood !== city) return false;
+      if (closingSoon && (bag.quantityLeft === 0 || bag.quantityLeft > 3)) return false;
       if (
+
         q &&
         !`${bag.title} ${bag.description} ${business?.name ?? ""}`.toLowerCase().includes(q)
       )
         return false;
       return true;
     });
-  }, [query, category, maxPrice, method, city]);
+  }, [query, category, maxPrice, method, city, closingSoon]);
+
 
   const sorted = useMemo(() => {
     if (!userLocation) return results;
@@ -153,8 +168,12 @@ function BrowsePage() {
     setMaxPrice(priceCeiling);
     setMethod("all");
     setCity("all");
+    setClosingSoon(false);
+    void navigate({ to: "/search", search: () => ({}) });
     setUserLocation(null);
   };
+
+
 
   return (
     <PublicLayout>
@@ -242,6 +261,35 @@ function BrowsePage() {
             </div>
 
             <div className="space-y-2">
+              <Label>Availability</Label>
+              <div className="flex flex-wrap gap-2">
+                {([
+                  [false, "All"],
+                  [true, "Closing soon"],
+                ] as const).map(([value, label]) => (
+                  <button
+                    key={String(value)}
+                    type="button"
+                    onClick={() => {
+                      setClosingSoon(value);
+                      void navigate({ to: "/search", search: (prev) => ({ ...prev, closingSoon: value || undefined }) });
+                    }}
+
+                    className={cn(
+                      "rounded-full border border-border px-3 py-1 text-xs transition-colors",
+                      closingSoon === value
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "hover:border-primary hover:text-primary",
+                    )}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+
               <Label htmlFor="city">City / area</Label>
               <select
                 id="city"
