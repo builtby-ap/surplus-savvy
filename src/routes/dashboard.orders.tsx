@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/data/mock";
-import { useAuth } from "@/lib/auth/use-auth";
+import { useAuth } from "@/lib/auth/auth-context";
 import { orderStatusLabels, statusBadgeClass, type OrderStatus } from "@/lib/order-status";
 import { listOrdersForBusiness, type PlacedOrder } from "@/lib/orders";
 import {
