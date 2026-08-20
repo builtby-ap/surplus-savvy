@@ -165,7 +165,7 @@ function OrderReceipt() {
               {businesses.map((b) => (
                 <div key={b.id}>
                   <p className="font-medium">{b.name}</p>
-                  <p className="text-muted-foreground">{businessTypeLabels[b.type]}</p>
+                  <p className="text-muted-foreground capitalize">{b.typeLabel}</p>
                 </div>
               ))}
             </div>
