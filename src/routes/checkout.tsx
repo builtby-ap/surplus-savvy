@@ -15,6 +15,8 @@ import {
   getBusiness,
   getDeliveryTerms,
 } from "@/data/mock";
+import { postUuidById, vendorUuidById } from "@/data/catalogue";
+import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth/auth-context";
 import { newOrderIds, saveOrder, type OrderItem, type OrderMethod } from "@/lib/orders";
 import { cn } from "@/lib/utils";
@@ -75,6 +77,41 @@ function CheckoutPage() {
   const total = subtotal + deliveryFee;
   const belowMinimum = method === "delivery" && subtotal < terms.minimumOrder;
 
+  /** Mirrors the order into Supabase so the vendor dashboard sees it live. */
+  async function persistToSupabase(receiptNumber: string) {
+    const vendorUuid = vendorUuidById.get(business.id);
+    if (!user || !vendorUuid) return;
+    const { data, error } = await supabase
+      .from("orders")
+      .insert({
+        customer_id: user.id,
+        vendor_id: vendorUuid,
+        receipt_number: receiptNumber,
+        method,
+        status: "pending",
+        notes: notes.trim(),
+        ...(method === "delivery" ? { delivery_address: address } : {}),
+        pickup_window: `${bag.availableFrom} – ${bag.availableUntil}`,
+        original_price: originalTotal,
+        item_price: subtotal,
+        discount: originalTotal - subtotal,
+        delivery_fee: deliveryFee,
+        total,
+      } as never)
+      .select("id")
+      .single();
+    if (error || !data) return;
+    await supabase.from("order_items").insert({
+      order_id: (data as { id: string }).id,
+      food_post_id: postUuidById.get(bag.id) ?? null,
+      vendor_id: vendorUuid,
+      title: bag.title,
+      quantity: 1,
+      original_price: bag.originalPrice,
+      unit_price: bag.discountedPrice,
+    } as never);
+  }
+
   function placeOrder() {
     if (belowMinimum) {
       toast.error("This vendor's delivery minimum isn't met. Choose pickup instead.");
@@ -109,6 +146,7 @@ function CheckoutPage() {
       pickupWindow: `${bag.availableFrom} – ${bag.availableUntil}`,
       placedAt: new Date().toISOString(),
     });
+    void persistToSupabase(ids.receiptNumber);
     toast.success("Order placed — pay cash on collection.");
     navigate({ to: "/order/$orderId", params: { orderId: ids.id } });
   }
