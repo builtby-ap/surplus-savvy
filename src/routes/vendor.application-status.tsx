@@ -8,13 +8,13 @@ import { useAuth } from "@/lib/auth/auth-context";
 export const Route = createFileRoute("/vendor/application-status")({
   head: () => ({
     meta: [
-      { title: "Vendor application status — Surplus Rescue" },
+      { title: "Vendor application status — Phoe La Min" },
       {
         name: "description",
         content:
-          "Track the review status of your Surplus Rescue vendor application and verification documents.",
+          "Track the review status of your Phoe La Min vendor application and verification documents.",
       },
-      { property: "og:title", content: "Vendor application status — Surplus Rescue" },
+      { property: "og:title", content: "Vendor application status — Phoe La Min" },
       {
         property: "og:description",
         content: "See where your vendor application sits in the verification process.",

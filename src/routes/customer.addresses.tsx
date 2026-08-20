@@ -7,15 +7,15 @@ import { AddressBook } from "@/components/account/address-book";
 export const Route = createFileRoute("/customer/addresses")({
   head: () => ({
     meta: [
-      { title: "Delivery addresses — Surplus Rescue" },
+      { title: "Delivery addresses — Phoe La Min" },
       {
         name: "description",
-        content: "Add, edit and set a default delivery address for your Surplus Rescue orders.",
+        content: "Add, edit and set a default delivery address for your Phoe La Min orders.",
       },
-      { property: "og:title", content: "Delivery addresses — Surplus Rescue" },
+      { property: "og:title", content: "Delivery addresses — Phoe La Min" },
       {
         property: "og:description",
-        content: "Manage the saved delivery addresses used at Surplus Rescue checkout.",
+        content: "Manage the saved delivery addresses used at Phoe La Min checkout.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

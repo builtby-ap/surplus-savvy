@@ -4,9 +4,9 @@ import { NavShell } from "@/components/layout/nav-shell";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Admin dashboard — Surplus Rescue" },
+      { title: "Admin dashboard — Phoe La Min" },
       { name: "description", content: "Platform administration for users, business verification and marketplace settings." },
-      { property: "og:title", content: "Admin dashboard — Surplus Rescue" },
+      { property: "og:title", content: "Admin dashboard — Phoe La Min" },
       { property: "og:description", content: "Administer users, business verification and marketplace settings." },
     ],
   }),

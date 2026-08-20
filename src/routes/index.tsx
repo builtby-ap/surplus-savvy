@@ -19,13 +19,13 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Surplus Rescue — Discounted mystery bags from local food shops" },
+      { title: "Phoe La Min — Discounted mystery bags from local food shops" },
       {
         name: "description",
         content:
           "Rescue surplus food from restaurants, bakeries, cafes and grocers near you. Reserve a mystery bag at up to 70% off and pay cash on pickup or delivery.",
       },
-      { property: "og:title", content: "Surplus Rescue — Rescue good food for less" },
+      { property: "og:title", content: "Phoe La Min — Rescue good food for less" },
       {
         property: "og:description",
         content:

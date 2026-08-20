@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
+import logoAsset from "@/assets/phoelamin-logo.png.asset.json";
 import { Link, useNavigate, type LinkProps } from "@tanstack/react-router";
-import { LogOut, Sprout } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth/auth-context";
 
@@ -34,9 +35,9 @@ export function NavShell({
       <header className="sticky top-0 z-50 border-b border-border/70 bg-primary text-primary-foreground">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3">
           <Link to="/" className="flex items-center gap-2">
-            <Sprout className="size-5" />
+            <img src={logoAsset.url} alt="Phoe La Min logo" className="size-8 rounded-full bg-background object-contain" />
             <span className="font-[family-name:var(--font-display)] text-base font-semibold">
-              Surplus Rescue
+              Phoe La Min
             </span>
           </Link>
           <span className="rounded-full bg-primary-foreground/15 px-3 py-1 text-xs uppercase tracking-wide">

@@ -30,13 +30,13 @@ import type { UserRole } from "@/lib/auth/types";
 export const Route = createFileRoute("/admin/users")({
   head: () => ({
     meta: [
-      { title: "User accounts — Surplus Rescue Admin" },
+      { title: "User accounts — Phoe La Min Admin" },
       {
         name: "description",
         content:
           "Review customer, vendor and admin accounts, their activity and suspend or reactivate access.",
       },
-      { property: "og:title", content: "User accounts — Surplus Rescue Admin" },
+      { property: "og:title", content: "User accounts — Phoe La Min Admin" },
       {
         property: "og:description",
         content: "Manage marketplace user accounts, roles and account status.",

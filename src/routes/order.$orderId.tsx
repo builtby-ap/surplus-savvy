@@ -12,9 +12,9 @@ import { fetchMyOrder } from "@/lib/customer-orders";
 export const Route = createFileRoute("/order/$orderId")({
   head: () => ({
     meta: [
-      { title: "Order receipt — Surplus Rescue" },
+      { title: "Order receipt — Phoe La Min" },
       { name: "description", content: "Your food post is reserved. See your receipt number, itemised total and pickup or delivery details." },
-      { property: "og:title", content: "Order receipt — Surplus Rescue" },
+      { property: "og:title", content: "Order receipt — Phoe La Min" },
       { property: "og:description", content: "Your food post is reserved. See your receipt number, itemised total and pickup or delivery details." },
     ],
   }),
@@ -180,7 +180,7 @@ function OrderReceipt() {
           <header className="flex items-start justify-between gap-4 border-b border-dashed border-border pb-4">
             <div>
               <p className="font-[family-name:var(--font-display)] text-xl text-primary">
-                Surplus Rescue
+                Phoe La Min
               </p>
               <p className="text-xs text-muted-foreground">Digital e-receipt</p>
             </div>

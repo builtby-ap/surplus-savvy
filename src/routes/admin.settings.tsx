@@ -13,12 +13,12 @@ import { savePaymentSettings } from "@/lib/payment-admin";
 export const Route = createFileRoute("/admin/settings")({
   head: () => ({
     meta: [
-      { title: "Platform settings — Surplus Rescue admin" },
+      { title: "Platform settings — Phoe La Min admin" },
       {
         name: "description",
         content: "Manage the platform MMQR payment code and account details customers pay to.",
       },
-      { property: "og:title", content: "Platform settings — Surplus Rescue admin" },
+      { property: "og:title", content: "Platform settings — Phoe La Min admin" },
       {
         property: "og:description",
         content: "Update the MMQR QR image, account name and payment instructions.",
@@ -112,7 +112,7 @@ function PlatformSettingsPage() {
                 id="account-name"
                 value={accountName}
                 onChange={(e) => setAccountName(e.target.value)}
-                placeholder="Surplus Rescue Co., Ltd."
+                placeholder="Phoe La Min Co., Ltd."
               />
             </div>
             <div className="space-y-2">

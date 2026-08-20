@@ -42,12 +42,12 @@ const statusBadgeClass: Record<AdminPaymentStatus, string> = {
 export const Route = createFileRoute("/admin/payments")({
   head: () => ({
     meta: [
-      { title: "Payment verification — Surplus Rescue admin" },
+      { title: "Payment verification — Phoe La Min admin" },
       {
         name: "description",
         content: "Review MMQR payment screenshots and release verified pickup orders to vendors.",
       },
-      { property: "og:title", content: "Payment verification — Surplus Rescue admin" },
+      { property: "og:title", content: "Payment verification — Phoe La Min admin" },
       {
         property: "og:description",
         content: "Approve or reject customer payment proofs for pickup orders.",

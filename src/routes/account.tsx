@@ -5,9 +5,9 @@ import { VendorRedirect } from "@/components/auth/vendor-guard";
 export const Route = createFileRoute("/account")({
   head: () => ({
     meta: [
-      { title: "Your account — Surplus Rescue" },
-      { name: "description", content: "Manage your Surplus Rescue orders, addresses and settings." },
-      { property: "og:title", content: "Your account — Surplus Rescue" },
+      { title: "Your account — Phoe La Min" },
+      { name: "description", content: "Manage your Phoe La Min orders, addresses and settings." },
+      { property: "og:title", content: "Your account — Phoe La Min" },
       { property: "og:description", content: "Manage your orders, addresses and settings." },
     ],
   }),

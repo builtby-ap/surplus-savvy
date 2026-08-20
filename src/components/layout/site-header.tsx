@@ -1,5 +1,6 @@
+import logoAsset from "@/assets/phoelamin-logo.png.asset.json";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell, LogIn, LogOut, Sprout, Store, User } from "lucide-react";
+import { Bell, LogIn, LogOut, Store, User } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -38,11 +39,9 @@ export function SiteHeader() {
     <header className="sticky top-0 z-50 border-b border-border/70 bg-background/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
         <Link to="/" className="flex shrink-0 items-center gap-2">
-          <span className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <Sprout className="size-5" />
-          </span>
+          <img src={logoAsset.url} alt="Phoe La Min logo" className="size-10 object-contain" />
           <span className="hidden font-[family-name:var(--font-display)] text-lg font-semibold text-primary sm:block">
-            Surplus Rescue
+            Phoe La Min
           </span>
         </Link>
 

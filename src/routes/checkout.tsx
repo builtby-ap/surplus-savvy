@@ -43,9 +43,9 @@ export const Route = createFileRoute("/checkout")({
   }),
   head: () => ({
     meta: [
-      { title: "Checkout — Surplus Rescue" },
+      { title: "Checkout — Phoe La Min" },
       { name: "description", content: "Reserve a single surplus food post, choose pickup or delivery and pay cash on collection." },
-      { property: "og:title", content: "Checkout — Surplus Rescue" },
+      { property: "og:title", content: "Checkout — Phoe La Min" },
       { property: "og:description", content: "Reserve a single surplus food post, choose pickup or delivery and pay cash on collection." },
     ],
   }),

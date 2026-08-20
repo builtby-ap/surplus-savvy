@@ -38,7 +38,7 @@ const NOTIFICATIONS: { key: keyof CustomerPreferences; title: string; descriptio
   {
     key: "marketing",
     title: "Offers and news",
-    description: "Occasional campaigns from Surplus Rescue.",
+    description: "Occasional campaigns from Phoe La Min.",
   },
 ];
 
@@ -144,7 +144,7 @@ function SettingsPage() {
           <div>
             <h3 className="font-semibold text-foreground">Account security</h3>
             <p className="text-sm text-muted-foreground">
-              Password changes and account deletion are handled by the Surplus Rescue team. Email{" "}
+              Password changes and account deletion are handled by the Phoe La Min team. Email{" "}
               <a className="font-medium text-primary underline" href="mailto:admin@phoelamin.com">
                 admin@phoelamin.com
               </a>{" "}

@@ -19,7 +19,7 @@ export function PublicLayout({
         <div className="mx-auto grid max-w-6xl gap-6 px-4 py-10 text-sm sm:grid-cols-3">
           <div>
             <p className="font-[family-name:var(--font-display)] text-lg text-primary">
-              Surplus Rescue
+              Phoe La Min
             </p>
             <p className="mt-2 text-muted-foreground">
               Good food, rescued from the bin and sold at a fraction of the price.
