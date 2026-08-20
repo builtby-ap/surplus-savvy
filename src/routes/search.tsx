@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { createFileRoute, ClientOnly } from "@tanstack/react-router";
 import { LayoutGrid, Loader2, LocateFixed, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
-import { visibleVendorIds } from "@/lib/vendor-registry";
+
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { Button } from "@/components/ui/button";
