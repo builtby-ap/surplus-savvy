@@ -27,7 +27,10 @@ export interface PlacedOrder {
   total: number;
   deliveryAddress?: string;
   pickupWindow?: string;
+  /** Pickup orders are prepaid by MMQR and await vendor verification. */
+  paymentStatus?: "not_required" | "awaiting_verification" | "verified" | "rejected";
   placedAt: string;
+
 }
 
 const STORAGE_KEY = "surplus-rescue:orders";
