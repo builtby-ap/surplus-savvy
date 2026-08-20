@@ -332,6 +332,41 @@ function MarketplaceHome() {
         </div>
       </section>
 
+      <section className="mx-auto max-w-6xl px-4 py-12">
+        <div className="surface-card flex flex-col items-start gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Something not right?</h2>
+            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
+              Found a problem with a Secret Bag, food quality, or your order? Let us know and our team will review it.
+            </p>
+          </div>
+          <Button
+            asChild
+            className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            <a
+              href={`mailto:support@phoelamin.com?subject=${encodeURIComponent(
+                "Phoelamin — Secret Bag Report",
+              )}&body=${encodeURIComponent(
+                `Hello Phoelamin Team,
+
+I would like to report an issue regarding a Secret Bag.
+
+Secret Bag:
+Vendor:
+Order ID (if applicable):
+Issue:
+Additional details:
+
+Thank you.`,
+              )}`}
+            >
+              Report to Phoelamin
+            </a>
+          </Button>
+        </div>
+      </section>
+
     </PublicLayout>
   );
 }
