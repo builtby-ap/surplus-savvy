@@ -162,38 +162,18 @@ function BagDetail() {
               </p>
             </div>
 
-            {soldOut ? (
-              <Button
-                size="lg"
-                disabled
-                className="mt-6 w-full rounded-full bg-accent text-accent-foreground"
-              >
-                Sold out
-              </Button>
-            ) : (
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="w-full rounded-full sm:flex-1"
-                  onClick={() => {
-                    add(bag.id, 1, bag.quantityLeft);
-                    toast.success(`${bag.title} added to your cart.`);
-                  }}
-                >
-                  Add to cart
-                </Button>
-                <Button
-                  asChild
-                  size="lg"
-                  className="w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90 sm:flex-1"
-                >
-                  <Link to="/checkout" search={{ bag: bag.id }}>
-                    Reserve this food post
-                  </Link>
-                </Button>
-              </div>
-            )}
+            <Button
+              size="lg"
+              disabled={soldOut}
+              className="mt-6 w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
+              onClick={() => {
+                if (soldOut) return;
+                add(bag.id, 1, bag.quantityLeft);
+                toast.success(`${bag.title} added to your cart.`);
+              }}
+            >
+              {soldOut ? "Sold out" : "Add to cart"}
+            </Button>
 
             {business && (
               <Link
