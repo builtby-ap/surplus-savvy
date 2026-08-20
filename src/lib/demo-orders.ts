@@ -2,7 +2,11 @@ import { getBag } from "@/data/mock";
 import type { OrderStatus } from "./order-status";
 import { listPlacedOrders, saveOrder, type OrderMethod, type PlacedOrder } from "./orders";
 
+/** Only this seeded account gets sample order history. */
+const DEMO_CUSTOMER_EMAIL = "customer@example.com";
+
 function build(
+  customerId: string,
   n: number,
   bagIds: string[],
   method: OrderMethod,
