@@ -61,15 +61,32 @@ function VendorOrdersPage() {
     }
   }
 
-  const pending = orders.filter((o) => o.status === "pending");
-  const active = orders.filter(
+  const filtered = orders.filter((o) => {
+    const q = query.trim().toLowerCase();
+    if (
+      q &&
+      !`${o.receiptNumber} ${o.notes} ${o.deliveryAddress ?? ""} ${o.items
+        .map((i) => i.title)
+        .join(" ")}`
+        .toLowerCase()
+        .includes(q)
+    )
+      return false;
+    if (statusFilter !== "all" && o.status !== statusFilter) return false;
+    if (methodFilter !== "all" && o.method !== methodFilter) return false;
+    return true;
+  });
+
+  const pending = filtered.filter((o) => o.status === "pending");
+  const active = filtered.filter(
     (o) =>
       o.status !== "pending" &&
       !["delivered", "picked-up", "cancelled", "refunded"].includes(o.status),
   );
-  const past = orders.filter((o) =>
+  const past = filtered.filter((o) =>
     ["delivered", "picked-up", "cancelled", "refunded"].includes(o.status),
   );
+
 
   return (
     <section className="space-y-8">
