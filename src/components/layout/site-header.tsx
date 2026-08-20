@@ -1,6 +1,6 @@
 import logoAsset from "@/assets/phoelamin-logo.png.asset.json";
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Bell, LogIn, LogOut, Store, User } from "lucide-react";
+import { Bell, Info, LogIn, LogOut, Store, User } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
