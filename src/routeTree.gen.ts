@@ -10,33 +10,342 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AccountRouteImport } from './routes/account'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as CheckoutRouteImport } from './routes/checkout'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as RegisterRouteImport } from './routes/register'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as AccountIndexRouteImport } from './routes/account.index'
+import { Route as AccountAddressesRouteImport } from './routes/account.addresses'
+import { Route as AccountFavoritesRouteImport } from './routes/account.favorites'
+import { Route as AccountOrdersRouteImport } from './routes/account.orders'
+import { Route as AccountSettingsRouteImport } from './routes/account.settings'
+import { Route as AdminIndexRouteImport } from './routes/admin.index'
+import { Route as AdminBusinessesRouteImport } from './routes/admin.businesses'
+import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
+import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as BagBagIdRouteImport } from './routes/bag.$bagId'
+import { Route as BusinessBusinessIdRouteImport } from './routes/business.$businessId'
+import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
+import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard.analytics'
+import { Route as DashboardDeliveryRouteImport } from './routes/dashboard.delivery'
+import { Route as DashboardMysteryBagsRouteImport } from './routes/dashboard.mystery-bags'
+import { Route as DashboardOrdersRouteImport } from './routes/dashboard.orders'
+import { Route as OrderOrderIdRouteImport } from './routes/order.$orderId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRoute = CheckoutRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisterRoute = RegisterRouteImport.update({
+  id: '/register',
+  path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountIndexRoute = AccountIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountAddressesRoute = AccountAddressesRouteImport.update({
+  id: '/addresses',
+  path: '/addresses',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountFavoritesRoute = AccountFavoritesRouteImport.update({
+  id: '/favorites',
+  path: '/favorites',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountOrdersRoute = AccountOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountSettingsRoute = AccountSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AdminIndexRoute = AdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBusinessesRoute = AdminBusinessesRouteImport.update({
+  id: '/businesses',
+  path: '/businesses',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSettingsRoute = AdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminUsersRoute = AdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const BagBagIdRoute = BagBagIdRouteImport.update({
+  id: '/bag/$bagId',
+  path: '/bag/$bagId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessBusinessIdRoute = BusinessBusinessIdRouteImport.update({
+  id: '/business/$businessId',
+  path: '/business/$businessId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardIndexRoute = DashboardIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardAnalyticsRoute = DashboardAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardDeliveryRoute = DashboardDeliveryRouteImport.update({
+  id: '/delivery',
+  path: '/delivery',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardMysteryBagsRoute = DashboardMysteryBagsRouteImport.update({
+  id: '/mystery-bags',
+  path: '/mystery-bags',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const DashboardOrdersRoute = DashboardOrdersRouteImport.update({
+  id: '/orders',
+  path: '/orders',
+  getParentRoute: () => DashboardRoute,
+} as any)
+const OrderOrderIdRoute = OrderOrderIdRouteImport.update({
+  id: '/order/$orderId',
+  path: '/order/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
+  '/checkout': typeof CheckoutRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/search': typeof SearchRoute
+  '/account/addresses': typeof AccountAddressesRoute
+  '/account/favorites': typeof AccountFavoritesRoute
+  '/account/orders': typeof AccountOrdersRoute
+  '/account/settings': typeof AccountSettingsRoute
+  '/admin/businesses': typeof AdminBusinessesRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/bag/$bagId': typeof BagBagIdRoute
+  '/business/$businessId': typeof BusinessBusinessIdRoute
+  '/dashboard/analytics': typeof DashboardAnalyticsRoute
+  '/dashboard/delivery': typeof DashboardDeliveryRoute
+  '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
+  '/dashboard/orders': typeof DashboardOrdersRoute
+  '/order/$orderId': typeof OrderOrderIdRoute
+  '/account/': typeof AccountIndexRoute
+  '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/checkout': typeof CheckoutRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/search': typeof SearchRoute
+  '/account/addresses': typeof AccountAddressesRoute
+  '/account/favorites': typeof AccountFavoritesRoute
+  '/account/orders': typeof AccountOrdersRoute
+  '/account/settings': typeof AccountSettingsRoute
+  '/admin/businesses': typeof AdminBusinessesRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/bag/$bagId': typeof BagBagIdRoute
+  '/business/$businessId': typeof BusinessBusinessIdRoute
+  '/dashboard/analytics': typeof DashboardAnalyticsRoute
+  '/dashboard/delivery': typeof DashboardDeliveryRoute
+  '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
+  '/dashboard/orders': typeof DashboardOrdersRoute
+  '/order/$orderId': typeof OrderOrderIdRoute
+  '/account': typeof AccountIndexRoute
+  '/admin': typeof AdminIndexRoute
+  '/dashboard': typeof DashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/account': typeof AccountRouteWithChildren
+  '/admin': typeof AdminRouteWithChildren
+  '/checkout': typeof CheckoutRoute
+  '/dashboard': typeof DashboardRouteWithChildren
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/login': typeof LoginRoute
+  '/register': typeof RegisterRoute
+  '/search': typeof SearchRoute
+  '/account/addresses': typeof AccountAddressesRoute
+  '/account/favorites': typeof AccountFavoritesRoute
+  '/account/orders': typeof AccountOrdersRoute
+  '/account/settings': typeof AccountSettingsRoute
+  '/admin/businesses': typeof AdminBusinessesRoute
+  '/admin/settings': typeof AdminSettingsRoute
+  '/admin/users': typeof AdminUsersRoute
+  '/bag/$bagId': typeof BagBagIdRoute
+  '/business/$businessId': typeof BusinessBusinessIdRoute
+  '/dashboard/analytics': typeof DashboardAnalyticsRoute
+  '/dashboard/delivery': typeof DashboardDeliveryRoute
+  '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
+  '/dashboard/orders': typeof DashboardOrdersRoute
+  '/order/$orderId': typeof OrderOrderIdRoute
+  '/account/': typeof AccountIndexRoute
+  '/admin/': typeof AdminIndexRoute
+  '/dashboard/': typeof DashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/account'
+    | '/admin'
+    | '/checkout'
+    | '/dashboard'
+    | '/forgot-password'
+    | '/login'
+    | '/register'
+    | '/search'
+    | '/account/addresses'
+    | '/account/favorites'
+    | '/account/orders'
+    | '/account/settings'
+    | '/admin/businesses'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/bag/$bagId'
+    | '/business/$businessId'
+    | '/dashboard/analytics'
+    | '/dashboard/delivery'
+    | '/dashboard/mystery-bags'
+    | '/dashboard/orders'
+    | '/order/$orderId'
+    | '/account/'
+    | '/admin/'
+    | '/dashboard/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/checkout'
+    | '/forgot-password'
+    | '/login'
+    | '/register'
+    | '/search'
+    | '/account/addresses'
+    | '/account/favorites'
+    | '/account/orders'
+    | '/account/settings'
+    | '/admin/businesses'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/bag/$bagId'
+    | '/business/$businessId'
+    | '/dashboard/analytics'
+    | '/dashboard/delivery'
+    | '/dashboard/mystery-bags'
+    | '/dashboard/orders'
+    | '/order/$orderId'
+    | '/account'
+    | '/admin'
+    | '/dashboard'
+  id:
+    | '__root__'
+    | '/'
+    | '/account'
+    | '/admin'
+    | '/checkout'
+    | '/dashboard'
+    | '/forgot-password'
+    | '/login'
+    | '/register'
+    | '/search'
+    | '/account/addresses'
+    | '/account/favorites'
+    | '/account/orders'
+    | '/account/settings'
+    | '/admin/businesses'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/bag/$bagId'
+    | '/business/$businessId'
+    | '/dashboard/analytics'
+    | '/dashboard/delivery'
+    | '/dashboard/mystery-bags'
+    | '/dashboard/orders'
+    | '/order/$orderId'
+    | '/account/'
+    | '/admin/'
+    | '/dashboard/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AccountRoute: typeof AccountRouteWithChildren
+  AdminRoute: typeof AdminRouteWithChildren
+  CheckoutRoute: typeof CheckoutRoute
+  DashboardRoute: typeof DashboardRouteWithChildren
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  LoginRoute: typeof LoginRoute
+  RegisterRoute: typeof RegisterRoute
+  SearchRoute: typeof SearchRoute
+  BagBagIdRoute: typeof BagBagIdRoute
+  BusinessBusinessIdRoute: typeof BusinessBusinessIdRoute
+  OrderOrderIdRoute: typeof OrderOrderIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +357,252 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/checkout': {
+      id: '/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/register': {
+      id: '/register'
+      path: '/register'
+      fullPath: '/register'
+      preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account/': {
+      id: '/account/'
+      path: '/'
+      fullPath: '/account/'
+      preLoaderRoute: typeof AccountIndexRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/addresses': {
+      id: '/account/addresses'
+      path: '/addresses'
+      fullPath: '/account/addresses'
+      preLoaderRoute: typeof AccountAddressesRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/favorites': {
+      id: '/account/favorites'
+      path: '/favorites'
+      fullPath: '/account/favorites'
+      preLoaderRoute: typeof AccountFavoritesRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/orders': {
+      id: '/account/orders'
+      path: '/orders'
+      fullPath: '/account/orders'
+      preLoaderRoute: typeof AccountOrdersRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/settings': {
+      id: '/account/settings'
+      path: '/settings'
+      fullPath: '/account/settings'
+      preLoaderRoute: typeof AccountSettingsRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/admin/': {
+      id: '/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminIndexRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/businesses': {
+      id: '/admin/businesses'
+      path: '/businesses'
+      fullPath: '/admin/businesses'
+      preLoaderRoute: typeof AdminBusinessesRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/settings': {
+      id: '/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminSettingsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/users': {
+      id: '/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/bag/$bagId': {
+      id: '/bag/$bagId'
+      path: '/bag/$bagId'
+      fullPath: '/bag/$bagId'
+      preLoaderRoute: typeof BagBagIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/business/$businessId': {
+      id: '/business/$businessId'
+      path: '/business/$businessId'
+      fullPath: '/business/$businessId'
+      preLoaderRoute: typeof BusinessBusinessIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/': {
+      id: '/dashboard/'
+      path: '/'
+      fullPath: '/dashboard/'
+      preLoaderRoute: typeof DashboardIndexRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/analytics': {
+      id: '/dashboard/analytics'
+      path: '/analytics'
+      fullPath: '/dashboard/analytics'
+      preLoaderRoute: typeof DashboardAnalyticsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/delivery': {
+      id: '/dashboard/delivery'
+      path: '/delivery'
+      fullPath: '/dashboard/delivery'
+      preLoaderRoute: typeof DashboardDeliveryRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/mystery-bags': {
+      id: '/dashboard/mystery-bags'
+      path: '/mystery-bags'
+      fullPath: '/dashboard/mystery-bags'
+      preLoaderRoute: typeof DashboardMysteryBagsRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/dashboard/orders': {
+      id: '/dashboard/orders'
+      path: '/orders'
+      fullPath: '/dashboard/orders'
+      preLoaderRoute: typeof DashboardOrdersRouteImport
+      parentRoute: typeof DashboardRoute
+    }
+    '/order/$orderId': {
+      id: '/order/$orderId'
+      path: '/order/$orderId'
+      fullPath: '/order/$orderId'
+      preLoaderRoute: typeof OrderOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
+interface AccountRouteChildren {
+  AccountAddressesRoute: typeof AccountAddressesRoute
+  AccountFavoritesRoute: typeof AccountFavoritesRoute
+  AccountOrdersRoute: typeof AccountOrdersRoute
+  AccountSettingsRoute: typeof AccountSettingsRoute
+  AccountIndexRoute: typeof AccountIndexRoute
+}
+
+const AccountRouteChildren: AccountRouteChildren = {
+  AccountAddressesRoute: AccountAddressesRoute,
+  AccountFavoritesRoute: AccountFavoritesRoute,
+  AccountOrdersRoute: AccountOrdersRoute,
+  AccountSettingsRoute: AccountSettingsRoute,
+  AccountIndexRoute: AccountIndexRoute,
+}
+
+const AccountRouteWithChildren =
+  AccountRoute._addFileChildren(AccountRouteChildren)
+
+interface AdminRouteChildren {
+  AdminBusinessesRoute: typeof AdminBusinessesRoute
+  AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminUsersRoute: typeof AdminUsersRoute
+  AdminIndexRoute: typeof AdminIndexRoute
+}
+
+const AdminRouteChildren: AdminRouteChildren = {
+  AdminBusinessesRoute: AdminBusinessesRoute,
+  AdminSettingsRoute: AdminSettingsRoute,
+  AdminUsersRoute: AdminUsersRoute,
+  AdminIndexRoute: AdminIndexRoute,
+}
+
+const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
+
+interface DashboardRouteChildren {
+  DashboardAnalyticsRoute: typeof DashboardAnalyticsRoute
+  DashboardDeliveryRoute: typeof DashboardDeliveryRoute
+  DashboardMysteryBagsRoute: typeof DashboardMysteryBagsRoute
+  DashboardOrdersRoute: typeof DashboardOrdersRoute
+  DashboardIndexRoute: typeof DashboardIndexRoute
+}
+
+const DashboardRouteChildren: DashboardRouteChildren = {
+  DashboardAnalyticsRoute: DashboardAnalyticsRoute,
+  DashboardDeliveryRoute: DashboardDeliveryRoute,
+  DashboardMysteryBagsRoute: DashboardMysteryBagsRoute,
+  DashboardOrdersRoute: DashboardOrdersRoute,
+  DashboardIndexRoute: DashboardIndexRoute,
+}
+
+const DashboardRouteWithChildren = DashboardRoute._addFileChildren(
+  DashboardRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AccountRoute: AccountRouteWithChildren,
+  AdminRoute: AdminRouteWithChildren,
+  CheckoutRoute: CheckoutRoute,
+  DashboardRoute: DashboardRouteWithChildren,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  LoginRoute: LoginRoute,
+  RegisterRoute: RegisterRoute,
+  SearchRoute: SearchRoute,
+  BagBagIdRoute: BagBagIdRoute,
+  BusinessBusinessIdRoute: BusinessBusinessIdRoute,
+  OrderOrderIdRoute: OrderOrderIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
