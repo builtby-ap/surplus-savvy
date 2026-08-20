@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import {
   businesses,
   businessTypeLabels,
+  formatMoneySaved,
   mysteryBags,
   platformStats,
 } from "@/data/mock";
@@ -84,7 +85,7 @@ function MarketplaceHome() {
         <div className="grid gap-4 sm:grid-cols-3">
           {[
             { icon: Leaf, label: "CO₂ saved", value: `${(platformStats.co2SavedKg / 1000).toFixed(1)}t`, tone: "text-success" },
-            { icon: PiggyBank, label: "Saved by customers", value: `${platformStats.moneySaved.toLocaleString()} MMK`, tone: "text-accent" },
+            { icon: PiggyBank, label: "Saved by customers", value: formatMoneySaved(platformStats.moneySaved), tone: "text-accent" },
             { icon: Store, label: "Partner businesses", value: `${platformStats.activeBusinesses}`, tone: "text-primary" },
           ].map((stat) => (
             <div key={stat.label} className="surface-card flex items-center gap-4 p-5">

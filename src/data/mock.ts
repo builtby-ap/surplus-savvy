@@ -340,8 +340,15 @@ export const platformStats = {
   mealsRescued: 20470,
   co2SavedKg: 51175,
   activeBusinesses: businesses.length,
-  moneySaved: 184230,
+  moneySaved: 6140000,
 };
+
+export function formatMoneySaved(value: number) {
+  if (value >= 1_000_000) {
+    return `${(value / 1_000_000).toFixed(2)} million MMK`;
+  }
+  return `${value.toLocaleString()} MMK`;
+}
 
 export interface MockOrder {
   id: string;

@@ -1,5 +1,5 @@
 import { Leaf, PiggyBank, Utensils } from "lucide-react";
-import { platformStats } from "@/data/mock";
+import { formatMoneySaved, platformStats } from "@/data/mock";
 
 export function ImpactBanner() {
   const items = [
@@ -10,7 +10,7 @@ export function ImpactBanner() {
     },
     {
       icon: PiggyBank,
-      value: `${platformStats.moneySaved.toLocaleString()} MMK`,
+      value: formatMoneySaved(platformStats.moneySaved),
       label: "saved by customers",
     },
     {
