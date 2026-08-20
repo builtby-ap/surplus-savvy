@@ -32,7 +32,7 @@ function ApplicationStatusPage() {
   const completed = status === "approved" ? 4 : status === "rejected" ? 2 : 2;
 
   return (
-    <PublicLayout>
+    <PublicLayout allowVendor>
       <div className="mx-auto max-w-2xl px-4 py-12">
         <div className="surface-card p-6 sm:p-8">
           {isLoading ? (

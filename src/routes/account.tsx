@@ -1,5 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { NavShell } from "@/components/layout/nav-shell";
+import { VendorRedirect } from "@/components/auth/vendor-guard";
 
 export const Route = createFileRoute("/account")({
   head: () => ({
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/account")({
         { to: "/account/settings", label: "Settings" },
       ]}
     >
+      <VendorRedirect />
       <Outlet />
     </NavShell>
   ),
