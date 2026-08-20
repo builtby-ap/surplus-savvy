@@ -57,6 +57,13 @@ function BrowsePage() {
   const [view, setView] = useState<View>("grid");
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
+  // Only approved (non-deactivated) vendors' posts are publicly visible.
+  const [visibleVendors, setVisibleVendors] = useState<Set<string> | null>(null);
+
+  useEffect(() => {
+    setVisibleVendors(visibleVendorIds());
+  }, []);
+
 
   const useMyLocation = () => {
     if (userLocation) {
