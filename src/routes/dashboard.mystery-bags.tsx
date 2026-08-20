@@ -79,6 +79,10 @@ function VendorPostsPage() {
   const [editingId, setEditingId] = useState<string | undefined>();
   const [form, setForm] = useState<VendorPostInput>(emptyVendorPost());
   const [pendingDelete, setPendingDelete] = useState<VendorPost | null>(null);
+  const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+
 
   const reload = useCallback(async () => {
     if (!vendorId) return;
