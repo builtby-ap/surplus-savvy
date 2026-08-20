@@ -102,7 +102,6 @@ function BrowsePage() {
     const q = query.trim().toLowerCase();
     return mysteryBags.filter((bag) => {
       const business = getBusiness(bag.businessId);
-      if (visibleVendors && !visibleVendors.has(bag.businessId)) return false;
       if (category !== "all" && bag.category !== category) return false;
       if (bag.discountedPrice > maxPrice) return false;
       if (method !== "all" && bag.fulfillment !== method && bag.fulfillment !== "both") return false;
@@ -114,7 +113,7 @@ function BrowsePage() {
         return false;
       return true;
     });
-  }, [query, category, maxPrice, method, city, visibleVendors]);
+  }, [query, category, maxPrice, method, city]);
 
   const sorted = useMemo(() => {
     if (!userLocation) return results;
