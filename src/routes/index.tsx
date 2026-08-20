@@ -131,7 +131,7 @@ function MarketplaceHome() {
                 </Link>
               </Button>
               <Button asChild size="lg" variant="outline" className="rounded-full">
-                <Link to="/register">List your surplus</Link>
+                <Link to="/register">Join us now</Link>
               </Button>
             </div>
           </div>
