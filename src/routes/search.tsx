@@ -72,7 +72,12 @@ function BrowsePage() {
   const [closingSoon, setClosingSoon] = useState<boolean>(initial.closingSoon ?? false);
   const [view, setView] = useState<View>("grid");
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locationLabel, setLocationLabel] = useState<string>("");
   const [locating, setLocating] = useState(false);
+  const [radiusKm, setRadiusKm] = useState<number>(5);
+  const [manualQuery, setManualQuery] = useState("");
+  const [manualOpen, setManualOpen] = useState(false);
+  const [geocoding, setGeocoding] = useState(false);
 
   useEffect(() => {
     setMaxPrice(priceCeiling);
@@ -82,34 +87,67 @@ function BrowsePage() {
     setClosingSoon(initial.closingSoon ?? false);
   }, [initial.closingSoon]);
 
-
-
-
   const useMyLocation = () => {
     if (userLocation) {
       setUserLocation(null);
+      setLocationLabel("");
       return;
     }
     setLocating(true);
-    const finish = (loc: { lat: number; lng: number }, note: string) => {
+    const finish = (loc: { lat: number; lng: number }, label: string, note: string) => {
       setUserLocation(loc);
+      setLocationLabel(label);
       setLocating(false);
       toast.success(note);
     };
     if (!navigator.geolocation) {
-      finish(cityCenter, "Using a demo location near the city centre");
+      setLocating(false);
+      setManualOpen(true);
+      toast.error("This browser can't share your location — search for a place instead.");
       return;
     }
     navigator.geolocation.getCurrentPosition(
       (pos) =>
         finish(
           { lat: pos.coords.latitude, lng: pos.coords.longitude },
-          "Sorting food posts by distance from you",
+          "Your current location",
+          "Showing secret bags near you",
         ),
-      () => finish(cityCenter, "Location unavailable — using a demo city-centre location"),
-      { timeout: 8000 },
+      () => {
+        setLocating(false);
+        setManualOpen(true);
+        toast.error("Location permission denied — search for a place instead.");
+      },
+      { timeout: 8000, enableHighAccuracy: true },
     );
   };
+
+  /** Manual fallback when geolocation is unavailable or denied. */
+  async function searchLocation(e: React.FormEvent) {
+    e.preventDefault();
+    const q = manualQuery.trim();
+    if (!q) return;
+    setGeocoding(true);
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(q)}`,
+        { headers: { Accept: "application/json" } },
+      );
+      const rows = (await res.json()) as Array<{ lat: string; lon: string; display_name: string }>;
+      const hit = rows[0];
+      if (!hit) {
+        toast.error("No place found — try a nearby township or landmark.");
+        return;
+      }
+      setUserLocation({ lat: Number(hit.lat), lng: Number(hit.lon) });
+      setLocationLabel(hit.display_name.split(",").slice(0, 2).join(",").trim());
+      toast.success("Showing secret bags near that location");
+    } catch {
+      toast.error("Couldn't look up that place. Please try again.");
+    } finally {
+      setGeocoding(false);
+    }
+  }
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -120,15 +158,16 @@ function BrowsePage() {
       if (method !== "all" && bag.fulfillment !== method && bag.fulfillment !== "both") return false;
       if (city !== "all" && business?.neighborhood !== city) return false;
       if (closingSoon && (bag.quantityLeft === 0 || bag.quantityLeft > 3)) return false;
+      if (userLocation && business && haversineKm(userLocation, business) > radiusKm) return false;
       if (
-
         q &&
         !`${bag.title} ${bag.description} ${business?.name ?? ""}`.toLowerCase().includes(q)
       )
         return false;
       return true;
     });
-  }, [query, category, maxPrice, method, city, closingSoon]);
+  }, [query, category, maxPrice, method, city, closingSoon, userLocation, radiusKm]);
+
 
 
   const sorted = useMemo(() => {
