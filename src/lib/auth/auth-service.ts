@@ -233,6 +233,8 @@ export async function registerVendor(
       owner_id: ownerId,
       name: input.cafeName.trim(),
       type: (CATEGORY_TO_TYPE[input.category] ?? "cafe") as never,
+      description: input.description?.trim() ?? "",
+      image_url: input.imageUrl ?? null,
       address: input.address.trim(),
       phone: input.phone.trim(),
       email,
@@ -248,6 +250,7 @@ export async function registerVendor(
       fda_approval_name: input.fdaApproval.fileName,
       verification_status: "pending" as never,
     });
+
   }
 
   return sessionOrThrow();

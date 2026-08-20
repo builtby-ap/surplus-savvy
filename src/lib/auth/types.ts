@@ -53,6 +53,11 @@ export interface VendorRegistrationInput {
   category: string;
   phone: string;
   email: string;
+  /** Short business description shown to customers. */
+  description?: string;
+  /** Business logo/cover image (stored data URL). */
+  imageUrl?: string;
+
   address: string;
   latitude: number;
   longitude: number;
