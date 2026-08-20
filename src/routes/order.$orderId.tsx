@@ -266,9 +266,10 @@ function OrderReceipt() {
                 <dd>{order.deliveryFee > 0 ? formatPrice(order.deliveryFee) : "—"}</dd>
               </div>
               <div className="flex justify-between border-t border-border pt-3 text-base font-semibold">
-                <dt>Total due in cash</dt>
+                <dt>{order.method === "pickup" ? "Total paid by MMQR" : "Total due in cash"}</dt>
                 <dd>{formatPrice(order.total)}</dd>
               </div>
+
             </dl>
           </div>
 
