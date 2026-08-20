@@ -34,7 +34,7 @@ function persist(list: SavedAddress[]) {
 
 function normalizeDefaults(list: SavedAddress[], defaultId?: string): SavedAddress[] {
   if (list.length === 0) return list;
-  const target = defaultId ?? list.find((a) => a.isDefault)?.id ?? list[0].id;
+  const target = defaultId ?? list.find((a) => a.isDefault)?.id ?? list[0]?.id;
   return list.map((a) => ({ ...a, isDefault: a.id === target }));
 }
 
