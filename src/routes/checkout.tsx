@@ -296,7 +296,9 @@ function CheckoutPage() {
       <section className="mx-auto max-w-5xl px-4 py-10">
         <h1 className="font-[family-name:var(--font-display)] text-3xl">Checkout</h1>
         <p className="mt-2 text-muted-foreground">
-          One secret bag per order. No online payment — you pay cash when you collect or receive it.
+          One secret bag per order. Pickup orders are prepaid by MMQR; delivery orders are paid in
+          cash when your food arrives.
+
         </p>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[1.4fr_1fr]">
