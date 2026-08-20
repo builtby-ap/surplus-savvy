@@ -1,5 +1,7 @@
-import { useMemo, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { lazy, Suspense, useMemo, useState } from "react";
+import { createFileRoute, ClientOnly } from "@tanstack/react-router";
+import { LayoutGrid, Loader2, LocateFixed, Map as MapIcon } from "lucide-react";
+import { toast } from "sonner";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { Button } from "@/components/ui/button";
@@ -9,10 +11,13 @@ import { Slider } from "@/components/ui/slider";
 import {
   bagCategoryLabels,
   businesses,
+  cityCenter,
   getBusiness,
+  haversineKm,
   mysteryBags,
   type BagCategory,
 } from "@/data/mock";
+import type { VendorPin } from "@/components/map/vendor-map";
 import { cn } from "@/lib/utils";
 
 export const Route = createFileRoute("/search")({
@@ -38,6 +43,9 @@ const cities = Array.from(new Set(businesses.map((b) => b.neighborhood))).sort()
 const MAX_PRICE = Math.ceil(Math.max(...mysteryBags.map((b) => b.discountedPrice)));
 
 type Method = "all" | "pickup" | "delivery";
+type View = "grid" | "map";
+
+const VendorMap = lazy(() => import("@/components/map/vendor-map"));
 
 function BrowsePage() {
   const initial = Route.useSearch();
@@ -46,6 +54,35 @@ function BrowsePage() {
   const [maxPrice, setMaxPrice] = useState<number>(MAX_PRICE);
   const [method, setMethod] = useState<Method>("all");
   const [city, setCity] = useState<string>("all");
+  const [view, setView] = useState<View>("grid");
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+
+  const useMyLocation = () => {
+    if (userLocation) {
+      setUserLocation(null);
+      return;
+    }
+    setLocating(true);
+    const finish = (loc: { lat: number; lng: number }, note: string) => {
+      setUserLocation(loc);
+      setLocating(false);
+      toast.success(note);
+    };
+    if (!navigator.geolocation) {
+      finish(cityCenter, "Using a demo location near the city centre");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) =>
+        finish(
+          { lat: pos.coords.latitude, lng: pos.coords.longitude },
+          "Sorting food posts by distance from you",
+        ),
+      () => finish(cityCenter, "Location unavailable — using a demo city-centre location"),
+      { timeout: 8000 },
+    );
+  };
 
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -64,8 +101,37 @@ function BrowsePage() {
     });
   }, [query, category, maxPrice, method, city]);
 
-  const available = results.filter((b) => b.quantityLeft > 0);
-  const soldOut = results.filter((b) => b.quantityLeft === 0);
+  const sorted = useMemo(() => {
+    if (!userLocation) return results;
+    return [...results].sort((a, b) => {
+      const ba = getBusiness(a.businessId);
+      const bb = getBusiness(b.businessId);
+      if (!ba || !bb) return 0;
+      return haversineKm(userLocation, ba) - haversineKm(userLocation, bb);
+    });
+  }, [results, userLocation]);
+
+  const pins = useMemo<VendorPin[]>(() => {
+    const origin = userLocation ?? cityCenter;
+    const byBusiness = new Map<string, VendorPin>();
+    for (const bag of sorted) {
+      if (bag.quantityLeft === 0) continue;
+      const business = getBusiness(bag.businessId);
+      if (!business) continue;
+      const existing = byBusiness.get(business.id);
+      if (existing) existing.bags.push(bag);
+      else
+        byBusiness.set(business.id, {
+          business,
+          bags: [bag],
+          distanceKm: haversineKm(origin, business),
+        });
+    }
+    return [...byBusiness.values()].sort((a, b) => a.distanceKm - b.distanceKm);
+  }, [sorted, userLocation]);
+
+  const available = sorted.filter((b) => b.quantityLeft > 0);
+  const soldOut = sorted.filter((b) => b.quantityLeft === 0);
 
   const reset = () => {
     setQuery("");
@@ -73,6 +139,7 @@ function BrowsePage() {
     setMaxPrice(MAX_PRICE);
     setMethod("all");
     setCity("all");
+    setUserLocation(null);
   };
 
   return (
@@ -176,13 +243,75 @@ function BrowsePage() {
                 ))}
               </select>
             </div>
+
+            <Button
+              type="button"
+              variant={userLocation ? "default" : "outline"}
+              className="w-full"
+              onClick={useMyLocation}
+              disabled={locating}
+            >
+              {locating ? (
+                <Loader2 className="size-4 animate-spin" aria-hidden />
+              ) : (
+                <LocateFixed className="size-4" aria-hidden />
+              )}
+              {userLocation ? "Clear my location" : "Use my location"}
+            </Button>
           </aside>
 
           <div>
-            <p className="text-sm text-muted-foreground">
-              {results.length} food post{results.length === 1 ? "" : "s"} match your filters
-            </p>
-            {results.length === 0 ? (
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-muted-foreground">
+                {results.length} food post{results.length === 1 ? "" : "s"} match your filters
+                {userLocation ? " · sorted by distance" : ""}
+              </p>
+              <div className="flex rounded-full border border-border p-1">
+                {([
+                  ["grid", "Grid", LayoutGrid],
+                  ["map", "Map", MapIcon],
+                ] as const).map(([value, label, Icon]) => (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => setView(value)}
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition-colors",
+                      view === value
+                        ? "bg-primary text-primary-foreground"
+                        : "text-muted-foreground hover:text-primary",
+                    )}
+                  >
+                    <Icon className="size-3.5" aria-hidden />
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {view === "map" ? (
+              <div className="surface-card mt-4 overflow-hidden p-0">
+                <ClientOnly
+                  fallback={
+                    <div className="flex h-[560px] items-center justify-center text-sm text-muted-foreground">
+                      Loading map…
+                    </div>
+                  }
+                >
+                  <Suspense
+                    fallback={
+                      <div className="flex h-[560px] items-center justify-center text-sm text-muted-foreground">
+                        Loading map…
+                      </div>
+                    }
+                  >
+                    <VendorMap pins={pins} userLocation={userLocation} />
+                  </Suspense>
+                </ClientOnly>
+                <p className="border-t border-border px-4 py-3 text-xs text-muted-foreground">
+                  {pins.length} vendor{pins.length === 1 ? "" : "s"} with available food posts
+                </p>
+              </div>
+            ) : results.length === 0 ? (
               <div className="surface-card mt-4 p-10 text-center text-sm text-muted-foreground">
                 Nothing matches yet — try widening your price range or area.
               </div>
