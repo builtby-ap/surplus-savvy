@@ -16,7 +16,7 @@ import {
   type MysteryBag,
 } from "./mock";
 
-let loaded = false;
+let lastSignature = "";
 
 /** legacy_id (or uuid) -> database uuid, so writes can target real rows. */
 export const vendorUuidById = new Map<string, string>();
