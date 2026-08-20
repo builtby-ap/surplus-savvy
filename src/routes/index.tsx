@@ -14,6 +14,8 @@ import {
   storefrontImage,
   type BagCategory,
 } from "@/data/mock";
+import { CLOSING_SOON_MS, msUntil } from "@/lib/countdown";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
