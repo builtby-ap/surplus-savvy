@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { createFileRoute, ClientOnly } from "@tanstack/react-router";
+import { createFileRoute, ClientOnly, useNavigate } from "@tanstack/react-router";
 import { LayoutGrid, Loader2, LocateFixed, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -19,7 +19,9 @@ import {
   type BagCategory,
 } from "@/data/mock";
 import type { VendorPin } from "@/components/map/vendor-map";
+import { CLOSING_SOON_MS, msUntil } from "@/lib/countdown";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/search")({
   validateSearch: (search: Record<string, unknown>): { q?: string; category?: string } => {
