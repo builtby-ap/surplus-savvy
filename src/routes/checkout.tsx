@@ -37,6 +37,7 @@ export const Route = createFileRoute("/checkout")({
 function CheckoutPage() {
   const { bag: bagParam } = Route.useSearch();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   const entry = useMemo(() => {
     const bag = getBag(bagParam);
