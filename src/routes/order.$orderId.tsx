@@ -89,11 +89,15 @@ function OrderReceipt() {
 
           <div className="grid gap-4 border-b border-dashed border-border py-4 text-sm sm:grid-cols-2">
             <div>
-              <p className="text-xs uppercase tracking-wide text-muted-foreground">Vendor</p>
-              <p className="font-medium">{business?.name}</p>
-              <p className="text-muted-foreground">
-                {business ? businessTypeLabels[business.type] : ""}
+              <p className="text-xs uppercase tracking-wide text-muted-foreground">
+                Vendor{businesses.length > 1 ? "s" : ""}
               </p>
+              {businesses.map((b) => (
+                <div key={b.id}>
+                  <p className="font-medium">{b.name}</p>
+                  <p className="text-muted-foreground">{businessTypeLabels[b.type]}</p>
+                </div>
+              ))}
             </div>
             <div>
               <p className="text-xs uppercase tracking-wide text-muted-foreground">
