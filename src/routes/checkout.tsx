@@ -68,6 +68,23 @@ function CheckoutPage() {
   const [notes, setNotes] = useState("");
   const [placing, setPlacing] = useState(false);
 
+  // Pickup orders are prepaid via MMQR and need a payment screenshot.
+  const paymentSettings = usePaymentSettings();
+  const screenshotInput = useRef<HTMLInputElement | null>(null);
+  const [screenshot, setScreenshot] = useState<File | null>(null);
+  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!screenshot) {
+      setScreenshotPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(screenshot);
+    setScreenshotPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [screenshot]);
+
+
   const { addresses, reload: reloadAddresses } = useMyAddresses(Boolean(user));
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
