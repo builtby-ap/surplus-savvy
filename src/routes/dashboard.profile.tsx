@@ -18,6 +18,8 @@ import { businessTypeLabels, type BusinessType, type FulfillmentType } from "@/d
 import { useMyVendor } from "@/lib/use-my-vendor";
 import { createMyVendor, updateMyVendor, type VendorProfileInput } from "@/lib/vendor-db";
 import { AdvertisePanel } from "@/components/vendor/advertise-panel";
+import { fileToStoredImage, safeImage } from "@/lib/image-upload";
+
 
 
 export const Route = createFileRoute("/dashboard/profile")({
