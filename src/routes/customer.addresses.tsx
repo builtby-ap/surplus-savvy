@@ -34,6 +34,8 @@ export const Route = createFileRoute("/customer/addresses")({
     >
       <VendorRedirect />
       <AddressBook />
+    </NavShell>
+
 
   ),
 });
