@@ -4,7 +4,7 @@ import { Bike, Check, Download, MapPin, Printer, ShoppingBag, Timer } from "luci
 import { toast } from "sonner";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { Button } from "@/components/ui/button";
-import { businessTypeLabels, formatPrice, getBag, getBusiness } from "@/data/mock";
+import { businessTypeLabels, formatPrice, getBusiness } from "@/data/mock";
 import { getPlacedOrder, type PlacedOrder } from "@/lib/orders";
 
 export const Route = createFileRoute("/order/$orderId")({
