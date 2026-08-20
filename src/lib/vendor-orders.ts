@@ -62,12 +62,25 @@ export function ensureVendorDemoOrders(businessId: string) {
   if (bags.length === 0) return;
   const ids = bags.map((b) => b.id);
   const pick = (i: number) => ids[i % ids.length]!;
+  // A few months of completed history so analytics has something to chart.
+  const history = Array.from({ length: 18 }, (_, i) =>
+    buildOrder(
+      businessId,
+      100 + i,
+      [pick(i), ...(i % 3 === 0 ? [pick(i + 1)] : [])],
+      i % 2 === 0 ? "pickup" : "delivery",
+      Math.round((i * 9 + (i % 4) * 3) * 60 * 24), // spread over ~5 months
+      i % 2 === 0 ? "picked-up" : "delivered",
+    ),
+  );
   [
     buildOrder(businessId, 1, [pick(0)], "pickup", 4, "pending", "Please pack nuts separately."),
     buildOrder(businessId, 2, [pick(1)], "delivery", 12, "pending"),
     buildOrder(businessId, 3, [pick(0), pick(2)], "pickup", 40, "preparing"),
     buildOrder(businessId, 4, [pick(1)], "delivery", 180, "delivered"),
+    ...history,
   ]
+
     .filter((o): o is PlacedOrder => Boolean(o))
     .forEach(saveOrder);
 }
