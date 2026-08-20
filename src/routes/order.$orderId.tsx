@@ -165,12 +165,16 @@ function OrderReceipt() {
           <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-success/20 text-success">
             <Check className="size-6" />
           </span>
-          <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl">Order confirmed</h1>
+          <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl">
+            {order.method === "pickup" ? "Payment under review" : "Order confirmed"}
+          </h1>
           <p className="mt-2 text-muted-foreground">
-            Show this receipt to {business?.name ?? "the vendor"} and pay cash on{" "}
-            {order.method === "delivery" ? "delivery" : "pickup"}.
+            {order.method === "pickup"
+              ? "The vendor will start preparing once your payment is verified."
+              : `Show this receipt to ${business?.name ?? "the vendor"} and pay cash on delivery.`}
           </p>
         </div>
+
 
         <article className="surface-card mt-8 p-6 print:border-0 print:shadow-none">
           <header className="flex items-start justify-between gap-4 border-b border-dashed border-border pb-4">
