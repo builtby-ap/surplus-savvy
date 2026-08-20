@@ -13,6 +13,7 @@ import {
   bagCategoryLabels,
   businesses,
   cityCenter,
+  formatPrice,
   getBusiness,
   haversineKm,
   mysteryBags,
@@ -225,7 +226,7 @@ function BrowsePage() {
             </div>
 
             <div className="space-y-3">
-              <Label>Max price: ${maxPrice.toFixed(2)}</Label>
+              <Label>Max price: {formatPrice(maxPrice)}</Label>
               <Slider
                 value={[maxPrice]}
                 min={1}
