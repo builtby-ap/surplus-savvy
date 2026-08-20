@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Bike, Info, LocateFixed, MapPin, Plus, ShoppingBag, Timer } from "lucide-react";
+import { Bike, Check, Info, LocateFixed, MapPin, Plus, QrCode, ShoppingBag, Timer, Upload } from "lucide-react";
 import { toast } from "sonner";
+
 import { PublicLayout } from "@/components/layout/public-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
