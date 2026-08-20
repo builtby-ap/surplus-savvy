@@ -326,6 +326,9 @@ function StoreProfilePage() {
           {saving ? "Saving…" : vendor ? "Save changes" : "Create store"}
         </Button>
       </form>
+
+      {vendor && <AdvertisePanel vendorId={vendor.id} />}
     </section>
+
   );
 }
