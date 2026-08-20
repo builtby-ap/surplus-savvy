@@ -16,6 +16,7 @@ import { BagCard } from "@/components/bag-card";
 import { ImpactBanner } from "@/components/impact-banner";
 import { FeaturedBusinesses } from "@/components/featured-businesses";
 import heroAsset from "@/assets/hero-phoelamin.jpeg.asset.json";
+import { isClosingSoon, useNow } from "@/lib/countdown";
 import { getNearbyLocation, saveNearbyLocation, type LatLng } from "@/lib/nearby";
 
 import { Button } from "@/components/ui/button";
@@ -53,7 +54,14 @@ export const Route = createFileRoute("/")({
 
 
 function MarketplaceHome() {
-  const closingSoon = mysteryBags.filter((b) => b.quantityLeft > 0 && b.quantityLeft <= 3).slice(0, 8);
+  const now = useNow(30000);
+  const closingSoon = useMemo(
+    () =>
+      now
+        ? mysteryBags.filter((b) => b.quantityLeft > 0 && isClosingSoon(b.availableUntil, now)).slice(0, 8)
+        : [],
+    [now],
+  );
 
   const [coords, setCoords] = useState<LatLng | null>(null);
   const [geoState, setGeoState] = useState<"idle" | "loading" | "ready" | "denied">("idle");

@@ -3,6 +3,7 @@ import { createFileRoute, ClientOnly, Link, useNavigate } from "@tanstack/react-
 import { LayoutGrid, Loader2, LocateFixed, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
 
+import { isClosingSoon, useNow } from "@/lib/countdown";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { Button } from "@/components/ui/button";
@@ -73,6 +74,7 @@ function BrowsePage() {
   const [method, setMethod] = useState<Method>("all");
   const [city, setCity] = useState<string>("all");
   const [closingSoon, setClosingSoon] = useState<boolean>(initial.closingSoon ?? false);
+  const now = useNow(30000);
   const [view, setView] = useState<View>("map");
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locationLabel, setLocationLabel] = useState<string>("");
@@ -170,7 +172,8 @@ function BrowsePage() {
       if (bag.discountedPrice > maxPrice) return false;
       if (method !== "all" && bag.fulfillment !== method && bag.fulfillment !== "both") return false;
       if (city !== "all" && business?.neighborhood !== city) return false;
-      if (closingSoon && (bag.quantityLeft === 0 || bag.quantityLeft > 3)) return false;
+      if (closingSoon && (bag.quantityLeft === 0 || !isClosingSoon(bag.availableUntil, now ?? new Date())))
+        return false;
       if (userLocation && business && haversineKm(userLocation, business) > radiusKm) return false;
       if (
         q &&
@@ -179,7 +182,7 @@ function BrowsePage() {
         return false;
       return true;
     });
-  }, [query, category, maxPrice, method, city, closingSoon, userLocation, radiusKm]);
+  }, [query, category, maxPrice, method, city, closingSoon, userLocation, radiusKm, now]);
 
 
 
