@@ -38,6 +38,7 @@ export interface CustomerOrder {
   vendorType: string;
   vendorAddress: string;
   vendorNeighborhood: string;
+  vendorPhone: string;
   items: CustomerOrderItem[];
 }
 
