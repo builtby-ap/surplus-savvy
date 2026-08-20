@@ -60,21 +60,22 @@ export async function loadCatalogue(): Promise<boolean> {
 
     const idByUuid = new Map<string, string>();
     const nextBusinesses: Business[] = vendorRows.map((v) => {
-      const id = v.legacy_id ?? v.id;
-      idByUuid.set(v.id, id);
-      vendorUuidById.set(id, v.id);
+      const uuid = String(v.id ?? "");
+      const id = v.legacy_id ?? uuid;
+      idByUuid.set(uuid, id);
+      vendorUuidById.set(id, uuid);
       return {
         id,
-        name: (v.display_alias as string) || "Mystery Vendor",
+        name: v.display_alias ?? "Mystery Vendor",
         type: v.type as BusinessType,
-        description: v.description,
-        address: v.address,
-        neighborhood: v.neighborhood,
-        rating: Number(v.rating),
-        reviewCount: v.review_count,
+        description: v.description ?? "",
+        address: v.address ?? "",
+        neighborhood: v.neighborhood ?? "",
+        rating: Number(v.rating ?? 0),
+        reviewCount: v.review_count ?? 0,
         image: storefrontImage,
-        logoInitials: aliasBadge((v.display_alias as string) || ""),
-        fulfillment: v.fulfillment as FulfillmentType,
+        logoInitials: aliasBadge(v.display_alias ?? ""),
+        fulfillment: (v.fulfillment ?? "pickup") as FulfillmentType,
         mealsRescued: v.meals_rescued ?? 0,
         verified: Boolean(v.verified),
         lat: v.latitude ?? 0,
