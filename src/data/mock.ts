@@ -368,7 +368,7 @@ export const addresses = [
 ];
 
 export function formatPrice(value: number) {
-  return `$${value.toFixed(2)}`;
+  return `${Math.round(value).toLocaleString("en-US")} MMK`;
 }
 
 export function discountPercent(bag: MysteryBag) {
