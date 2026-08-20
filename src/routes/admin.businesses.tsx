@@ -32,12 +32,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  listVendors,
-  setVendorStatus,
   vendorStatusLabels,
   type VendorRecord,
   type VendorStatus,
 } from "@/lib/vendor-registry";
+import { fetchAdminVendors, updateVendorStatus } from "@/lib/admin-db";
 
 export const Route = createFileRoute("/admin/businesses")({
   component: VendorApprovalPage,
@@ -61,7 +60,15 @@ function VendorApprovalPage() {
   const [deactivating, setDeactivating] = useState<VendorRecord | null>(null);
 
   useEffect(() => {
-    setVendors(listVendors());
+    let active = true;
+    fetchAdminVendors()
+      .then((rows) => {
+        if (active) setVendors(rows);
+      })
+      .catch(() => toast.error("Could not load vendors — admin access required."));
+    return () => {
+      active = false;
+    };
   }, []);
 
   const pending = useMemo(() => vendors.filter((v) => v.status === "pending"), [vendors]);
@@ -76,7 +83,9 @@ function VendorApprovalPage() {
   );
 
   const apply = (vendor: VendorRecord, status: VendorStatus, note?: string) => {
-    setVendors(setVendorStatus(vendor.id, status, note));
+    void updateVendorStatus(vendor.id, status, note)
+      .then(setVendors)
+      .catch(() => toast.error("Could not update this vendor."));
   };
 
   const approve = (vendor: VendorRecord) => {

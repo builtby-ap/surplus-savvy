@@ -140,10 +140,11 @@ export interface PlatformTotals {
 export function platformTotals(
   orders: PlatformOrder[],
   vendors: VendorRecord[] = listVendors(),
+  customers?: number,
 ): PlatformTotals {
   const units = orders.reduce((s, o) => s + o.units, 0);
   return {
-    customers: customerCount(),
+    customers: customers ?? customerCount(),
     vendors: vendors.length,
     approvedVendors: vendors.filter((v) => v.status === "approved").length,
     pendingVendors: vendors.filter((v) => v.status === "pending").length,
