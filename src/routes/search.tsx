@@ -24,13 +24,15 @@ import { cn } from "@/lib/utils";
 
 
 export const Route = createFileRoute("/search")({
-  validateSearch: (search: Record<string, unknown>): { q?: string; category?: string } => {
-    const parsed: { q?: string; category?: string } = {};
+  validateSearch: (search: Record<string, unknown>): { q?: string; category?: string; closingSoon?: boolean } => {
+    const parsed: { q?: string; category?: string; closingSoon?: boolean } = {};
     if (typeof search["q"] === "string") parsed.q = search["q"];
     if (typeof search["category"] === "string") parsed.category = search["category"];
+    if (search["closingSoon"] === true || search["closingSoon"] === "true") parsed.closingSoon = true;
     return parsed;
   },
   head: () => ({
+
     meta: [
       { title: "Browse mystery bags — Surplus Rescue" },
       { name: "description", content: "Filter surplus mystery bags by category, price, delivery or pickup and city, and reserve before the window closes." },
