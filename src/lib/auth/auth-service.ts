@@ -142,6 +142,7 @@ export async function loadSession(): Promise<AuthSession | null> {
     role,
     provider: data.user.app_metadata?.provider === "google" ? "google" : "password",
     ...(application ? { vendorId: application.id } : {}),
+    ...(vendor ? { vendorUuid: vendor.id } : {}),
   };
 
   return { user, ...(application ? { vendorApplication: application } : {}) };

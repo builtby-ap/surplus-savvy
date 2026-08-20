@@ -18,6 +18,10 @@ import {
 
 let loaded = false;
 
+/** legacy_id (or uuid) -> database uuid, so writes can target real rows. */
+export const vendorUuidById = new Map<string, string>();
+export const postUuidById = new Map<string, string>();
+
 function hhmm(value: string) {
   return value.slice(0, 5);
 }
@@ -48,6 +52,7 @@ export async function loadCatalogue(): Promise<boolean> {
     const nextBusinesses: Business[] = vendorRows.map((v) => {
       const id = v.legacy_id ?? v.id;
       idByUuid.set(v.id, id);
+      vendorUuidById.set(id, v.id);
       return {
         id,
         name: v.name,
@@ -71,8 +76,10 @@ export async function loadCatalogue(): Promise<boolean> {
       .filter((p) => idByUuid.has(p.vendor_id))
       .map((p) => {
         const category = p.category as BagCategory;
+        const postId = p.legacy_id ?? p.id;
+        postUuidById.set(postId, p.id);
         return {
-          id: p.legacy_id ?? p.id,
+          id: postId,
           businessId: idByUuid.get(p.vendor_id) as string,
           title: p.title,
           category,

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { createFileRoute, Outlet } from "@tanstack/react-router";
 import { NavShell } from "@/components/layout/nav-shell";
-import { useAuth } from "@/lib/auth/auth-context";
-import { ensureVendorDemoOrders, pendingCountForBusiness } from "@/lib/vendor-orders";
+import { useMyVendor } from "@/lib/use-my-vendor";
+import { fetchVendorOrders } from "@/lib/vendor-db";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -17,23 +17,29 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardLayout() {
-  const { user } = useAuth();
-  const businessId = user?.vendorId ?? "b1";
+  const { vendorId } = useMyVendor();
   const [pending, setPending] = useState(0);
 
   useEffect(() => {
-    ensureVendorDemoOrders(businessId);
-    const tick = () => setPending(pendingCountForBusiness(businessId));
+    if (!vendorId) {
+      setPending(0);
+      return;
+    }
+    const tick = () =>
+      void fetchVendorOrders(vendorId)
+        .then((orders) => setPending(orders.filter((o) => o.status === "pending").length))
+        .catch(() => undefined);
     tick();
-    const timer = window.setInterval(tick, 2000);
+    const timer = window.setInterval(tick, 15000);
     return () => window.clearInterval(timer);
-  }, [businessId]);
+  }, [vendorId]);
 
   return (
     <NavShell
       title="Business"
       subtitle="Manage your surplus listings, orders and impact."
       items={[
+        { to: "/dashboard/profile", label: "Store profile" },
         { to: "/dashboard/mystery-bags", label: "Mystery bags" },
         { to: "/dashboard/orders", label: "Orders", badge: pending },
         { to: "/dashboard/delivery", label: "Delivery" },

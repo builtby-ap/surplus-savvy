@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -48,16 +48,17 @@ import {
   type BagCategory,
   type FulfillmentType,
 } from "@/data/mock";
-import { useAuth } from "@/lib/auth/auth-context";
+import { useMyVendor } from "@/lib/use-my-vendor";
 import {
+  createVendorPost,
   deleteVendorPost,
   emptyVendorPost,
-  listVendorPosts,
-  saveVendorPost,
-  toggleVendorPost,
+  fetchVendorPosts,
+  setVendorPostAvailability,
+  updateVendorPost,
   type VendorPost,
   type VendorPostInput,
-} from "@/lib/vendor-posts";
+} from "@/lib/vendor-db";
 
 export const Route = createFileRoute("/dashboard/mystery-bags")({
   component: VendorPostsPage,
@@ -70,8 +71,7 @@ const FULFILLMENTS: { value: FulfillmentType; label: string }[] = [
 ];
 
 function VendorPostsPage() {
-  const { user } = useAuth();
-  const businessId = user?.vendorId ?? "b1";
+  const { vendorId, loading: vendorLoading } = useMyVendor();
 
   const [posts, setPosts] = useState<VendorPost[]>([]);
   const [open, setOpen] = useState(false);
@@ -79,9 +79,18 @@ function VendorPostsPage() {
   const [form, setForm] = useState<VendorPostInput>(emptyVendorPost());
   const [pendingDelete, setPendingDelete] = useState<VendorPost | null>(null);
 
+  const reload = useCallback(async () => {
+    if (!vendorId) return;
+    try {
+      setPosts(await fetchVendorPosts(vendorId));
+    } catch {
+      toast.error("Could not load your food posts.");
+    }
+  }, [vendorId]);
+
   useEffect(() => {
-    setPosts(listVendorPosts(businessId));
-  }, [businessId]);
+    void reload();
+  }, [reload]);
 
   const liveCount = useMemo(
     () => posts.filter((p) => p.isAvailable && p.quantityLeft > 0).length,
@@ -95,13 +104,13 @@ function VendorPostsPage() {
   }
 
   function openEdit(post: VendorPost) {
-    const { id, businessId: _b, ...rest } = post;
+    const { id, vendorId: _v, ...rest } = post;
     setEditingId(id);
     setForm(rest);
     setOpen(true);
   }
 
-  function submit(event: React.FormEvent) {
+  async function submit(event: React.FormEvent) {
     event.preventDefault();
     if (!form.title.trim() || !form.description.trim()) {
       toast.error("Title and description are required.");
@@ -115,15 +124,23 @@ function VendorPostsPage() {
       toast.error("Selling price should be below the original value.");
       return;
     }
-    setPosts(
-      saveVendorPost(
-        businessId,
-        { ...form, totalQuantity: Math.max(form.totalQuantity, form.quantityLeft) },
-        editingId,
-      ),
-    );
-    setOpen(false);
-    toast.success(editingId ? "Food post updated" : "Food post created");
+    if (!vendorId) {
+      toast.error("Set up your store profile before posting food.");
+      return;
+    }
+    const payload = {
+      ...form,
+      totalQuantity: Math.max(form.totalQuantity, form.quantityLeft),
+    };
+    try {
+      if (editingId) await updateVendorPost(editingId, payload);
+      else await createVendorPost(vendorId, payload);
+      await reload();
+      setOpen(false);
+      toast.success(editingId ? "Food post updated" : "Food post created");
+    } catch {
+      toast.error("Could not save that food post.");
+    }
   }
 
   return (
@@ -135,10 +152,16 @@ function VendorPostsPage() {
             {posts.length} total · {liveCount} live right now
           </p>
         </div>
-        <Button onClick={openNew}>
+        <Button onClick={openNew} disabled={!vendorId}>
           <Plus className="mr-2 size-4" /> New food post
         </Button>
       </div>
+
+      {!vendorLoading && !vendorId && (
+        <p className="surface-card p-6 text-sm text-muted-foreground">
+          You don't have a store yet — set one up on the Store profile page first.
+        </p>
+      )}
 
       <div className="surface-card overflow-x-auto p-0">
         <Table>
@@ -200,8 +223,14 @@ function VendorPostsPage() {
                   <Switch
                     checked={post.isAvailable}
                     onCheckedChange={(checked) => {
-                      setPosts(toggleVendorPost(businessId, post.id, checked));
-                      toast.success(checked ? "Post is live" : "Post hidden from customers");
+                      void setVendorPostAvailability(post.id, checked)
+                        .then(reload)
+                        .then(() =>
+                          toast.success(
+                            checked ? "Post is live" : "Post hidden from customers",
+                          ),
+                        )
+                        .catch(() => toast.error("Could not update that post."));
                     }}
                   />
                 </TableCell>
@@ -436,8 +465,10 @@ function VendorPostsPage() {
             <AlertDialogAction
               onClick={() => {
                 if (!pendingDelete) return;
-                setPosts(deleteVendorPost(businessId, pendingDelete.id));
-                toast.success("Food post deleted");
+                void deleteVendorPost(pendingDelete.id)
+                  .then(reload)
+                  .then(() => toast.success("Food post deleted"))
+                  .catch(() => toast.error("Could not delete that post."));
                 setPendingDelete(null);
               }}
             >

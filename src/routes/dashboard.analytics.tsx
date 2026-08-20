@@ -10,37 +10,49 @@ import {
   YAxis,
 } from "recharts";
 import { Receipt, ShoppingBag, TrendingUp, Utensils } from "lucide-react";
-import { bagCategoryLabels, formatPrice, getBag, type BagCategory } from "@/data/mock";
-import { useAuth } from "@/lib/auth/auth-context";
-import { listOrdersForBusiness, type PlacedOrder } from "@/lib/orders";
-import { ensureVendorDemoOrders, statusOf } from "@/lib/vendor-orders";
+import { bagCategoryLabels, formatPrice, type BagCategory } from "@/data/mock";
+import { useMyVendor } from "@/lib/use-my-vendor";
+import {
+  fetchVendorOrders,
+  fetchVendorPosts,
+  type VendorOrder,
+  type VendorPost,
+} from "@/lib/vendor-db";
 
 export const Route = createFileRoute("/dashboard/analytics")({
   component: VendorAnalytics,
 });
 
-/** Rough mock factor: one rescued food post ≈ 1.4 meals. */
+/** Rough factor: one rescued food post ≈ 1.4 meals. */
 const MEALS_PER_ITEM = 1.4;
 
 function VendorAnalytics() {
-  const { user } = useAuth();
-  const businessId = user?.vendorId ?? "b1";
-  const [orders, setOrders] = useState<PlacedOrder[]>([]);
+  const { vendorId, loading: vendorLoading } = useMyVendor();
+  const [orders, setOrders] = useState<VendorOrder[]>([]);
+  const [posts, setPosts] = useState<VendorPost[]>([]);
 
   useEffect(() => {
-    ensureVendorDemoOrders(businessId);
-    setOrders(listOrdersForBusiness(businessId));
-  }, [businessId]);
+    if (!vendorId) return;
+    let active = true;
+    void Promise.all([fetchVendorOrders(vendorId), fetchVendorPosts(vendorId)])
+      .then(([o, p]) => {
+        if (!active) return;
+        setOrders(o);
+        setPosts(p);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [vendorId]);
 
   const paid = useMemo(
-    () => orders.filter((o) => !["cancelled", "refunded"].includes(statusOf(o))),
+    () => orders.filter((o) => !["cancelled", "refunded"].includes(o.status)),
     [orders],
   );
 
   const stats = useMemo(() => {
-    const items = paid.flatMap((o) =>
-      o.items.filter((i) => i.businessId === businessId),
-    );
+    const items = paid.flatMap((o) => o.items);
     const units = items.reduce((s, i) => s + i.quantity, 0);
     const revenue = items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
     return {
@@ -49,7 +61,7 @@ function VendorAnalytics() {
       average: paid.length ? revenue / paid.length : 0,
       meals: Math.round(units * MEALS_PER_ITEM),
     };
-  }, [paid, businessId]);
+  }, [paid]);
 
   const monthly = useMemo(() => {
     const now = new Date();
@@ -67,19 +79,17 @@ function VendorAnalytics() {
       const bucket = buckets.find((b) => b.key === `${d.getFullYear()}-${d.getMonth()}`);
       if (!bucket) continue;
       bucket.orders += 1;
-      bucket.revenue += order.items
-        .filter((i) => i.businessId === businessId)
-        .reduce((s, i) => s + i.unitPrice * i.quantity, 0);
+      bucket.revenue += order.items.reduce((s, i) => s + i.unitPrice * i.quantity, 0);
     }
     return buckets;
-  }, [paid, businessId]);
+  }, [paid]);
 
   const categories = useMemo(() => {
+    const categoryOf = new Map(posts.map((p) => [p.id, p.category]));
     const map = new Map<BagCategory, { units: number; revenue: number }>();
     for (const order of paid) {
       for (const item of order.items) {
-        if (item.businessId !== businessId) continue;
-        const category = getBag(item.bagId)?.category;
+        const category = item.foodPostId ? categoryOf.get(item.foodPostId) : undefined;
         if (!category) continue;
         const entry = map.get(category) ?? { units: 0, revenue: 0 };
         entry.units += item.quantity;
@@ -87,13 +97,10 @@ function VendorAnalytics() {
         map.set(category, entry);
       }
     }
-    const rows = [...map.entries()].map(([category, v]) => ({
-      category,
-      label: bagCategoryLabels[category],
-      ...v,
-    }));
-    return rows.sort((a, b) => b.revenue - a.revenue);
-  }, [paid, businessId]);
+    return [...map.entries()]
+      .map(([category, v]) => ({ category, label: bagCategoryLabels[category], ...v }))
+      .sort((a, b) => b.revenue - a.revenue);
+  }, [paid, posts]);
 
   const maxRevenue = categories[0]?.revenue ?? 0;
 
@@ -105,6 +112,12 @@ function VendorAnalytics() {
           Revenue recovered, order volume and which food post categories sell best.
         </p>
       </header>
+
+      {!vendorLoading && !vendorId && (
+        <p className="surface-card p-6 text-sm text-muted-foreground">
+          You don't have a store yet — set one up on the Store profile page.
+        </p>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
