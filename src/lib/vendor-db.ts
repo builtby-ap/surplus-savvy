@@ -16,6 +16,7 @@ import type { OrderStatus } from "@/lib/order-status";
 export interface VendorProfile {
   id: string;
   name: string;
+  displayAlias: string;
   type: string;
   description: string;
   address: string;
@@ -35,7 +36,7 @@ export interface VendorProfile {
 }
 
 const VENDOR_COLUMNS =
-  "id, name, type, description, address, neighborhood, city, latitude, longitude, phone, email, logo_initials, image_url, fulfillment, delivery_fee, delivery_minimum, verification_status, rejection_reason";
+  "id, name, display_alias, type, description, address, neighborhood, city, latitude, longitude, phone, email, logo_initials, image_url, fulfillment, delivery_fee, delivery_minimum, verification_status, rejection_reason";
 
 type VendorRow = Record<string, unknown>;
 
@@ -45,6 +46,7 @@ function toProfile(row: VendorRow): VendorProfile {
   return {
     id: s(row['id']),
     name: s(row['name']),
+    displayAlias: s(row['display_alias']),
     type: s(row['type']),
     description: s(row['description']),
     address: s(row['address']),
