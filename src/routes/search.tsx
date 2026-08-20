@@ -431,7 +431,7 @@ function BrowsePage() {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-muted-foreground">
                 {results.length} food post{results.length === 1 ? "" : "s"} match your filters
-                {userLocation ? " · sorted by distance" : ""}
+                {userLocation ? ` · within ${radiusKm} km · sorted by distance` : ""}
               </p>
               <div className="flex rounded-full border border-border p-1">
                 {([
@@ -456,28 +456,90 @@ function BrowsePage() {
               </div>
             </div>
             {view === "map" ? (
-              <div className="surface-card mt-4 overflow-hidden p-0">
-                <ClientOnly
-                  fallback={
-                    <div className="flex h-[560px] items-center justify-center text-sm text-muted-foreground">
-                      Loading map…
-                    </div>
-                  }
-                >
-                  <Suspense
+              <div className="mt-4 grid gap-4 xl:grid-cols-[1fr_320px]">
+                <div className="surface-card overflow-hidden p-0">
+                  <ClientOnly
                     fallback={
-                      <div className="flex h-[560px] items-center justify-center text-sm text-muted-foreground">
+                      <div className="flex h-[420px] items-center justify-center text-sm text-muted-foreground sm:h-[560px]">
                         Loading map…
                       </div>
                     }
                   >
-                    <VendorMap pins={pins} userLocation={userLocation} />
-                  </Suspense>
-                </ClientOnly>
-                <p className="border-t border-border px-4 py-3 text-xs text-muted-foreground">
-                  {pins.length} vendor{pins.length === 1 ? "" : "s"} with available food posts
-                </p>
+                    <Suspense
+                      fallback={
+                        <div className="flex h-[420px] items-center justify-center text-sm text-muted-foreground sm:h-[560px]">
+                          Loading map…
+                        </div>
+                      }
+                    >
+                      <VendorMap
+                        pins={pins}
+                        userLocation={userLocation}
+                        radiusKm={radiusKm}
+                        onAddToCart={addToCart}
+                      />
+                    </Suspense>
+                  </ClientOnly>
+                  <p className="border-t border-border px-4 py-3 text-xs text-muted-foreground">
+                    {pins.length} vendor{pins.length === 1 ? "" : "s"} with available food posts
+                    {userLocation ? ` within ${radiusKm} km` : ""}
+                  </p>
+                </div>
+
+                <div className="surface-card max-h-[560px] space-y-3 overflow-y-auto p-4">
+                  <h2 className="text-sm font-semibold">
+                    Nearby secret bags ({available.length})
+                  </h2>
+                  {available.length === 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      Nothing in this radius yet — try a wider radius.
+                    </p>
+                  )}
+                  {available.map((bag) => {
+                    const b = getBusiness(bag.businessId);
+                    const dist = userLocation && b ? haversineKm(userLocation, b) : null;
+                    return (
+                      <div
+                        key={bag.id}
+                        className="flex gap-3 rounded-2xl border border-border p-2"
+                      >
+                        <img
+                          src={bag.image}
+                          alt={bag.title}
+                          loading="lazy"
+                          className="size-16 shrink-0 rounded-xl object-cover"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs text-primary">{b?.name}</p>
+                          <p className="truncate text-sm font-medium">{bag.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            <span className="font-semibold text-accent">
+                              {formatPrice(bag.discountedPrice)}
+                            </span>{" "}
+                            <span className="line-through">{formatPrice(bag.originalPrice)}</span>
+                            {dist !== null ? ` · ${dist.toFixed(1)} km` : ""}
+                          </p>
+                          <div className="mt-1.5 flex gap-1.5">
+                            <Button asChild size="sm" variant="outline" className="h-8 flex-1 text-xs">
+                              <Link to="/bag/$bagId" params={{ bagId: bag.id }}>
+                                Details
+                              </Link>
+                            </Button>
+                            <Button
+                              size="sm"
+                              className="h-8 flex-1 bg-accent text-xs text-accent-foreground hover:bg-accent/90"
+                              onClick={() => addToCart(bag)}
+                            >
+                              Add to cart
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
+
             ) : results.length === 0 ? (
               <div className="surface-card mt-4 p-10 text-center text-sm text-muted-foreground">
                 Nothing matches yet — try widening your price range or area.
