@@ -101,8 +101,10 @@ function CheckoutPage() {
   const total = subtotal + deliveryFee;
   const belowMinimum = method === "delivery" && subtotal < terms.minimumOrder;
 
+  type Snapshot = CustomerAddressInput & { id: string | null };
+
   /** Mirrors the order into Supabase so the vendor dashboard sees it live. */
-  async function persistToSupabase(receiptNumber: string) {
+  async function persistToSupabase(receiptNumber: string, snapshot: Snapshot | null) {
     const vendorUuid = vendorUuidById.get(business.id);
     if (!user || !vendorUuid) return;
     const { data, error } = await supabase
@@ -112,9 +114,23 @@ function CheckoutPage() {
         vendor_id: vendorUuid,
         receipt_number: receiptNumber,
         method,
+        delivery_method: method,
         status: "pending",
         notes: notes.trim(),
-        ...(method === "delivery" ? { delivery_address: address } : {}),
+        ...(method === "delivery" && snapshot
+          ? {
+              delivery_address_id: snapshot.id,
+              delivery_address: formatAddress(snapshot),
+              delivery_recipient_name: snapshot.recipientName,
+              delivery_phone: snapshot.phone,
+              delivery_township: snapshot.township,
+              delivery_city: snapshot.city,
+              delivery_building_floor: snapshot.buildingFloor || null,
+              delivery_note: snapshot.deliveryNote || null,
+              delivery_latitude: snapshot.latitude,
+              delivery_longitude: snapshot.longitude,
+            }
+          : {}),
         pickup_window: `${bag.availableFrom} – ${bag.availableUntil}`,
         original_price: originalTotal,
         item_price: subtotal,
@@ -136,12 +152,48 @@ function CheckoutPage() {
     } as never);
   }
 
-  function placeOrder() {
+  /** Resolves (and, on a first delivery order, saves) the delivery address. */
+  async function resolveDeliverySnapshot(): Promise<Snapshot | null> {
+    if (savedList.length > 0) {
+      if (!selected) {
+        toast.error("Choose a delivery address.");
+        return null;
+      }
+      const { id, ...rest } = selected;
+      return { ...rest, id };
+    }
+    const problem = validateAddress(newAddress);
+    if (problem) {
+      toast.error(problem);
+      return null;
+    }
+    if (!user) return { ...newAddress, id: null };
+    try {
+      // First delivery order: save it and make it the default address.
+      const saved = await createAddress({ ...newAddress, isDefault: true });
+      await reloadAddresses();
+      setSelectedId(saved.id);
+      const { id, ...rest } = saved;
+      return { ...rest, id };
+    } catch {
+      return { ...newAddress, id: null };
+    }
+  }
+
+  async function placeOrder() {
     if (belowMinimum) {
       toast.error("This vendor's delivery minimum isn't met. Choose pickup instead.");
       return;
     }
     setPlacing(true);
+    let snapshot: Snapshot | null = null;
+    if (method === "delivery") {
+      snapshot = await resolveDeliverySnapshot();
+      if (!snapshot) {
+        setPlacing(false);
+        return;
+      }
+    }
     const ids = newOrderIds();
     const orderItems: OrderItem[] = [
       {
@@ -166,14 +218,17 @@ function CheckoutPage() {
       discount: Number((originalTotal - subtotal).toFixed(2)),
       deliveryFee: Number(deliveryFee.toFixed(2)),
       total: Number(total.toFixed(2)),
-      ...(method === "delivery" ? { deliveryAddress: address } : {}),
+      ...(method === "delivery" && snapshot
+        ? { deliveryAddress: formatAddress(snapshot) }
+        : {}),
       pickupWindow: `${bag.availableFrom} – ${bag.availableUntil}`,
       placedAt: new Date().toISOString(),
     });
-    void persistToSupabase(ids.receiptNumber);
+    void persistToSupabase(ids.receiptNumber, snapshot);
     toast.success("Order placed — pay cash on collection.");
     navigate({ to: "/order/$orderId", params: { orderId: ids.id } });
   }
+
 
   return (
     <PublicLayout>
