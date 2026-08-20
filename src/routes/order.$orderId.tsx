@@ -61,7 +61,7 @@ function OrderReceipt() {
     <PublicLayout>
       <section className="mx-auto max-w-2xl px-4 py-10">
         <div className="text-center print:hidden">
-          <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-sage/20 text-sage">
+          <span className="mx-auto flex size-12 items-center justify-center rounded-full bg-success/20 text-success">
             <Check className="size-6" />
           </span>
           <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl">Order confirmed</h1>
@@ -127,7 +127,7 @@ function OrderReceipt() {
                 <dt>Original price</dt>
                 <dd className="line-through">{formatPrice(order.originalPrice)}</dd>
               </div>
-              <div className="flex justify-between text-sage">
+              <div className="flex justify-between text-success">
                 <dt>Rescue discount</dt>
                 <dd>-{formatPrice(order.discount)}</dd>
               </div>

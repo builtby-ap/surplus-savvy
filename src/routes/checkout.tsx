@@ -229,7 +229,7 @@ function CheckoutPage() {
                 <dt>Food post price</dt>
                 <dd>{formatPrice(bag.discountedPrice)}</dd>
               </div>
-              <div className="flex justify-between text-[color:var(--sage,inherit)] text-sage">
+              <div className="flex justify-between text-success">
                 <dt>You save ({discountPercent(bag)}%)</dt>
                 <dd>-{formatPrice(bag.originalPrice - bag.discountedPrice)}</dd>
               </div>
