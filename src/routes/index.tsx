@@ -1,19 +1,23 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Leaf, PiggyBank, Store } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { ArrowRight, Leaf, MapPin, PiggyBank, Store } from "lucide-react";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { ImpactBanner } from "@/components/impact-banner";
 import { FeaturedBusinesses } from "@/components/featured-businesses";
 import heroAsset from "@/assets/hero-phoelamin.jpeg.asset.json";
+import { getNearbyLocation, saveNearbyLocation, type LatLng } from "@/lib/nearby";
 
 import { Button } from "@/components/ui/button";
 import {
   businesses,
   businessTypeLabels,
   formatMoneySaved,
+  haversineKm,
   mysteryBags,
   platformStats,
 } from "@/data/mock";
+
 
 
 
