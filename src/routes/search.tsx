@@ -272,8 +272,9 @@ function BrowsePage() {
                     type="button"
                     onClick={() => {
                       setClosingSoon(value);
-                      void navigate({ to: "/search", search: { ...initial, closingSoon: value || undefined } });
+                      void navigate({ to: "/search", search: (prev) => ({ ...prev, closingSoon: value || undefined }) });
                     }}
+
                     className={cn(
                       "rounded-full border border-border px-3 py-1 text-xs transition-colors",
                       closingSoon === value
