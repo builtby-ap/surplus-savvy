@@ -1,12 +1,14 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { Bike, Info, MapPin, ShoppingBag, Timer } from "lucide-react";
+import { Bike, Info, LocateFixed, MapPin, Plus, ShoppingBag, Timer } from "lucide-react";
 import { toast } from "sonner";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AddressFormDialog } from "@/components/account/address-form-dialog";
 import {
   bagCategoryLabels,
   businessTypeLabels,
@@ -19,7 +21,18 @@ import { postUuidById, vendorUuidById } from "@/data/catalogue";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth/auth-context";
 import { newOrderIds, saveOrder, type OrderItem, type OrderMethod } from "@/lib/orders";
+import {
+  createAddress,
+  emptyAddress,
+  formatAddress,
+  makeDefaultAddress,
+  updateAddress,
+  useMyAddresses,
+  validateAddress,
+  type CustomerAddressInput,
+} from "@/lib/customer-addresses";
 import { cn } from "@/lib/utils";
+
 
 export const Route = createFileRoute("/checkout")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -50,8 +63,32 @@ function CheckoutPage() {
 
   const [method, setMethod] = useState<OrderMethod>("pickup");
   const [notes, setNotes] = useState("");
-  const [address, setAddress] = useState("12 Larkspur Terrace, Old Town");
   const [placing, setPlacing] = useState(false);
+
+  const { addresses, reload: reloadAddresses } = useMyAddresses(Boolean(user));
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [dialogInitial, setDialogInitial] = useState<CustomerAddressInput>(emptyAddress);
+  /** Address typed at checkout by a customer with no saved address yet. */
+  const [newAddress, setNewAddress] = useState<CustomerAddressInput>(emptyAddress);
+
+  const savedList = addresses ?? [];
+  const selected =
+    savedList.find((a) => a.id === selectedId) ?? savedList.find((a) => a.isDefault) ?? savedList[0];
+
+  useEffect(() => {
+    if (!selectedId && selected) setSelectedId(selected.id);
+  }, [selected, selectedId]);
+
+  useEffect(() => {
+    setNewAddress((prev) =>
+      prev.recipientName || prev.phone
+        ? prev
+        : { ...prev, recipientName: user?.fullName ?? "", phone: user?.phone ?? "" },
+    );
+  }, [user?.fullName, user?.phone]);
+
 
   if (!entry) {
     return (
@@ -77,8 +114,10 @@ function CheckoutPage() {
   const total = subtotal + deliveryFee;
   const belowMinimum = method === "delivery" && subtotal < terms.minimumOrder;
 
+  type Snapshot = CustomerAddressInput & { id: string | null };
+
   /** Mirrors the order into Supabase so the vendor dashboard sees it live. */
-  async function persistToSupabase(receiptNumber: string) {
+  async function persistToSupabase(receiptNumber: string, snapshot: Snapshot | null) {
     const vendorUuid = vendorUuidById.get(business.id);
     if (!user || !vendorUuid) return;
     const { data, error } = await supabase
@@ -88,9 +127,23 @@ function CheckoutPage() {
         vendor_id: vendorUuid,
         receipt_number: receiptNumber,
         method,
+        delivery_method: method,
         status: "pending",
         notes: notes.trim(),
-        ...(method === "delivery" ? { delivery_address: address } : {}),
+        ...(method === "delivery" && snapshot
+          ? {
+              delivery_address_id: snapshot.id,
+              delivery_address: formatAddress(snapshot),
+              delivery_recipient_name: snapshot.recipientName,
+              delivery_phone: snapshot.phone,
+              delivery_township: snapshot.township,
+              delivery_city: snapshot.city,
+              delivery_building_floor: snapshot.buildingFloor || null,
+              delivery_note: snapshot.deliveryNote || null,
+              delivery_latitude: snapshot.latitude,
+              delivery_longitude: snapshot.longitude,
+            }
+          : {}),
         pickup_window: `${bag.availableFrom} – ${bag.availableUntil}`,
         original_price: originalTotal,
         item_price: subtotal,
@@ -112,12 +165,48 @@ function CheckoutPage() {
     } as never);
   }
 
-  function placeOrder() {
+  /** Resolves (and, on a first delivery order, saves) the delivery address. */
+  async function resolveDeliverySnapshot(): Promise<Snapshot | null> {
+    if (savedList.length > 0) {
+      if (!selected) {
+        toast.error("Choose a delivery address.");
+        return null;
+      }
+      const { id, ...rest } = selected;
+      return { ...rest, id };
+    }
+    const problem = validateAddress(newAddress);
+    if (problem) {
+      toast.error(problem);
+      return null;
+    }
+    if (!user) return { ...newAddress, id: null };
+    try {
+      // First delivery order: save it and make it the default address.
+      const saved = await createAddress({ ...newAddress, isDefault: true });
+      await reloadAddresses();
+      setSelectedId(saved.id);
+      const { id, ...rest } = saved;
+      return { ...rest, id };
+    } catch {
+      return { ...newAddress, id: null };
+    }
+  }
+
+  async function placeOrder() {
     if (belowMinimum) {
       toast.error("This vendor's delivery minimum isn't met. Choose pickup instead.");
       return;
     }
     setPlacing(true);
+    let snapshot: Snapshot | null = null;
+    if (method === "delivery") {
+      snapshot = await resolveDeliverySnapshot();
+      if (!snapshot) {
+        setPlacing(false);
+        return;
+      }
+    }
     const ids = newOrderIds();
     const orderItems: OrderItem[] = [
       {
@@ -142,14 +231,17 @@ function CheckoutPage() {
       discount: Number((originalTotal - subtotal).toFixed(2)),
       deliveryFee: Number(deliveryFee.toFixed(2)),
       total: Number(total.toFixed(2)),
-      ...(method === "delivery" ? { deliveryAddress: address } : {}),
+      ...(method === "delivery" && snapshot
+        ? { deliveryAddress: formatAddress(snapshot) }
+        : {}),
       pickupWindow: `${bag.availableFrom} – ${bag.availableUntil}`,
       placedAt: new Date().toISOString(),
     });
-    void persistToSupabase(ids.receiptNumber);
+    void persistToSupabase(ids.receiptNumber, snapshot);
     toast.success("Order placed — pay cash on collection.");
     navigate({ to: "/order/$orderId", params: { orderId: ids.id } });
   }
+
 
   return (
     <PublicLayout>
@@ -239,16 +331,183 @@ function CheckoutPage() {
                     {business.name}: fee <strong>{formatPrice(terms.fee)}</strong> · minimum{" "}
                     <strong>{formatPrice(terms.minimumOrder)}</strong>
                   </p>
-                  <div>
-                    <Label htmlFor="address">Delivery address</Label>
-                    <Textarea
-                      id="address"
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      rows={2}
-                      className="mt-1 bg-background"
-                    />
-                  </div>
+                  {savedList.length > 0 ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <Label>Delivery address</Label>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingId(null);
+                            setDialogInitial({
+                              ...emptyAddress,
+                              recipientName: user?.fullName ?? "",
+                              phone: user?.phone ?? "",
+                            });
+                            setDialogOpen(true);
+                          }}
+                        >
+                          <Plus className="mr-1 size-4" /> Add new
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        {savedList.map((a) => (
+                          <div
+                            key={a.id}
+                            className={cn(
+                              "rounded-2xl border bg-background p-3 transition-colors",
+                              selected?.id === a.id
+                                ? "border-primary"
+                                : "border-border hover:border-primary/50",
+                            )}
+                          >
+                            <button
+                              type="button"
+                              onClick={() => setSelectedId(a.id)}
+                              className="block w-full text-left"
+                            >
+                              <span className="flex items-center gap-2 font-medium">
+                                {a.label}
+                                {a.isDefault && (
+                                  <Badge variant="secondary" className="rounded-full text-[10px]">
+                                    Default
+                                  </Badge>
+                                )}
+                              </span>
+                              <span className="mt-0.5 block text-xs text-muted-foreground">
+                                {a.recipientName} · {a.phone}
+                              </span>
+                              <span className="mt-0.5 block text-xs text-muted-foreground">
+                                {formatAddress(a)}
+                              </span>
+                            </button>
+                            <div className="mt-2 flex flex-wrap gap-3 text-xs">
+                              <button
+                                type="button"
+                                className="text-primary hover:underline"
+                                onClick={() => {
+                                  const { id: _id, ...rest } = a;
+                                  setEditingId(a.id);
+                                  setDialogInitial(rest);
+                                  setDialogOpen(true);
+                                }}
+                              >
+                                Edit
+                              </button>
+                              {!a.isDefault && (
+                                <button
+                                  type="button"
+                                  className="text-primary hover:underline"
+                                  onClick={async () => {
+                                    await makeDefaultAddress(a.id);
+                                    await reloadAddresses();
+                                    setSelectedId(a.id);
+                                    toast.success(`${a.label} is now your default`);
+                                  }}
+                                >
+                                  Set as default
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <Label>Delivery address</Label>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Input
+                          placeholder="Recipient name"
+                          value={newAddress.recipientName}
+                          className="bg-background"
+                          onChange={(e) =>
+                            setNewAddress({ ...newAddress, recipientName: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="Phone"
+                          value={newAddress.phone}
+                          className="bg-background"
+                          onChange={(e) => setNewAddress({ ...newAddress, phone: e.target.value })}
+                        />
+                      </div>
+                      <Input
+                        placeholder="Address"
+                        value={newAddress.addressLine}
+                        className="bg-background"
+                        onChange={(e) =>
+                          setNewAddress({ ...newAddress, addressLine: e.target.value })
+                        }
+                      />
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Input
+                          placeholder="Township"
+                          value={newAddress.township}
+                          className="bg-background"
+                          onChange={(e) =>
+                            setNewAddress({ ...newAddress, township: e.target.value })
+                          }
+                        />
+                        <Input
+                          placeholder="City"
+                          value={newAddress.city}
+                          className="bg-background"
+                          onChange={(e) => setNewAddress({ ...newAddress, city: e.target.value })}
+                        />
+                      </div>
+                      <div className="grid gap-3 sm:grid-cols-2">
+                        <Input
+                          placeholder="Building / floor (optional)"
+                          value={newAddress.buildingFloor}
+                          className="bg-background"
+                          onChange={(e) =>
+                            setNewAddress({ ...newAddress, buildingFloor: e.target.value })
+                          }
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="bg-background"
+                          onClick={() => {
+                            if (typeof navigator === "undefined" || !navigator.geolocation) {
+                              toast.error("Location isn't available on this device.");
+                              return;
+                            }
+                            navigator.geolocation.getCurrentPosition(
+                              (pos) =>
+                                setNewAddress((f) => ({
+                                  ...f,
+                                  latitude: Number(pos.coords.latitude.toFixed(6)),
+                                  longitude: Number(pos.coords.longitude.toFixed(6)),
+                                })),
+                              () => toast.error("Couldn't get your location."),
+                            );
+                          }}
+                        >
+                          <LocateFixed className="mr-2 size-4" />
+                          {newAddress.latitude != null ? "Location pinned" : "Use my location"}
+                        </Button>
+                      </div>
+                      <Textarea
+                        placeholder="Delivery note (optional)"
+                        rows={2}
+                        value={newAddress.deliveryNote}
+                        className="bg-background"
+                        onChange={(e) =>
+                          setNewAddress({ ...newAddress, deliveryNote: e.target.value })
+                        }
+                      />
+                      {user && (
+                        <p className="text-xs text-muted-foreground">
+                          We'll save this as your default delivery address.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   {belowMinimum && (
                     <p className="text-sm font-medium text-destructive">
                       This vendor's delivery minimum isn't met. Choose pickup instead.
@@ -339,6 +598,28 @@ function CheckoutPage() {
           </aside>
         </div>
       </section>
+
+      <AddressFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        initial={dialogInitial}
+        title={editingId ? "Edit address" : "Add address"}
+        submitLabel={editingId ? "Save changes" : "Add address"}
+        onSubmit={async (input) => {
+          if (editingId) {
+            await updateAddress(editingId, input);
+            toast.success("Address updated");
+            await reloadAddresses();
+            setSelectedId(editingId);
+          } else {
+            const saved = await createAddress(input);
+            toast.success("Address saved");
+            await reloadAddresses();
+            setSelectedId(saved.id);
+          }
+        }}
+      />
     </PublicLayout>
+
   );
 }

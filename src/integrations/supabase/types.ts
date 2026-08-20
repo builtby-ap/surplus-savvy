@@ -56,6 +56,60 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_addresses: {
+        Row: {
+          address_line: string
+          building_floor: string | null
+          city: string
+          created_at: string
+          customer_id: string
+          delivery_note: string | null
+          id: string
+          is_default: boolean
+          label: string
+          latitude: number | null
+          longitude: number | null
+          phone: string
+          recipient_name: string
+          township: string
+          updated_at: string
+        }
+        Insert: {
+          address_line?: string
+          building_floor?: string | null
+          city?: string
+          created_at?: string
+          customer_id: string
+          delivery_note?: string | null
+          id?: string
+          is_default?: boolean
+          label?: string
+          latitude?: number | null
+          longitude?: number | null
+          phone?: string
+          recipient_name?: string
+          township?: string
+          updated_at?: string
+        }
+        Update: {
+          address_line?: string
+          building_floor?: string | null
+          city?: string
+          created_at?: string
+          customer_id?: string
+          delivery_note?: string | null
+          id?: string
+          is_default?: boolean
+          label?: string
+          latitude?: number | null
+          longitude?: number | null
+          phone?: string
+          recipient_name?: string
+          township?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       food_posts: {
         Row: {
           available_from: string
@@ -220,7 +274,17 @@ export type Database = {
         Row: {
           customer_id: string
           delivery_address: string | null
+          delivery_address_id: string | null
+          delivery_building_floor: string | null
+          delivery_city: string | null
           delivery_fee: number
+          delivery_latitude: number | null
+          delivery_longitude: number | null
+          delivery_method: Database["public"]["Enums"]["order_method"]
+          delivery_note: string | null
+          delivery_phone: string | null
+          delivery_recipient_name: string | null
+          delivery_township: string | null
           discount: number
           id: string
           item_price: number
@@ -238,7 +302,17 @@ export type Database = {
         Insert: {
           customer_id: string
           delivery_address?: string | null
+          delivery_address_id?: string | null
+          delivery_building_floor?: string | null
+          delivery_city?: string | null
           delivery_fee?: number
+          delivery_latitude?: number | null
+          delivery_longitude?: number | null
+          delivery_method?: Database["public"]["Enums"]["order_method"]
+          delivery_note?: string | null
+          delivery_phone?: string | null
+          delivery_recipient_name?: string | null
+          delivery_township?: string | null
           discount?: number
           id?: string
           item_price?: number
@@ -256,7 +330,17 @@ export type Database = {
         Update: {
           customer_id?: string
           delivery_address?: string | null
+          delivery_address_id?: string | null
+          delivery_building_floor?: string | null
+          delivery_city?: string | null
           delivery_fee?: number
+          delivery_latitude?: number | null
+          delivery_longitude?: number | null
+          delivery_method?: Database["public"]["Enums"]["order_method"]
+          delivery_note?: string | null
+          delivery_phone?: string | null
+          delivery_recipient_name?: string | null
+          delivery_township?: string | null
           discount?: number
           id?: string
           item_price?: number
@@ -272,6 +356,13 @@ export type Database = {
           vendor_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "orders_delivery_address_id_fkey"
+            columns: ["delivery_address_id"]
+            isOneToOne: false
+            referencedRelation: "customer_addresses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "orders_vendor_id_fkey"
             columns: ["vendor_id"]

@@ -28,6 +28,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as BagBagIdRouteImport } from './routes/bag.$bagId'
 import { Route as BusinessBusinessIdRouteImport } from './routes/business.$businessId'
+import { Route as CustomerAddressesRouteImport } from './routes/customer.addresses'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard.index'
 import { Route as DashboardAnalyticsRouteImport } from './routes/dashboard.analytics'
 import { Route as DashboardDeliveryRouteImport } from './routes/dashboard.delivery'
@@ -135,6 +136,11 @@ const BusinessBusinessIdRoute = BusinessBusinessIdRouteImport.update({
   path: '/business/$businessId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CustomerAddressesRoute = CustomerAddressesRouteImport.update({
+  id: '/customer/addresses',
+  path: '/customer/addresses',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardIndexRoute = DashboardIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -209,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/bag/$bagId': typeof BagBagIdRoute
   '/business/$businessId': typeof BusinessBusinessIdRoute
+  '/customer/addresses': typeof CustomerAddressesRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/delivery': typeof DashboardDeliveryRoute
   '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
@@ -238,6 +245,7 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/bag/$bagId': typeof BagBagIdRoute
   '/business/$businessId': typeof BusinessBusinessIdRoute
+  '/customer/addresses': typeof CustomerAddressesRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/delivery': typeof DashboardDeliveryRoute
   '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
@@ -271,6 +279,7 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/bag/$bagId': typeof BagBagIdRoute
   '/business/$businessId': typeof BusinessBusinessIdRoute
+  '/customer/addresses': typeof CustomerAddressesRoute
   '/dashboard/analytics': typeof DashboardAnalyticsRoute
   '/dashboard/delivery': typeof DashboardDeliveryRoute
   '/dashboard/mystery-bags': typeof DashboardMysteryBagsRoute
@@ -305,6 +314,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/bag/$bagId'
     | '/business/$businessId'
+    | '/customer/addresses'
     | '/dashboard/analytics'
     | '/dashboard/delivery'
     | '/dashboard/mystery-bags'
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/bag/$bagId'
     | '/business/$businessId'
+    | '/customer/addresses'
     | '/dashboard/analytics'
     | '/dashboard/delivery'
     | '/dashboard/mystery-bags'
@@ -366,6 +377,7 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/bag/$bagId'
     | '/business/$businessId'
+    | '/customer/addresses'
     | '/dashboard/analytics'
     | '/dashboard/delivery'
     | '/dashboard/mystery-bags'
@@ -392,6 +404,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   BagBagIdRoute: typeof BagBagIdRoute
   BusinessBusinessIdRoute: typeof BusinessBusinessIdRoute
+  CustomerAddressesRoute: typeof CustomerAddressesRoute
   OrderOrderIdRoute: typeof OrderOrderIdRoute
   VendorApplicationStatusRoute: typeof VendorApplicationStatusRoute
   VendorRegisterRoute: typeof VendorRegisterRoute
@@ -530,6 +543,13 @@ declare module '@tanstack/react-router' {
       path: '/business/$businessId'
       fullPath: '/business/$businessId'
       preLoaderRoute: typeof BusinessBusinessIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/customer/addresses': {
+      id: '/customer/addresses'
+      path: '/customer/addresses'
+      fullPath: '/customer/addresses'
+      preLoaderRoute: typeof CustomerAddressesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/': {
@@ -684,6 +704,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   BagBagIdRoute: BagBagIdRoute,
   BusinessBusinessIdRoute: BusinessBusinessIdRoute,
+  CustomerAddressesRoute: CustomerAddressesRoute,
   OrderOrderIdRoute: OrderOrderIdRoute,
   VendorApplicationStatusRoute: VendorApplicationStatusRoute,
   VendorRegisterRoute: VendorRegisterRoute,
