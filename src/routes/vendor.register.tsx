@@ -177,6 +177,8 @@ type TextField =
   | "password"
   | "confirmPassword";
 
+type ErrorKey = TextField | "category" | "license" | "fda";
+
 function VendorRegisterPage() {
   const navigate = useNavigate();
   const { registerVendor } = useAuth();
@@ -193,7 +195,7 @@ function VendorRegisterPage() {
   const [license, setLicense] = useState<VendorDocumentMeta | null>(null);
   const [fda, setFda] = useState<VendorDocumentMeta | null>(null);
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [errors, setErrors] = useState<Partial<Record<ErrorKey, string>>>({});
   const [submitting, setSubmitting] = useState(false);
 
   const set = (f: TextField) => (e: React.ChangeEvent<HTMLInputElement>) =>
@@ -211,7 +213,7 @@ function VendorRegisterPage() {
   }, [values.address]);
 
   function validate() {
-    const next: Record<string, string> = {};
+    const next: Partial<Record<ErrorKey, string>> = {};
     if (!values.cafeName.trim()) next.cafeName = "Cafe or shop name is required.";
     if (!category) next.category = "Choose a shop category.";
     if (!values.phone.trim()) next.phone = "Phone number is required.";
