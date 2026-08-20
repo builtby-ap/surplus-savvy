@@ -1,7 +1,8 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { NavShell } from "@/components/layout/nav-shell";
 import { VendorRedirect } from "@/components/auth/vendor-guard";
 import { AddressBook } from "@/components/account/address-book";
+
 
 export const Route = createFileRoute("/customer/addresses")({
   head: () => ({
