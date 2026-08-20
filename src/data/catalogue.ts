@@ -16,7 +16,7 @@ import {
   type MysteryBag,
 } from "./mock";
 
-let loaded = false;
+let lastSignature = "";
 
 /** legacy_id (or uuid) -> database uuid, so writes can target real rows. */
 export const vendorUuidById = new Map<string, string>();
@@ -26,8 +26,11 @@ function hhmm(value: string) {
   return value.slice(0, 5);
 }
 
+/**
+ * Refetches vendors + food posts from Supabase. Returns true when the data
+ * actually changed, so callers can re-render the marketplace.
+ */
 export async function loadCatalogue(): Promise<boolean> {
-  if (loaded) return false;
   try {
     const [vendorRes, postRes] = await Promise.all([
       supabase
@@ -98,8 +101,11 @@ export async function loadCatalogue(): Promise<boolean> {
 
     businesses.splice(0, businesses.length, ...nextBusinesses);
     mysteryBags.splice(0, mysteryBags.length, ...nextBags);
-    loaded = true;
-    return true;
+
+    const signature = JSON.stringify([nextBusinesses, nextBags]);
+    const changed = signature !== lastSignature;
+    lastSignature = signature;
+    return changed;
   } catch {
     return false;
   }

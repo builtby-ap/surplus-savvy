@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useMemo, useState } from "react";
 import { createFileRoute, ClientOnly } from "@tanstack/react-router";
 import { LayoutGrid, Loader2, LocateFixed, Map as MapIcon } from "lucide-react";
 import { toast } from "sonner";
-import { visibleVendorIds } from "@/lib/vendor-registry";
+
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { Button } from "@/components/ui/button";
@@ -40,8 +40,6 @@ export const Route = createFileRoute("/search")({
 });
 
 const categories = Object.keys(bagCategoryLabels) as BagCategory[];
-const cities = Array.from(new Set(businesses.map((b) => b.neighborhood))).sort();
-const MAX_PRICE = Math.ceil(Math.max(...mysteryBags.map((b) => b.discountedPrice)));
 
 type Method = "all" | "pickup" | "delivery";
 type View = "grid" | "map";
@@ -50,6 +48,15 @@ const VendorMap = lazy(() => import("@/components/map/vendor-map"));
 
 function BrowsePage() {
   const initial = Route.useSearch();
+  // Derived from the live Supabase-backed catalogue.
+  const cities = useMemo(
+    () => Array.from(new Set(businesses.map((b) => b.neighborhood))).sort(),
+    [],
+  );
+  const MAX_PRICE = useMemo(
+    () => Math.ceil(Math.max(1, ...mysteryBags.map((b) => b.discountedPrice))),
+    [],
+  );
   const [query, setQuery] = useState(initial.q ?? "");
   const [category, setCategory] = useState<string>(initial.category ?? "all");
   const [maxPrice, setMaxPrice] = useState<number>(MAX_PRICE);
@@ -58,12 +65,11 @@ function BrowsePage() {
   const [view, setView] = useState<View>("grid");
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
-  // Only approved (non-deactivated) vendors' posts are publicly visible.
-  const [visibleVendors, setVisibleVendors] = useState<Set<string> | null>(null);
 
   useEffect(() => {
-    setVisibleVendors(visibleVendorIds());
-  }, []);
+    setMaxPrice(MAX_PRICE);
+  }, [MAX_PRICE]);
+
 
 
   const useMyLocation = () => {
@@ -96,7 +102,6 @@ function BrowsePage() {
     const q = query.trim().toLowerCase();
     return mysteryBags.filter((bag) => {
       const business = getBusiness(bag.businessId);
-      if (visibleVendors && !visibleVendors.has(bag.businessId)) return false;
       if (category !== "all" && bag.category !== category) return false;
       if (bag.discountedPrice > maxPrice) return false;
       if (method !== "all" && bag.fulfillment !== method && bag.fulfillment !== "both") return false;
@@ -108,7 +113,7 @@ function BrowsePage() {
         return false;
       return true;
     });
-  }, [query, category, maxPrice, method, city, visibleVendors]);
+  }, [query, category, maxPrice, method, city]);
 
   const sorted = useMemo(() => {
     if (!userLocation) return results;
