@@ -48,6 +48,15 @@ const VendorMap = lazy(() => import("@/components/map/vendor-map"));
 
 function BrowsePage() {
   const initial = Route.useSearch();
+  // Derived from the live Supabase-backed catalogue.
+  const cities = useMemo(
+    () => Array.from(new Set(businesses.map((b) => b.neighborhood))).sort(),
+    [],
+  );
+  const MAX_PRICE = useMemo(
+    () => Math.ceil(Math.max(1, ...mysteryBags.map((b) => b.discountedPrice))),
+    [],
+  );
   const [query, setQuery] = useState(initial.q ?? "");
   const [category, setCategory] = useState<string>(initial.category ?? "all");
   const [maxPrice, setMaxPrice] = useState<number>(MAX_PRICE);
@@ -56,12 +65,11 @@ function BrowsePage() {
   const [view, setView] = useState<View>("grid");
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [locating, setLocating] = useState(false);
-  // Only approved (non-deactivated) vendors' posts are publicly visible.
-  const [visibleVendors, setVisibleVendors] = useState<Set<string> | null>(null);
 
   useEffect(() => {
-    setVisibleVendors(visibleVendorIds());
-  }, []);
+    setMaxPrice(MAX_PRICE);
+  }, [MAX_PRICE]);
+
 
 
   const useMyLocation = () => {
