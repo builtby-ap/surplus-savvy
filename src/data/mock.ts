@@ -390,3 +390,21 @@ export function haversineKm(
 }
 
 export const cityCenter = { lat: 51.5145, lng: -0.122 };
+
+export interface DeliveryTerms {
+  offersDelivery: boolean;
+  fee: number;
+  minimumOrder: number;
+  etaMinutes: number;
+}
+
+/** Deterministic mock delivery terms per business. */
+export function getDeliveryTerms(business: Business): DeliveryTerms {
+  const seed = Number(business.id.replace(/\D/g, "")) || 1;
+  return {
+    offersDelivery: business.fulfillment !== "pickup",
+    fee: Number((1.5 + (seed % 4) * 0.75).toFixed(2)),
+    minimumOrder: 5 + (seed % 3) * 2.5,
+    etaMinutes: 25 + (seed % 5) * 5,
+  };
+}
