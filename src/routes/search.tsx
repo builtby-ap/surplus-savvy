@@ -19,8 +19,8 @@ import {
   type BagCategory,
 } from "@/data/mock";
 import type { VendorPin } from "@/components/map/vendor-map";
-import { CLOSING_SOON_MS, msUntil } from "@/lib/countdown";
 import { cn } from "@/lib/utils";
+
 
 
 export const Route = createFileRoute("/search")({
