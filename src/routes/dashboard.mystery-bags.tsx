@@ -71,6 +71,15 @@ const FULFILLMENTS: { value: FulfillmentType; label: string }[] = [
   { value: "both", label: "Pickup & delivery" },
 ];
 
+function parseNumberInput(raw: string, fallback: number) {
+  const cleaned = raw.replace(/[^\d.]/g, "");
+  if (cleaned === "") return 0;
+  const n = Number(cleaned);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+
+
 function VendorPostsPage() {
   const { vendorId, loading: vendorLoading } = useMyVendor();
 
