@@ -14,16 +14,454 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      addresses: {
+        Row: {
+          city: string
+          created_at: string
+          id: string
+          is_default: boolean
+          label: string
+          line1: string
+          notes: string | null
+          phone: string
+          recipient: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          city?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          line1?: string
+          notes?: string | null
+          phone?: string
+          recipient?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          city?: string
+          created_at?: string
+          id?: string
+          is_default?: boolean
+          label?: string
+          line1?: string
+          notes?: string | null
+          phone?: string
+          recipient?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      food_posts: {
+        Row: {
+          available_from: string
+          available_until: string
+          category: Database["public"]["Enums"]["bag_category"]
+          created_at: string
+          description: string
+          discounted_price: number
+          fulfillment: Database["public"]["Enums"]["fulfillment_type"]
+          id: string
+          image_url: string | null
+          is_available: boolean
+          original_price: number
+          pickup_instructions: string
+          quantity_left: number
+          title: string
+          total_quantity: number
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          available_from?: string
+          available_until?: string
+          category?: Database["public"]["Enums"]["bag_category"]
+          created_at?: string
+          description?: string
+          discounted_price?: number
+          fulfillment?: Database["public"]["Enums"]["fulfillment_type"]
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          original_price?: number
+          pickup_instructions?: string
+          quantity_left?: number
+          title: string
+          total_quantity?: number
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          available_from?: string
+          available_until?: string
+          category?: Database["public"]["Enums"]["bag_category"]
+          created_at?: string
+          description?: string
+          discounted_price?: number
+          fulfillment?: Database["public"]["Enums"]["fulfillment_type"]
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          original_price?: number
+          pickup_instructions?: string
+          quantity_left?: number
+          title?: string
+          total_quantity?: number
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "food_posts_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          food_post_id: string | null
+          id: string
+          order_id: string
+          original_price: number
+          quantity: number
+          title: string
+          unit_price: number
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string
+          food_post_id?: string | null
+          id?: string
+          order_id: string
+          original_price?: number
+          quantity?: number
+          title: string
+          unit_price?: number
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string
+          food_post_id?: string | null
+          id?: string
+          order_id?: string
+          original_price?: number
+          quantity?: number
+          title?: string
+          unit_price?: number
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_food_post_id_fkey"
+            columns: ["food_post_id"]
+            isOneToOne: false
+            referencedRelation: "food_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          customer_id: string
+          delivery_address: string | null
+          delivery_fee: number
+          discount: number
+          id: string
+          item_price: number
+          method: Database["public"]["Enums"]["order_method"]
+          notes: string
+          original_price: number
+          pickup_window: string | null
+          placed_at: string
+          receipt_number: string
+          status: Database["public"]["Enums"]["order_status"]
+          total: number
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          customer_id: string
+          delivery_address?: string | null
+          delivery_fee?: number
+          discount?: number
+          id?: string
+          item_price?: number
+          method?: Database["public"]["Enums"]["order_method"]
+          notes?: string
+          original_price?: number
+          pickup_window?: string | null
+          placed_at?: string
+          receipt_number: string
+          status?: Database["public"]["Enums"]["order_status"]
+          total?: number
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          customer_id?: string
+          delivery_address?: string | null
+          delivery_fee?: number
+          discount?: number
+          id?: string
+          item_price?: number
+          method?: Database["public"]["Enums"]["order_method"]
+          notes?: string
+          original_price?: number
+          pickup_window?: string | null
+          placed_at?: string
+          receipt_number?: string
+          status?: Database["public"]["Enums"]["order_status"]
+          total?: number
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+          status: Database["public"]["Enums"]["account_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id: string
+          phone?: string | null
+          status?: Database["public"]["Enums"]["account_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          status?: Database["public"]["Enums"]["account_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      user_preferences: {
+        Row: {
+          marketing_emails: boolean
+          new_posts_nearby: boolean
+          order_updates: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          marketing_emails?: boolean
+          new_posts_nearby?: boolean
+          order_updates?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          marketing_emails?: boolean
+          new_posts_nearby?: boolean
+          order_updates?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vendors: {
+        Row: {
+          address: string
+          business_license_name: string | null
+          business_license_url: string | null
+          city: string
+          created_at: string
+          delivery_fee: number
+          delivery_minimum: number
+          description: string
+          email: string | null
+          fda_approval_name: string | null
+          fda_approval_url: string | null
+          fulfillment: Database["public"]["Enums"]["fulfillment_type"]
+          id: string
+          image_url: string | null
+          latitude: number | null
+          logo_initials: string
+          longitude: number | null
+          name: string
+          neighborhood: string
+          owner_id: string
+          phone: string | null
+          rating: number
+          rejection_reason: string | null
+          review_count: number
+          type: Database["public"]["Enums"]["business_type"]
+          updated_at: string
+          verification_status: Database["public"]["Enums"]["vendor_status"]
+        }
+        Insert: {
+          address?: string
+          business_license_name?: string | null
+          business_license_url?: string | null
+          city?: string
+          created_at?: string
+          delivery_fee?: number
+          delivery_minimum?: number
+          description?: string
+          email?: string | null
+          fda_approval_name?: string | null
+          fda_approval_url?: string | null
+          fulfillment?: Database["public"]["Enums"]["fulfillment_type"]
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          logo_initials?: string
+          longitude?: number | null
+          name: string
+          neighborhood?: string
+          owner_id: string
+          phone?: string | null
+          rating?: number
+          rejection_reason?: string | null
+          review_count?: number
+          type?: Database["public"]["Enums"]["business_type"]
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["vendor_status"]
+        }
+        Update: {
+          address?: string
+          business_license_name?: string | null
+          business_license_url?: string | null
+          city?: string
+          created_at?: string
+          delivery_fee?: number
+          delivery_minimum?: number
+          description?: string
+          email?: string | null
+          fda_approval_name?: string | null
+          fda_approval_url?: string | null
+          fulfillment?: Database["public"]["Enums"]["fulfillment_type"]
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          logo_initials?: string
+          longitude?: number | null
+          name?: string
+          neighborhood?: string
+          owner_id?: string
+          phone?: string | null
+          rating?: number
+          rejection_reason?: string | null
+          review_count?: number
+          type?: Database["public"]["Enums"]["business_type"]
+          updated_at?: string
+          verification_status?: Database["public"]["Enums"]["vendor_status"]
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      owns_vendor: {
+        Args: { _user_id: string; _vendor_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      account_status: "active" | "suspended"
+      app_role: "customer" | "food_vendor" | "admin"
+      bag_category:
+        | "mixed_meals"
+        | "bakery"
+        | "grocery"
+        | "produce"
+        | "snacks"
+        | "beverages"
+        | "desserts"
+      business_type:
+        | "restaurant"
+        | "cafe"
+        | "bakery"
+        | "grocery"
+        | "fresh_market"
+        | "snack_shop"
+        | "convenience"
+        | "producer"
+      fulfillment_type: "pickup" | "delivery" | "both"
+      order_method: "pickup" | "delivery"
+      order_status:
+        | "pending"
+        | "confirmed"
+        | "preparing"
+        | "ready"
+        | "out_for_delivery"
+        | "picked_up"
+        | "delivered"
+        | "cancelled"
+        | "rejected"
+      vendor_status: "pending" | "approved" | "rejected" | "deactivated"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +588,42 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      account_status: ["active", "suspended"],
+      app_role: ["customer", "food_vendor", "admin"],
+      bag_category: [
+        "mixed_meals",
+        "bakery",
+        "grocery",
+        "produce",
+        "snacks",
+        "beverages",
+        "desserts",
+      ],
+      business_type: [
+        "restaurant",
+        "cafe",
+        "bakery",
+        "grocery",
+        "fresh_market",
+        "snack_shop",
+        "convenience",
+        "producer",
+      ],
+      fulfillment_type: ["pickup", "delivery", "both"],
+      order_method: ["pickup", "delivery"],
+      order_status: [
+        "pending",
+        "confirmed",
+        "preparing",
+        "ready",
+        "out_for_delivery",
+        "picked_up",
+        "delivered",
+        "cancelled",
+        "rejected",
+      ],
+      vendor_status: ["pending", "approved", "rejected", "deactivated"],
+    },
   },
 } as const
