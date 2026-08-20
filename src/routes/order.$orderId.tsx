@@ -6,6 +6,8 @@ import { PublicLayout } from "@/components/layout/public-layout";
 import { Button } from "@/components/ui/button";
 import { businessTypeLabels, formatPrice, getBusiness } from "@/data/mock";
 import { getPlacedOrder, type PlacedOrder } from "@/lib/orders";
+import { fetchMyOrder } from "@/lib/customer-orders";
+
 
 export const Route = createFileRoute("/order/$orderId")({
   head: () => ({
