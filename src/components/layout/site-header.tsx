@@ -23,6 +23,30 @@ function initials(name: string) {
     .join("");
 }
 
+const MOCK_NOTIFICATIONS = [
+  {
+    id: "1",
+    title: "System Update",
+    message: "Phoelamin will undergo scheduled maintenance tonight at 2:00 AM.",
+    time: "2 hours ago",
+    type: "alert",
+  },
+  {
+    id: "2",
+    title: "New Feature",
+    message: "Nearby-food discovery is now available on the Map Explorer.",
+    time: "5 hours ago",
+    type: "info",
+  },
+  {
+    id: "3",
+    title: "Payment Reminder",
+    message: "Please upload your MMQR payment proof for pickup orders at checkout.",
+    time: "1 day ago",
+    type: "alert",
+  },
+];
+
 export function SiteHeader() {
   const navigate = useNavigate();
   const { user, vendorApplication, isAuthenticated, logout } = useAuth();
