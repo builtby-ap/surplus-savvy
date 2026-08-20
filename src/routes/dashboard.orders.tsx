@@ -1,9 +1,18 @@
 import { useCallback, useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { Check, ChevronRight, X } from "lucide-react";
+import { Check, ChevronRight, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { formatPrice } from "@/data/mock";
 import { flowFor, orderStatusLabels, statusBadgeClass } from "@/lib/order-status";
 import { useMyVendor } from "@/lib/use-my-vendor";
@@ -28,6 +37,10 @@ function VendorOrdersPage() {
   const { vendorId, loading: vendorLoading } = useMyVendor();
   const [orders, setOrders] = useState<VendorOrder[]>([]);
   const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [methodFilter, setMethodFilter] = useState<string>("all");
+
 
   const refresh = useCallback(async () => {
     if (!vendorId) return;
@@ -61,15 +74,32 @@ function VendorOrdersPage() {
     }
   }
 
-  const pending = orders.filter((o) => o.status === "pending");
-  const active = orders.filter(
+  const filtered = orders.filter((o) => {
+    const q = query.trim().toLowerCase();
+    if (
+      q &&
+      !`${o.receiptNumber} ${o.notes} ${o.deliveryAddress ?? ""} ${o.items
+        .map((i) => i.title)
+        .join(" ")}`
+        .toLowerCase()
+        .includes(q)
+    )
+      return false;
+    if (statusFilter !== "all" && o.status !== statusFilter) return false;
+    if (methodFilter !== "all" && o.method !== methodFilter) return false;
+    return true;
+  });
+
+  const pending = filtered.filter((o) => o.status === "pending");
+  const active = filtered.filter(
     (o) =>
       o.status !== "pending" &&
       !["delivered", "picked-up", "cancelled", "refunded"].includes(o.status),
   );
-  const past = orders.filter((o) =>
+  const past = filtered.filter((o) =>
     ["delivered", "picked-up", "cancelled", "refunded"].includes(o.status),
   );
+
 
   return (
     <section className="space-y-8">
@@ -93,6 +123,53 @@ function VendorOrdersPage() {
 
       {vendorId && !loading && (
         <>
+          <div className="surface-card flex flex-wrap items-center gap-3 p-4">
+            <div className="relative min-w-56 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                className="pl-9"
+                placeholder="Search by receipt number, item, address or note…"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All statuses</SelectItem>
+                {Object.entries(orderStatusLabels).map(([value, label]) => (
+                  <SelectItem key={value} value={value}>
+                    {label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select value={methodFilter} onValueChange={setMethodFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Method" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Pickup & delivery</SelectItem>
+                <SelectItem value="pickup">Pickup</SelectItem>
+                <SelectItem value="delivery">Delivery</SelectItem>
+              </SelectContent>
+            </Select>
+            {(query || statusFilter !== "all" || methodFilter !== "all") && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setQuery("");
+                  setStatusFilter("all");
+                  setMethodFilter("all");
+                }}
+              >
+                Clear
+              </Button>
+            )}
+          </div>
+
           <div>
             <h2 className="flex items-center gap-2 text-lg font-semibold">
               Incoming orders
