@@ -120,25 +120,30 @@ function MarketplaceHome() {
       <section className="mx-auto max-w-6xl px-4 py-10">
         <div className="flex items-end justify-between gap-4">
           <h2 className="text-xl font-semibold">Closing soon</h2>
-          <Link to="/search" className="text-sm text-primary underline-offset-4 hover:underline">
+          <Link
+            to="/search"
+            search={{ closingSoon: true }}
+            className="text-sm text-primary underline-offset-4 hover:underline"
+          >
             See all
           </Link>
         </div>
-        <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {closingSoon.map((bag) => (
-            <BagCard key={bag.id} bag={bag} />
-          ))}
-        </div>
+        {closingSoon.length > 0 ? (
+          <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {closingSoon.map((bag, i) => (
+              <BagCard key={bag.id} bag={bag} eager={i < 4} />
+            ))}
+          </div>
+        ) : (
+          <div className="surface-card mt-4 p-8 text-center text-sm text-muted-foreground">
+            No bags are closing soon right now.{" "}
+            <Link to="/search" className="text-primary underline-offset-4 hover:underline">
+              Browse all available bags
+            </Link>
+          </div>
+        )}
       </section>
 
-      <section className="mx-auto max-w-6xl px-4 pb-4">
-        <h2 className="text-xl font-semibold">Fresh mystery bags</h2>
-        <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {featured.map((bag, i) => (
-            <BagCard key={bag.id} bag={bag} eager={i < 4} />
-          ))}
-        </div>
-      </section>
 
       <section className="mx-auto max-w-6xl px-4 py-12">
         <h2 className="text-xl font-semibold">Businesses rescuing food nearby</h2>
