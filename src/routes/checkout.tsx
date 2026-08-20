@@ -626,18 +626,99 @@ function CheckoutPage() {
               </div>
             </dl>
 
-            <p className="mt-4 flex items-start gap-2 rounded-2xl bg-accent/15 p-3 text-xs">
-              <Info className="mt-0.5 size-4 shrink-0" />
-              Pay cash on {method === "delivery" ? "delivery" : "pickup"} — Surplus Rescue never
-              takes online payment.
-            </p>
+            {method === "delivery" ? (
+              <p className="mt-4 flex items-start gap-2 rounded-2xl bg-accent/15 p-3 text-xs">
+                <Info className="mt-0.5 size-4 shrink-0" />
+                Pay cash on delivery — no online payment needed.
+              </p>
+            ) : (
+              <div className="mt-5 space-y-4 rounded-2xl border border-border p-4">
+                <div>
+                  <p className="flex items-center gap-2 text-sm font-semibold">
+                    <QrCode className="size-4 text-primary" /> Pay with MMQR
+                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {paymentSettings?.instructions ||
+                      "Scan the QR code with any MMQR-supporting banking app and pay the total above."}
+                  </p>
+                </div>
+
+                {paymentSettings === undefined ? (
+                  <p className="text-xs text-muted-foreground">Loading payment details…</p>
+                ) : paymentSettings?.qrImageUrl ? (
+                  <div className="text-center">
+                    <img
+                      src={paymentSettings.qrImageUrl}
+                      alt="MMQR payment QR code"
+                      className="mx-auto max-h-56 rounded-2xl border border-border bg-background object-contain p-2"
+                    />
+                    {paymentSettings.accountName && (
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        Account name: <strong>{paymentSettings.accountName}</strong>
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="rounded-2xl bg-secondary/60 p-3 text-xs text-muted-foreground">
+                    The payment QR code isn't configured yet. Please contact support before ordering.
+                  </p>
+                )}
+
+                <div>
+                  <p className="text-sm font-medium">Upload payment screenshot</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Required — the vendor verifies it before preparing your order.
+                  </p>
+                  <input
+                    ref={screenshotInput}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => setScreenshot(e.target.files?.[0] ?? null)}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-3 w-full rounded-full"
+                    onClick={() => screenshotInput.current?.click()}
+                  >
+                    {screenshot ? (
+                      <>
+                        <Check className="mr-2 size-4 text-success" /> Change screenshot
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 size-4" /> Choose screenshot
+                      </>
+                    )}
+                  </Button>
+                  {screenshotPreview && (
+                    <img
+                      src={screenshotPreview}
+                      alt="Payment screenshot preview"
+                      className="mt-3 max-h-48 w-full rounded-2xl border border-border object-contain"
+                    />
+                  )}
+                  {!user && (
+                    <p className="mt-2 text-xs text-destructive">
+                      Sign in to upload your payment screenshot.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
 
             <Button
               size="lg"
-              disabled={placing || bag.quantityLeft === 0}
+              disabled={
+                placing ||
+                bag.quantityLeft === 0 ||
+                (method === "pickup" && (!screenshot || !user))
+              }
               onClick={placeOrder}
               className="mt-4 w-full rounded-full bg-accent text-accent-foreground hover:bg-accent/90"
             >
+
               {placing ? "Placing order…" : "Place order"}
             </Button>
             <Button asChild variant="ghost" className="mt-2 w-full rounded-full">
