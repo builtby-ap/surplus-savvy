@@ -11,6 +11,7 @@ import {
   ShoppingCart,
   Store,
 } from "lucide-react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { ImpactBanner } from "@/components/impact-banner";
@@ -18,6 +19,7 @@ import { FeaturedBusinesses } from "@/components/featured-businesses";
 import heroAsset from "@/assets/hero-phoelamin.jpeg.asset.json";
 import { isClosingSoon, useNow } from "@/lib/countdown";
 import { getNearbyLocation, saveNearbyLocation, type LatLng } from "@/lib/nearby";
+import { getVerifiedVendorCount } from "@/lib/vendors.functions";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,8 +31,11 @@ import {
   platformStats,
 } from "@/data/mock";
 
-
-
+const verifiedVendorCountQueryOptions = {
+  queryKey: ["verified-vendor-count"],
+  queryFn: ({ signal }: { signal?: AbortSignal }) =>
+    getVerifiedVendorCount({ abortSignal: signal }),
+};
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -49,6 +54,9 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(verifiedVendorCountQueryOptions);
+  },
   component: MarketplaceHome,
 });
 
