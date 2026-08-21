@@ -159,7 +159,7 @@ function MarketplaceHome() {
           {[
             { icon: Leaf, label: "CO₂ saved", value: `${(platformStats.co2SavedKg / 1000).toFixed(1)}t`, tone: "text-success" },
             { icon: PiggyBank, label: "Saved by customers", value: formatMoneySaved(platformStats.moneySaved), tone: "text-accent" },
-            { icon: Store, label: "Partner businesses", value: `${platformStats.activeBusinesses}`, tone: "text-primary" },
+            { icon: Store, label: "Partner businesses", value: `${verifiedVendorCount}`, tone: "text-primary" },
           ].map((stat) => (
             <div key={stat.label} className="surface-card flex items-center gap-4 p-5">
               <stat.icon className={`size-6 ${stat.tone}`} />
