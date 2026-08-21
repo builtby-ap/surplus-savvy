@@ -33,8 +33,7 @@ import {
 
 const verifiedVendorCountQueryOptions = {
   queryKey: ["verified-vendor-count"],
-  queryFn: ({ signal }: { signal?: AbortSignal }) =>
-    getVerifiedVendorCount({ abortSignal: signal }),
+  queryFn: () => getVerifiedVendorCount(),
 };
 
 export const Route = createFileRoute("/")({
