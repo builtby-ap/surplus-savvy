@@ -62,6 +62,7 @@ export const Route = createFileRoute("/")({
 
 
 function MarketplaceHome() {
+  const { data: verifiedVendorCount } = useSuspenseQuery(verifiedVendorCountQueryOptions);
   const now = useNow(30000);
   const closingSoon = useMemo(
     () =>
