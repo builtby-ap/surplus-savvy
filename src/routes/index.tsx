@@ -11,6 +11,7 @@ import {
   ShoppingCart,
   Store,
 } from "lucide-react";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { ImpactBanner } from "@/components/impact-banner";
@@ -18,6 +19,7 @@ import { FeaturedBusinesses } from "@/components/featured-businesses";
 import heroAsset from "@/assets/hero-phoelamin.jpeg.asset.json";
 import { isClosingSoon, useNow } from "@/lib/countdown";
 import { getNearbyLocation, saveNearbyLocation, type LatLng } from "@/lib/nearby";
+import { getVerifiedVendorCount } from "@/lib/vendors.functions";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -29,8 +31,10 @@ import {
   platformStats,
 } from "@/data/mock";
 
-
-
+const verifiedVendorCountQueryOptions = {
+  queryKey: ["verified-vendor-count"],
+  queryFn: () => getVerifiedVendorCount(),
+};
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -49,11 +53,15 @@ export const Route = createFileRoute("/")({
       },
     ],
   }),
+  loader: async ({ context }) => {
+    await context.queryClient.ensureQueryData(verifiedVendorCountQueryOptions);
+  },
   component: MarketplaceHome,
 });
 
 
 function MarketplaceHome() {
+  const { data: verifiedVendorCount } = useSuspenseQuery(verifiedVendorCountQueryOptions);
   const now = useNow(30000);
   const closingSoon = useMemo(
     () =>
@@ -150,7 +158,7 @@ function MarketplaceHome() {
           {[
             { icon: Leaf, label: "CO₂ saved", value: `${(platformStats.co2SavedKg / 1000).toFixed(1)}t`, tone: "text-success" },
             { icon: PiggyBank, label: "Saved by customers", value: formatMoneySaved(platformStats.moneySaved), tone: "text-accent" },
-            { icon: Store, label: "Partner businesses", value: `${platformStats.activeBusinesses}`, tone: "text-primary" },
+            { icon: Store, label: "Partner businesses", value: `${verifiedVendorCount}`, tone: "text-primary" },
           ].map((stat) => (
             <div key={stat.label} className="surface-card flex items-center gap-4 p-5">
               <stat.icon className={`size-6 ${stat.tone}`} />
