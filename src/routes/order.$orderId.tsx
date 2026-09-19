@@ -42,14 +42,14 @@ function OrderReceipt() {
       import("@/integrations/supabase/client").then(({ supabase }) =>
         supabase
           .from("vendors_public")
-          .select("display_alias, type, address, neighborhood, phone")
+          .select("name, display_alias, type, address, neighborhood, phone")
           .eq("id", local.businessId)
           .maybeSingle()
           .then(({ data }) => {
             if (!alive || !data) return;
             const v = data as Record<string, unknown>;
             setVendor({
-              name: String(v['display_alias'] ?? ""),
+              name: String(v['name'] ?? v['display_alias'] ?? ""),
               type: String(v['type'] ?? ""),
               address: String(v['address'] ?? ""),
               neighborhood: String(v['neighborhood'] ?? ""),

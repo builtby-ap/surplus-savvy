@@ -47,7 +47,7 @@ export interface CustomerOrder {
 }
 
 const ORDER_COLUMNS =
-  "id, receipt_number, method, status, notes, delivery_address, pickup_window, original_price, item_price, discount, delivery_fee, total, placed_at, vendor_id, payment_status, payment_screenshot_url, vendors_public(display_alias, type, address, neighborhood, phone), order_items(id, title, quantity, original_price, unit_price)";
+  "id, receipt_number, method, status, notes, delivery_address, pickup_window, original_price, item_price, discount, delivery_fee, total, placed_at, vendor_id, payment_status, payment_screenshot_url, vendors_public(name, display_alias, type, address, neighborhood, phone), order_items(id, title, quantity, original_price, unit_price)";
 
 
 type Row = Record<string, unknown>;
@@ -72,7 +72,7 @@ function toOrder(row: Row): CustomerOrder {
     total: n(row['total']),
     placedAt: s(row['placed_at']) || new Date().toISOString(),
     vendorId: s(row['vendor_id']),
-    vendorName: s(vendor['display_alias']) || "Mystery Vendor",
+    vendorName: s(vendor['name']) || s(vendor['display_alias']) || "Mystery Vendor",
     vendorType: s(vendor['type']),
     vendorAddress: s(vendor['address']),
     vendorNeighborhood: s(vendor['neighborhood']),
