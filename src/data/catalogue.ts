@@ -23,10 +23,14 @@ let lastSignature = "";
 export const vendorUuidById = new Map<string, string>();
 export const postUuidById = new Map<string, string>();
 
-/** First emoji of the alias, used in place of a real logo. */
-function aliasBadge(alias: string) {
-  const first = Array.from(alias)[0] ?? "";
-  return /[\p{Emoji}]/u.test(first) ? first : "?";
+/** Initials of a real shop name, e.g. "Golden Crust Bakery" -> "GC". */
+function initialsFromName(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  return words
+    .slice(0, 2)
+    .map((w) => Array.from(w)[0]?.toUpperCase() ?? "")
+    .join("");
 }
 
 function hhmm(value: string) {
@@ -43,7 +47,7 @@ export async function loadCatalogue(): Promise<boolean> {
       supabase
         .from("vendors_public")
         .select(
-          "id, legacy_id, display_alias, type, description, address, neighborhood, rating, review_count, fulfillment, meals_rescued, verified, latitude, longitude",
+          "id, legacy_id, name, display_alias, type, description, address, neighborhood, rating, review_count, fulfillment, meals_rescued, verified, latitude, longitude",
         )
         .eq("verification_status", "approved"),
       supabase
@@ -66,7 +70,7 @@ export async function loadCatalogue(): Promise<boolean> {
       vendorUuidById.set(id, uuid);
       return {
         id,
-        name: v.display_alias ?? "Mystery Vendor",
+        name: v.name ?? v.display_alias ?? "Mystery Vendor",
         type: v.type as BusinessType,
         description: v.description ?? "",
         address: v.address ?? "",
@@ -74,7 +78,7 @@ export async function loadCatalogue(): Promise<boolean> {
         rating: Number(v.rating ?? 0),
         reviewCount: v.review_count ?? 0,
         image: storefrontImage,
-        logoInitials: aliasBadge(v.display_alias ?? ""),
+        logoInitials: initialsFromName(v.name ?? v.display_alias ?? "?"),
         fulfillment: (v.fulfillment ?? "pickup") as FulfillmentType,
         mealsRescued: v.meals_rescued ?? 0,
         verified: Boolean(v.verified),
