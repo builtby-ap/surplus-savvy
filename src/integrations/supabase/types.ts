@@ -740,6 +740,7 @@ export type Database = {
           legacy_id: string | null
           longitude: number | null
           meals_rescued: number | null
+          name: string | null
           neighborhood: string | null
           phone: string | null
           rating: number | null
@@ -764,6 +765,7 @@ export type Database = {
           legacy_id?: string | null
           longitude?: number | null
           meals_rescued?: number | null
+          name?: string | null
           neighborhood?: string | null
           phone?: string | null
           rating?: number | null
@@ -788,6 +790,7 @@ export type Database = {
           legacy_id?: string | null
           longitude?: number | null
           meals_rescued?: number | null
+          name?: string | null
           neighborhood?: string | null
           phone?: string | null
           rating?: number | null
