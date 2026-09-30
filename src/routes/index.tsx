@@ -69,7 +69,7 @@ function MarketplaceHome() {
     return () => { active = false; };
   }, [user?.id, user?.role]);
 
-  const available = mysteryBags.filter((bag) => bag.quantityLeft > 0);
+  const available = mysteryBags.filter((bag) => bag.quantityLeft > 0 && (!now || bag.availableUntil > `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`));
   const distance = (bag: MysteryBag) => {
     const vendor = businesses.find((b) => b.id === bag.businessId);
     return coords && vendor && vendor.lat && vendor.lng ? haversineKm(coords, vendor) : null;
