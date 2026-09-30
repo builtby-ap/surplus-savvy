@@ -30,6 +30,6 @@ export function HomeFoodCard({ bag, urgent = false }: { bag: MysteryBag; urgent?
   </article>;
 }
 
-export function SectionHeading({ id, title, description, to, search }: { id?: string; title: string; description: string; to?: "/search"; search?: { closingSoon: boolean } }) {
+export function SectionHeading({ id, title, description, to, search }: { id?: string; title: string; description: string; to?: "/search" | "/vendors"; search?: { closingSoon: boolean } }) {
   return <div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3"><div className="min-w-0"><h2 id={id} className="text-2xl font-semibold text-foreground sm:text-3xl">{title}</h2><p className="mt-1 text-sm text-muted-foreground">{description}</p></div>{to && <Link to={to} search={search ?? {}} className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:underline">See all <ArrowRight className="size-4" /></Link>}</div>;
 }
