@@ -3,6 +3,7 @@ import { Bike, MapPin, ShoppingBag, Star, Timer } from "lucide-react";
 import {
   bagCategoryLabels,
   businessTypeLabels,
+  categoryImages,
   discountPercent,
   formatPrice,
   getBusiness,
@@ -46,6 +47,7 @@ export function BagCard({ bag, eager = false, unavailable = false }: { bag: Myst
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={bag.image}
+          onError={(event) => { const fallback = categoryImages[bag.category]; if (event.currentTarget.src !== new URL(fallback, window.location.href).href) event.currentTarget.src = fallback; }}
           alt={`${bag.title} from ${business?.name ?? "a local business"}`}
           loading={eager ? "eager" : "lazy"}
           width={1024}
