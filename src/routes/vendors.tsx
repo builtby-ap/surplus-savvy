@@ -32,7 +32,7 @@ interface VendorRow {
 
 function VendorsPage() {
   const [query, setQuery] = useState("");
-  const { data: vendors = [] } = useQuery({
+  const { data: vendors = [], isLoading } = useQuery({
     queryKey: ["vendors-listing"],
     queryFn: async () => {
       const { data, error } = await supabase
