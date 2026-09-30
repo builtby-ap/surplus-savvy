@@ -1,0 +1,2 @@
+- [ ] Redesign customer homepage with partner advertising carousel, food discovery, deals, closing soon, restaurants, recommendations, categories, and promotions.
+- [ ] Add requested footer destinations and verify desktop/mobile interactions.
