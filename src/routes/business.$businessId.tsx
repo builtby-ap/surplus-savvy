@@ -6,7 +6,6 @@ import { BagCard } from "@/components/bag-card";
 import { Button } from "@/components/ui/button";
 import { businessTypeLabels, categoryImages, getBusiness, storefrontImage, type BagCategory, type FulfillmentType, type MysteryBag } from "@/data/mock";
 import { vendorUuidById } from "@/data/catalogue";
-import { msUntil, useNow } from "@/lib/countdown";
 import { safeImage } from "@/lib/image-upload";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -33,7 +32,6 @@ function BusinessProfile() {
   const [posts, setPosts] = useState<ProfilePost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const now = useNow(30000);
 
   useEffect(() => {
     if (!vendorId) return;
@@ -79,8 +77,8 @@ function BusinessProfile() {
 
   if (!business) return <PublicLayout><div className="mx-auto max-w-6xl px-4 py-20 text-center"><h1 className="text-3xl font-semibold">Business not found</h1><p className="mt-3 text-muted-foreground">This place isn't available to browse.</p><Button asChild className="mt-6"><Link to="/search">Browse food</Link></Button></div></PublicLayout>;
 
-  const available = posts.filter(({ bag, isAvailable }) => isAvailable && bag.quantityLeft > 0 && (!now || msUntil(bag.availableUntil, now) > 0));
-  const unavailable = posts.filter(({ bag, isAvailable }) => !isAvailable || bag.quantityLeft <= 0 || (now !== null && msUntil(bag.availableUntil, now) <= 0));
+  const available = posts.filter(({ bag, isAvailable }) => isAvailable && bag.quantityLeft > 0);
+  const unavailable = posts.filter(({ bag, isAvailable }) => !isAvailable || bag.quantityLeft <= 0);
   const cover = available[0]?.bag.image ?? posts[0]?.bag.image ?? business.image;
 
   return (
