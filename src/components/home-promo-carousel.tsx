@@ -37,7 +37,8 @@ export function HomePromoCarousel() {
     badge: "FEATURED PARTNER",
     businessId: partner.id,
   })) : editorialSlides;
-  const selected = slides[active % slides.length];
+  const selected = slides[active % slides.length] ?? editorialSlides[0];
+  if (!selected) return null;
   const catalogueId = selected.businessId ? [...vendorUuidById.entries()].find(([, uuid]) => uuid === selected.businessId)?.[0] : undefined;
   useEffect(() => {
     if (paused || slides.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
