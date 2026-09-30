@@ -32,7 +32,7 @@ interface VendorRow {
 
 function VendorsPage() {
   const [query, setQuery] = useState("");
-  const { data: vendors = [] } = useQuery({
+  const { data: vendors = [], isLoading } = useQuery({
     queryKey: ["vendors-listing"],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -67,7 +67,9 @@ function VendorsPage() {
         />
       </div>
 
-      {filtered.length === 0 ? (
+      {isLoading ? (
+        <p className="mt-10 rounded-lg border border-border bg-card px-5 py-8 text-sm text-muted-foreground">Loading partner businesses…</p>
+      ) : filtered.length === 0 ? (
         <p className="mt-10 rounded-lg border border-border bg-card px-5 py-8 text-sm text-muted-foreground">
           {query.trim() ? `No businesses match “${query.trim()}”. Try another name.` : "No partner businesses yet. Check back soon."}
         </p>
