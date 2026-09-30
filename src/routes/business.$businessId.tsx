@@ -69,8 +69,8 @@ function BusinessProfile() {
                 image: safeImage(row.image_url, categoryImages[category] ?? storefrontImage),
                 rating: Number(row.rating ?? 0),
               },
-            }));
-          });
+            };
+          }));
         }
         setLoading(false);
       });
