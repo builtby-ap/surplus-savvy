@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Bike, Clock3, Gift, Leaf, Star, Tag, Truck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock3, Gift, Leaf, Tag, Truck } from "lucide-react";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { HomePromoCarousel } from "@/components/home-promo-carousel";
 import { HomeFoodCard, SectionHeading } from "@/components/home-food-card";
 import { Button } from "@/components/ui/button";
-import { bagCategoryLabels, businessTypeLabels, businesses, categoryImages, discountPercent, haversineKm, mysteryBags, type BagCategory, type MysteryBag } from "@/data/mock";
+import { bagCategoryLabels, businesses, categoryImages, discountPercent, haversineKm, mysteryBags, type BagCategory, type MysteryBag } from "@/data/mock";
 import { vendorUuidById } from "@/data/catalogue";
 import { isClosingSoon, useNow } from "@/lib/countdown";
 import { getNearbyLocation, saveNearbyLocation, type LatLng } from "@/lib/nearby";
@@ -14,7 +14,6 @@ import { fetchMyOrders } from "@/lib/customer-orders";
 import { safeImage } from "@/lib/image-upload";
 import { supabase } from "@/integrations/supabase/client";
 import restaurantBanner from "@/assets/restaurant-banner.jpg";
-import bakeryBanner from "@/assets/bakery-banner.jpg";
 
 export const Route = createFileRoute("/")({
   head: () => ({ meta: [
@@ -98,7 +97,7 @@ function MarketplaceHome() {
     <section className="border-y border-border bg-secondary/70 py-12 sm:py-16"><div className="mx-auto max-w-6xl px-4"><div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3"><div className="min-w-0"><div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase text-destructive"><Clock3 className="size-4" />Last chance</div><h2 className="text-2xl font-semibold text-foreground sm:text-3xl">Closing Soon</h2><p className="mt-1 text-sm text-muted-foreground">These bags have less than an hour left</p></div><Link to="/search" search={{ closingSoon: true }} className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:underline">See all <ArrowRight className="size-4" /></Link></div><FoodRail bags={closingSoon} label="Closing soon" urgent /></div></section>
 
     <div className="mx-auto max-w-6xl space-y-14 px-4 py-14 sm:space-y-18">
-      <section aria-labelledby="places-title"><SectionHeading id="places-title" title="Discover New Places" description="Local restaurants and food makers worth getting to know" to="/search" /><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{places.map((place, index) => { const uuid = vendorUuidById.get(place.id); const cover = uuid ? promotedImages[uuid] : undefined; return <Link key={place.id} to="/business/$businessId" params={{ businessId: place.id }} className="group overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-soft)] transition-transform hover:-translate-y-0.5"><div className="relative h-36 overflow-hidden bg-secondary"><img src={safeImage(cover, index % 2 ? bakeryBanner : restaurantBanner)} alt={cover ? `${place.name} restaurant` : "Fresh food from local businesses"} loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-105" /><span className="absolute right-2 top-2 rounded bg-card px-2 py-1 text-[11px] font-semibold text-foreground">{cover ? "Featured partner" : "Local favorite"}</span></div><div className="relative px-4 pb-4 pt-7"><span className="absolute -top-6 left-4 grid size-11 place-items-center rounded-full border-2 border-card bg-primary text-sm font-bold text-primary-foreground">{place.logoInitials}</span><h3 className="truncate text-base font-semibold text-foreground">{place.name}</h3><p className="mt-1 text-xs text-muted-foreground">{businessTypeLabels[place.type]} · {place.neighborhood}</p><div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground"><span className="inline-flex items-center gap-1 font-semibold text-foreground"><Star className="size-3.5 fill-accent text-accent" />{place.rating.toFixed(1)}</span>{place.fulfillment !== "pickup" && <span className="inline-flex items-center gap-1"><Bike className="size-3.5" />Delivery available</span>}</div></div></Link>; })}</div></section>
+      <section aria-labelledby="places-title"><SectionHeading id="places-title" title="Discover New Places" description="Local restaurants and food makers worth getting to know" to="/search" /><div className="grid grid-cols-4 gap-2 sm:grid-cols-8 sm:gap-3">{places.map((place) => { const uuid = vendorUuidById.get(place.id); const cover = uuid ? promotedImages[uuid] : undefined; return <Link key={place.id} to="/business/$businessId" params={{ businessId: place.id }} className="group min-w-0 text-center"><span className="mx-auto block aspect-square max-w-24 overflow-hidden rounded-full border-2 border-border bg-secondary transition-colors group-hover:border-primary"><img src={safeImage(cover, restaurantBanner)} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-110" /></span><span className="mt-2 block truncate text-xs font-semibold text-foreground sm:text-sm">{place.name}</span></Link>; })}</div></section>
 
       <section aria-labelledby="picked-title"><SectionHeading id="picked-title" title="Picked for You" description={orderedCategories.length ? "More of the food you enjoy" : "Popular rescues you might love"} to="/search" /><FoodRail bags={recommended} label="Picked for you" /></section>
 
