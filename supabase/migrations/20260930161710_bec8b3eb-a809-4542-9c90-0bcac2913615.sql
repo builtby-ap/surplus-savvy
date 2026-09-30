@@ -1,0 +1,2 @@
+DROP POLICY IF EXISTS "Available posts of approved vendors are public" ON public.food_posts;
+CREATE POLICY "Posts of approved vendors are public" ON public.food_posts FOR SELECT TO anon, authenticated USING (EXISTS (SELECT 1 FROM public.vendors v WHERE v.id = food_posts.vendor_id AND v.verification_status = 'approved'::public.vendor_status));
