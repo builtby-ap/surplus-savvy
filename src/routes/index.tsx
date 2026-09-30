@@ -1,380 +1,107 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import {
-  ArrowDown,
-  ArrowRight,
-  Leaf,
-  MapPin,
-  Package,
-  PiggyBank,
-  Search,
-  ShoppingCart,
-  Store,
-} from "lucide-react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ArrowLeft, ArrowRight, Bike, Clock3, Gift, Leaf, MapPin, Sparkles, Star, Tag, Truck } from "lucide-react";
 import { PublicLayout } from "@/components/layout/public-layout";
-import { BagCard } from "@/components/bag-card";
-import { ImpactBanner } from "@/components/impact-banner";
-import { FeaturedBusinesses } from "@/components/featured-businesses";
-import heroAsset from "@/assets/hero-phoelamin.jpeg.asset.json";
+import { HomePromoCarousel } from "@/components/home-promo-carousel";
+import { HomeFoodCard, SectionHeading } from "@/components/home-food-card";
+import { Button } from "@/components/ui/button";
+import { bagCategoryLabels, businessTypeLabels, businesses, categoryImages, discountPercent, getDeliveryTerms, haversineKm, mysteryBags, type BagCategory, type MysteryBag } from "@/data/mock";
 import { isClosingSoon, useNow } from "@/lib/countdown";
 import { getNearbyLocation, saveNearbyLocation, type LatLng } from "@/lib/nearby";
-import { getVerifiedVendorCount } from "@/lib/vendors.functions";
-
-import { Button } from "@/components/ui/button";
-import {
-  businesses,
-  businessTypeLabels,
-  formatMoneySaved,
-  haversineKm,
-  mysteryBags,
-  platformStats,
-} from "@/data/mock";
-
-const verifiedVendorCountQueryOptions = {
-  queryKey: ["verified-vendor-count"],
-  queryFn: () => getVerifiedVendorCount(),
-};
+import { useAuth } from "@/lib/auth/auth-context";
+import { fetchMyOrders } from "@/lib/customer-orders";
+import { safeImage } from "@/lib/image-upload";
+import { supabase } from "@/integrations/supabase/client";
+import restaurantBanner from "@/assets/restaurant-banner.jpg";
+import bakeryBanner from "@/assets/bakery-banner.jpg";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "Phoe La Min — Discounted mystery bags from local food shops" },
-      {
-        name: "description",
-        content:
-          "Rescue surplus food from restaurants, bakeries, cafes and grocers near you. Reserve a mystery bag at up to 70% off and pay cash on pickup or delivery.",
-      },
-      { property: "og:title", content: "Phoe La Min — Rescue good food for less" },
-      {
-        property: "og:description",
-        content:
-          "Browse discounted mystery bags from local food businesses and reserve yours before the pickup window closes.",
-      },
-    ],
-  }),
-  loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(verifiedVendorCountQueryOptions);
-  },
+  head: () => ({ meta: [
+    { title: "Phoe La Min — Discover discounted food near you" },
+    { name: "description", content: "Find today's discounted surplus food, last-chance bags, local restaurants and fresh favorites on Phoe La Min." },
+    { property: "og:title", content: "Phoe La Min — Discover discounted food near you" },
+    { property: "og:description", content: "Great food, smaller prices. Browse today's surplus food and local restaurants." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+  ] }),
   component: MarketplaceHome,
 });
 
+const categoryOrder: BagCategory[] = ["mixed_meals", "bakery", "desserts", "produce", "grocery", "snacks", "beverages"];
+
+function FoodRail({ bags, label, urgent = false }: { bags: MysteryBag[]; label: string; urgent?: boolean }) {
+  const rail = useRef<HTMLDivElement>(null);
+  if (!bags.length) return <p className="rounded-lg border border-border bg-card px-5 py-8 text-sm text-muted-foreground">No {urgent ? "bags closing in the next hour" : "food posts"} available right now. Check back soon.</p>;
+  return <div className="relative"><div ref={rail} aria-label={label} className="flex snap-x snap-mandatory gap-4 overflow-x-auto pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">{bags.map((bag) => <HomeFoodCard key={bag.id} bag={bag} urgent={urgent} />)}</div><div className="mt-2 hidden justify-end gap-2 sm:flex"><Button variant="outline" size="icon" className="rounded-full" aria-label={`Scroll ${label} left`} onClick={() => rail.current?.scrollBy({ left: -560, behavior: "smooth" })}><ArrowLeft /></Button><Button variant="outline" size="icon" className="rounded-full" aria-label={`Scroll ${label} right`} onClick={() => rail.current?.scrollBy({ left: 560, behavior: "smooth" })}><ArrowRight /></Button></div></div>;
+}
 
 function MarketplaceHome() {
-  const { data: verifiedVendorCount } = useSuspenseQuery(verifiedVendorCountQueryOptions);
-  const now = useNow(30000);
-  const closingSoon = useMemo(
-    () =>
-      now
-        ? mysteryBags.filter((b) => b.quantityLeft > 0 && isClosingSoon(b.availableUntil, now)).slice(0, 8)
-        : [],
-    [now],
-  );
-
+  const now = useNow(1000);
+  const { user } = useAuth();
   const [coords, setCoords] = useState<LatLng | null>(null);
-  const [geoState, setGeoState] = useState<"idle" | "loading" | "ready" | "denied">("idle");
-
-  const requestLocation = () => {
-    if (typeof navigator === "undefined" || !navigator.geolocation) {
-      setGeoState("denied");
-      return;
-    }
-    setGeoState("loading");
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        setCoords(loc);
-        saveNearbyLocation(loc);
-        setGeoState("ready");
-      },
-      () => setGeoState("denied"),
-      { enableHighAccuracy: true, timeout: 10000 },
-    );
-  };
+  const [orderedCategories, setOrderedCategories] = useState<string[]>([]);
+  const [promotedIds, setPromotedIds] = useState<string[]>([]);
 
   useEffect(() => {
     const saved = getNearbyLocation();
-    if (saved) {
-      setCoords(saved);
-      setGeoState("ready");
-      return;
-    }
-    requestLocation();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (saved) setCoords(saved);
+    if (typeof navigator !== "undefined" && navigator.geolocation) navigator.geolocation.getCurrentPosition((position) => {
+      const next = { lat: position.coords.latitude, lng: position.coords.longitude };
+      setCoords(next); saveNearbyLocation(next);
+    }, () => {}, { timeout: 8000 });
   }, []);
+  useEffect(() => {
+    let active = true;
+    void supabase.from("advertised_vendors_public" as never).select("id").limit(20).then(({ data }) => {
+      if (active && data) setPromotedIds((data as unknown as { id: string }[]).map((v) => v.id));
+    });
+    return () => { active = false; };
+  }, []);
+  useEffect(() => {
+    if (user?.role !== "customer") return;
+    let active = true;
+    void fetchMyOrders().then((orders) => {
+      if (!active) return;
+      const ranked = orders.flatMap((order) => order.items.map((item) => mysteryBags.find((bag) => bag.title === item.title)?.category)).filter((c): c is BagCategory => Boolean(c));
+      setOrderedCategories(ranked);
+    }).catch(() => {});
+    return () => { active = false; };
+  }, [user?.id, user?.role]);
 
-  const nearbyBusinesses = useMemo(() => {
-    const list = businesses.map((business) => ({
-      business,
-      distanceKm: coords ? haversineKm(coords, { lat: business.lat, lng: business.lng }) : null,
-    }));
-    if (coords) list.sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
-    return list.slice(0, 6);
-  }, [coords]);
+  const available = mysteryBags.filter((bag) => bag.quantityLeft > 0);
+  const distance = (bag: MysteryBag) => {
+    const vendor = businesses.find((b) => b.id === bag.businessId);
+    return coords && vendor && vendor.lat && vendor.lng ? haversineKm(coords, vendor) : null;
+  };
+  const deals = [...available].filter((bag) => discountPercent(bag) >= 50).sort((a, b) => {
+    const da = distance(a), db = distance(b);
+    return da !== null && db !== null ? da - db : discountPercent(b) - discountPercent(a);
+  }).slice(0, 12);
+  const closingSoon = now ? available.filter((bag) => isClosingSoon(bag.availableUntil, now)).sort((a, b) => a.availableUntil.localeCompare(b.availableUntil)).slice(0, 10) : [];
+  const recommended = [...available].sort((a, b) => {
+    const score = (bag: MysteryBag) => orderedCategories.filter((category) => category === bag.category).length * 10 + bag.rating + discountPercent(bag) / 100;
+    return score(b) - score(a);
+  }).slice(0, 8);
+  const places = useMemo(() => [...businesses].filter((b) => b.verified).sort((a, b) => coords ? haversineKm(coords, a) - haversineKm(coords, b) : b.rating - a.rating).slice(0, 8), [coords]);
 
+  return <PublicLayout>
+    <HomePromoCarousel />
+    <div className="border-b border-border bg-card"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 text-xs font-semibold text-foreground sm:text-sm"><span className="flex items-center gap-2"><Tag className="size-4 text-destructive" />50%+ off good food</span><span className="flex items-center gap-2"><Clock3 className="size-4 text-accent" />Fresh deals every day</span><span className="flex items-center gap-2"><Leaf className="size-4 text-success" />Good food, less waste</span></div></div>
 
-  return (
+    <div className="mx-auto max-w-6xl space-y-14 px-4 pb-8 pt-10 sm:space-y-18 sm:pt-14">
+      <section aria-labelledby="categories-title"><SectionHeading title="What are you craving?" description="A little something for every appetite" /><div className="grid grid-cols-4 gap-2 sm:grid-cols-7 sm:gap-3">{categoryOrder.map((category) => <Link key={category} to="/search" search={{ category }} className="group min-w-0 text-center"><span className="mx-auto block aspect-square max-w-28 overflow-hidden rounded-full border-2 border-border bg-secondary transition-colors group-hover:border-primary"><img src={categoryImages[category]} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-110" /></span><span className="mt-2 block text-xs font-semibold text-foreground sm:text-sm">{bagCategoryLabels[category]}</span></Link>)}</div></section>
 
+      <section aria-labelledby="deals-title"><SectionHeading title="Good Deals Near You" description="Great finds at 50% off or more" to="/search" /><FoodRail bags={deals} label="Good deals" /></section>
+    </div>
 
-    <PublicLayout>
-      <ImpactBanner />
-      <section className="warm-hero">
+    <section className="border-y border-border bg-secondary/70 py-12 sm:py-16"><div className="mx-auto max-w-6xl px-4"><div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3"><div className="min-w-0"><div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase text-destructive"><Clock3 className="size-4" />Last chance</div><h2 className="text-2xl font-semibold text-foreground sm:text-3xl">Closing Soon</h2><p className="mt-1 text-sm text-muted-foreground">These bags have less than an hour left</p></div><Link to="/search" search={{ closingSoon: true }} className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:underline">See all <ArrowRight className="size-4" /></Link></div><FoodRail bags={closingSoon} label="Closing soon" urgent /></div></section>
 
-        <div className="mx-auto grid max-w-6xl items-center gap-8 px-4 py-12 md:grid-cols-2 md:py-16">
-          <div>
-            <span className="inline-flex items-center gap-2 rounded-full bg-success/15 px-3 py-1 text-xs font-medium text-success">
-              <Leaf className="size-3.5" /> {platformStats.mealsRescued.toLocaleString()} meals rescued
-            </span>
-            <h1 className="mt-4 text-4xl font-semibold leading-tight sm:text-5xl">
-              Great food, rescued and priced to go.
-            </h1>
-            <p className="mt-4 max-w-md text-muted-foreground">
-              Local restaurants, bakeries, markets and grocers pack their surplus into mystery
-              bags. Reserve one, pay cash on pickup or delivery, and save up to 70%.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="rounded-full bg-accent text-accent-foreground hover:bg-accent/90">
-                <Link to="/search">
-                  Browse bags near you <ArrowRight className="size-4" />
-                </Link>
-              </Button>
-              <Button asChild size="lg" variant="outline" className="rounded-full">
-                <Link to="/register">Join us now</Link>
-              </Button>
-            </div>
-          </div>
-          <img
-            src={heroAsset.url}
-            alt="Phoe La Min mascot holding a golden tray with a bunny and reusable bag"
-            width={1024}
-            height={640}
-            className="rounded-3xl object-cover shadow-[var(--shadow-lifted)]"
-          />
-        </div>
-      </section>
+    <div className="mx-auto max-w-6xl space-y-14 px-4 py-14 sm:space-y-18">
+      <section aria-labelledby="places-title"><SectionHeading title="Discover New Places" description="Local restaurants and food makers worth getting to know" to="/search" /><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{places.map((place, index) => { const terms = getDeliveryTerms(place); return <Link key={place.id} to="/business/$businessId" params={{ businessId: place.id }} className="group overflow-hidden rounded-lg border border-border bg-card shadow-[var(--shadow-soft)] transition-transform hover:-translate-y-0.5"><div className="relative h-36 overflow-hidden bg-secondary"><img src={safeImage(place.image, index % 2 ? bakeryBanner : restaurantBanner)} alt={`${place.name} food and restaurant`} loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-105" /><span className="absolute right-2 top-2 rounded bg-card px-2 py-1 text-[11px] font-semibold text-foreground">{promotedIds.includes(place.id) ? "Featured partner" : "Local favorite"}</span></div><div className="relative px-4 pb-4 pt-7"><span className="absolute -top-6 left-4 grid size-11 place-items-center rounded-full border-2 border-card bg-primary text-sm font-bold text-primary-foreground">{place.logoInitials}</span><h3 className="truncate text-base font-semibold text-foreground">{place.name}</h3><p className="mt-1 text-xs text-muted-foreground">{businessTypeLabels[place.type]} · {place.neighborhood}</p><div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground"><span className="inline-flex items-center gap-1 font-semibold text-foreground"><Star className="size-3.5 fill-accent text-accent" />{place.rating.toFixed(1)}</span>{terms.offersDelivery && <span className="inline-flex items-center gap-1"><Bike className="size-3.5" />{terms.etaMinutes} min · Min {Math.round(terms.minimumOrder).toLocaleString()} MMK</span>}</div></div></Link>; })}</div></section>
 
-      <section className="mx-auto max-w-6xl px-4 py-10">
-        <div className="grid gap-4 sm:grid-cols-3">
-          {[
-            { icon: Leaf, label: "CO₂ saved", value: `${(platformStats.co2SavedKg / 1000).toFixed(1)}t`, tone: "text-success" },
-            { icon: PiggyBank, label: "Saved by customers", value: formatMoneySaved(platformStats.moneySaved), tone: "text-accent" },
-            { icon: Store, label: "Partner businesses", value: `${verifiedVendorCount}`, tone: "text-primary" },
-          ].map((stat) => (
-            <div key={stat.label} className="surface-card flex items-center gap-4 p-5">
-              <stat.icon className={`size-6 ${stat.tone}`} />
-              <div>
-                <p className="text-xl font-semibold">{stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      <section aria-labelledby="picked-title"><SectionHeading title="Picked for You" description={orderedCategories.length ? "More of the food you enjoy" : "Popular rescues you might love"} to="/search" /><FoodRail bags={recommended} label="Picked for you" /></section>
 
-      <FeaturedBusinesses />
-
-      <section className="mx-auto max-w-6xl px-4 py-10">
-        <div className="flex items-end justify-between gap-4">
-          <h2 className="text-xl font-semibold">Closing soon</h2>
-          <Link
-            to="/search"
-            search={{ closingSoon: true }}
-            className="text-sm text-primary underline-offset-4 hover:underline"
-          >
-            See all
-          </Link>
-        </div>
-        {closingSoon.length > 0 ? (
-          <div className="mt-4 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-            {closingSoon.map((bag, i) => (
-              <BagCard key={bag.id} bag={bag} eager={i < 4} />
-            ))}
-          </div>
-        ) : (
-          <div className="surface-card mt-4 p-8 text-center text-sm text-muted-foreground">
-            No bags are closing soon right now.{" "}
-            <Link to="/search" className="text-primary underline-offset-4 hover:underline">
-              Browse all available bags
-            </Link>
-          </div>
-        )}
-      </section>
-
-      <section className="mx-auto max-w-6xl px-4 py-12">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold">How Phoelamin Works</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Rescue good food in four simple steps
-          </p>
-        </div>
-
-        <div className="relative mt-8">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              {
-                icon: Search,
-                title: "Discover",
-                subtitle: "Find Surplus Food Near You",
-                description:
-                  "Use your location to discover nearby Secret Bags from participating food businesses.",
-                tone: "text-primary",
-                bg: "bg-primary/10",
-              },
-              {
-                icon: Package,
-                title: "Choose",
-                subtitle: "Pick Your Secret Bag",
-                description:
-                  "Browse discounted surplus food, check the details, and choose the Secret Bag you want to rescue.",
-                tone: "text-accent",
-                bg: "bg-accent/10",
-              },
-              {
-                icon: ShoppingCart,
-                title: "Reserve",
-                subtitle: "Place Your Order",
-                description:
-                  "Add the Secret Bag to your cart, choose pickup or delivery, select your address if delivery is selected, and place your order.",
-                tone: "text-destructive",
-                bg: "bg-destructive/10",
-              },
-              {
-                icon: Leaf,
-                title: "Rescue & Make an Impact",
-                subtitle: "Enjoy Food, Reduce Waste",
-                description:
-                  "Collect or receive your rescued food and see how much food waste, CO₂, and money you helped save.",
-                tone: "text-success",
-                bg: "bg-success/10",
-              },
-            ].map((step, i) => (
-              <div
-                key={step.title}
-                className="surface-card group relative flex flex-col items-center p-6 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-[var(--shadow-lifted)]"
-              >
-                <span className="absolute left-4 top-4 text-xs font-semibold text-muted-foreground">
-                  0{i + 1}
-                </span>
-                <div
-                  className={`grid h-14 w-14 shrink-0 place-items-center rounded-2xl ${step.bg}`}
-                >
-                  <step.icon className={`size-7 ${step.tone}`} />
-                </div>
-                <h3 className="mt-4 text-base font-semibold">{step.title}</h3>
-                <p className="mt-1 text-sm font-medium text-foreground">
-                  {step.subtitle}
-                </p>
-                <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                  {step.description}
-                </p>
-
-                {i < 3 && (
-                  <>
-                    <ArrowRight className="absolute -right-3 top-1/2 hidden size-5 -translate-y-1/2 text-muted-foreground/40 lg:block" />
-                    <ArrowDown className="absolute -bottom-3 left-1/2 block size-5 -translate-x-1/2 text-muted-foreground/40 sm:hidden" />
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 hidden items-center justify-center gap-2 text-sm font-medium text-muted-foreground sm:flex lg:hidden">
-            <span>Discover</span>
-            <ArrowRight className="size-4" />
-            <span>Choose</span>
-            <ArrowRight className="size-4" />
-            <span>Reserve</span>
-            <ArrowRight className="size-4" />
-            <span>Rescue</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-4 py-12">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h2 className="text-xl font-semibold">Businesses rescuing food nearby</h2>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            {geoState === "ready" ? (
-              <span className="inline-flex items-center gap-1 text-success">
-                <MapPin className="size-3.5" /> Sorted by your location
-              </span>
-            ) : geoState === "loading" ? (
-              <span>Finding your location…</span>
-            ) : (
-              <Button
-                size="sm"
-                variant="outline"
-                className="rounded-full"
-                onClick={requestLocation}
-              >
-                <MapPin className="size-3.5" /> Use my location
-              </Button>
-            )}
-          </div>
-        </div>
-        {geoState === "denied" ? (
-          <p className="mt-2 text-xs text-muted-foreground">
-            Location unavailable — showing businesses across the city.
-          </p>
-        ) : null}
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {nearbyBusinesses.map(({ business: b, distanceKm }) => (
-            <Link
-              key={b.id}
-              to="/business/$businessId"
-              params={{ businessId: b.id }}
-              className="surface-card flex items-center gap-4 p-4 transition-colors hover:border-primary"
-            >
-              <span className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-sm font-semibold text-primary-foreground">
-                {b.logoInitials}
-              </span>
-              <div className="min-w-0">
-                <p className="truncate font-medium">{b.name}</p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {businessTypeLabels[b.type]} · {b.neighborhood}
-                  {distanceKm != null ? ` · ${distanceKm.toFixed(1)} km away` : ""}
-                </p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-6xl px-4 py-12">
-        <div className="surface-card flex flex-col items-start gap-5 p-6 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">Something not right?</h2>
-            <p className="mt-1 max-w-xl text-sm text-muted-foreground">
-              Found a problem with a Secret Bag, food quality, or your order? Let us know and our team will review it.
-            </p>
-          </div>
-          <Button
-            asChild
-            className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            <a
-              href={`mailto:support@phoelamin.com?subject=${encodeURIComponent(
-                "Phoelamin — Secret Bag Report",
-              )}&body=${encodeURIComponent(
-                `Hello Phoelamin Team,
-
-I would like to report an issue regarding a Secret Bag.
-
-Secret Bag:
-Vendor:
-Order ID (if applicable):
-Issue:
-Additional details:
-
-Thank you.`,
-              )}`}
-            >
-              Report to Phoelamin
-            </a>
-          </Button>
-        </div>
-      </section>
-
-    </PublicLayout>
-  );
+      <section aria-labelledby="special-title"><SectionHeading title="A Little Something Extra" description="More ways to find your next great meal" /><div className="grid gap-4 md:grid-cols-3"><Link to="/search" className="relative flex min-h-48 flex-col justify-between overflow-hidden rounded-lg bg-primary p-6 text-primary-foreground"><Truck className="size-7" /><div><p className="text-xs font-semibold uppercase text-accent">At your doorstep</p><h3 className="mt-1 text-2xl font-semibold text-primary-foreground">Food that comes to you</h3><p className="mt-2 text-sm text-primary-foreground/85">Explore bags with delivery available.</p></div><ArrowRight className="absolute bottom-6 right-6 size-5" /></Link><Link to="/search" search={{ closingSoon: true }} className="relative flex min-h-48 flex-col justify-between overflow-hidden rounded-lg bg-destructive p-6 text-destructive-foreground"><Clock3 className="size-7" /><div><p className="text-xs font-semibold uppercase">Today's final picks</p><h3 className="mt-1 text-2xl font-semibold text-destructive-foreground">Catch them before they're gone</h3><p className="mt-2 text-sm text-destructive-foreground/90">Last-chance food, priced to rescue.</p></div><ArrowRight className="absolute bottom-6 right-6 size-5" /></Link><Link to="/search" className="relative flex min-h-48 flex-col justify-between overflow-hidden rounded-lg bg-success p-6 text-success-foreground"><Gift className="size-7" /><div><p className="text-xs font-semibold uppercase">Small price, big joy</p><h3 className="mt-1 text-2xl font-semibold text-success-foreground">Discover a surprise</h3><p className="mt-2 text-sm text-success-foreground/90">See what local kitchens have saved today.</p></div><ArrowRight className="absolute bottom-6 right-6 size-5" /></Link></div></section>
+    </div>
+  </PublicLayout>;
 }
