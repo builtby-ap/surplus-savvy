@@ -11,3 +11,4 @@
 
 - Keep homepage discovery in dedicated presentation components that consume the existing Supabase-hydrated catalogue; this preserves ordering, auth, and vendor visibility rules.
 - Render homepage partner banners from advertised_vendors_public and use neutral editorial fallback slides when no ads are active; this avoids inventing paid offers.
+- Fetch all approved vendors' posts separately for business profiles while keeping the shared marketplace catalogue available-only, so hidden and sold-out listings never enter discovery rails.

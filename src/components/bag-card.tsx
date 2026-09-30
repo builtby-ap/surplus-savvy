@@ -3,6 +3,7 @@ import { Bike, MapPin, ShoppingBag, Star, Timer } from "lucide-react";
 import {
   bagCategoryLabels,
   businessTypeLabels,
+  categoryImages,
   discountPercent,
   formatPrice,
   getBusiness,
@@ -33,33 +34,35 @@ export function FulfillmentIcons({ bag }: { bag: MysteryBag }) {
   );
 }
 
-export function BagCard({ bag, eager = false }: { bag: MysteryBag; eager?: boolean }) {
+export function BagCard({ bag, eager = false, unavailable = false }: { bag: MysteryBag; eager?: boolean; unavailable?: boolean }) {
   const business = getBusiness(bag.businessId);
   const soldOut = bag.quantityLeft === 0;
+  const disabled = soldOut || unavailable;
   const low = bag.quantityLeft > 0 && bag.quantityLeft <= 3;
   const remaining = useCountdown(bag.availableUntil, 30000);
-  const closingSoon = !soldOut && remaining !== null && remaining > 0 && remaining <= CLOSING_SOON_MS;
+  const closingSoon = !disabled && remaining !== null && remaining > 0 && remaining <= CLOSING_SOON_MS;
 
   const inner = (
     <>
       <div className="relative aspect-[4/3] overflow-hidden">
         <img
           src={bag.image}
+          onError={(event) => { const fallback = categoryImages[bag.category]; if (event.currentTarget.src !== new URL(fallback, window.location.href).href) event.currentTarget.src = fallback; }}
           alt={`${bag.title} from ${business?.name ?? "a local business"}`}
           loading={eager ? "eager" : "lazy"}
           width={1024}
           height={768}
           className={cn(
             "size-full object-cover transition-transform duration-500",
-            soldOut ? "grayscale" : "group-hover:scale-105",
+            disabled ? "grayscale" : "group-hover:scale-105",
           )}
         />
         <Badge className="absolute left-3 top-3 rounded-full bg-accent text-accent-foreground">
           -{discountPercent(bag)}%
         </Badge>
-        {soldOut ? (
+        {disabled ? (
           <Badge className="absolute right-3 top-3 rounded-full bg-muted text-muted-foreground">
-            Sold out
+            {soldOut ? "Sold out" : "Unavailable"}
           </Badge>
         ) : low ? (
           <Badge className="absolute right-3 top-3 rounded-full bg-warning text-warning-foreground">
@@ -99,8 +102,8 @@ export function BagCard({ bag, eager = false }: { bag: MysteryBag; eager?: boole
         <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
           <span className="flex items-center gap-1">
             <Timer className="size-3.5" />
-            {soldOut
-              ? "Unavailable"
+            {disabled
+              ? soldOut ? "Sold out" : "Unavailable"
               : remaining === null
                 ? `Until ${bag.availableUntil}`
                 : formatDuration(remaining)}
@@ -124,7 +127,7 @@ export function BagCard({ bag, eager = false }: { bag: MysteryBag; eager?: boole
     </>
   );
 
-  if (soldOut) {
+  if (disabled) {
     return (
       <div
         aria-disabled="true"
