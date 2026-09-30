@@ -1,2 +1,3 @@
 - [x] Redesign customer homepage with partner advertising carousel, food discovery, deals, closing soon, restaurants, recommendations, categories, and promotions.
 - [x] Add requested footer destinations and verify desktop/mobile interactions.
+- [ ] Build live business profile pages with available and unavailable mystery bags; verify desktop and mobile.
