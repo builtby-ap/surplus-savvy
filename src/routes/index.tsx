@@ -5,7 +5,7 @@ import { PublicLayout } from "@/components/layout/public-layout";
 import { HomePromoCarousel } from "@/components/home-promo-carousel";
 import { HomeFoodCard, SectionHeading } from "@/components/home-food-card";
 import { Button } from "@/components/ui/button";
-import { bagCategoryLabels, businessTypeLabels, businesses, categoryImages, discountPercent, haversineKm, mysteryBags, type BagCategory, type MysteryBag } from "@/data/mock";
+import { bagCategoryLabels, businesses, categoryImages, discountPercent, haversineKm, mysteryBags, type BagCategory, type MysteryBag } from "@/data/mock";
 import { vendorUuidById } from "@/data/catalogue";
 import { isClosingSoon, useNow } from "@/lib/countdown";
 import { getNearbyLocation, saveNearbyLocation, type LatLng } from "@/lib/nearby";
