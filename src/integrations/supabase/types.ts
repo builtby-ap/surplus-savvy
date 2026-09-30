@@ -736,6 +736,7 @@ export type Database = {
           display_alias: string | null
           fulfillment: Database["public"]["Enums"]["fulfillment_type"] | null
           id: string | null
+          image_url: string | null
           latitude: number | null
           legacy_id: string | null
           longitude: number | null
@@ -761,6 +762,7 @@ export type Database = {
           display_alias?: string | null
           fulfillment?: Database["public"]["Enums"]["fulfillment_type"] | null
           id?: string | null
+          image_url?: string | null
           latitude?: number | null
           legacy_id?: string | null
           longitude?: number | null
@@ -786,6 +788,7 @@ export type Database = {
           display_alias?: string | null
           fulfillment?: Database["public"]["Enums"]["fulfillment_type"] | null
           id?: string | null
+          image_url?: string | null
           latitude?: number | null
           legacy_id?: string | null
           longitude?: number | null
