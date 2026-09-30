@@ -21,6 +21,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as SearchRouteImport } from './routes/search'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as VendorsRouteImport } from './routes/vendors'
 import { Route as AccountIndexRouteImport } from './routes/account.index'
 import { Route as AccountAddressesRouteImport } from './routes/account.addresses'
 import { Route as AccountFavoritesRouteImport } from './routes/account.favorites'
@@ -105,6 +106,11 @@ const SearchRoute = SearchRouteImport.update({
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VendorsRoute = VendorsRouteImport.update({
+  id: '/vendors',
+  path: '/vendors',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountIndexRoute = AccountIndexRouteImport.update({
@@ -246,6 +252,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
+  '/vendors': typeof VendorsRoute
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
   '/account/settings': typeof AccountSettingsRoute
@@ -282,6 +289,7 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
+  '/vendors': typeof VendorsRoute
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
   '/account/settings': typeof AccountSettingsRoute
@@ -322,6 +330,7 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/search': typeof SearchRoute
   '/terms': typeof TermsRoute
+  '/vendors': typeof VendorsRoute
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
   '/account/settings': typeof AccountSettingsRoute
@@ -363,6 +372,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/search'
     | '/terms'
+    | '/vendors'
     | '/account/addresses'
     | '/account/favorites'
     | '/account/settings'
@@ -399,6 +409,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/search'
     | '/terms'
+    | '/vendors'
     | '/account/addresses'
     | '/account/favorites'
     | '/account/settings'
@@ -438,6 +449,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/search'
     | '/terms'
+    | '/vendors'
     | '/account/addresses'
     | '/account/favorites'
     | '/account/settings'
@@ -478,6 +490,7 @@ export interface RootRouteChildren {
   RegisterRoute: typeof RegisterRoute
   SearchRoute: typeof SearchRoute
   TermsRoute: typeof TermsRoute
+  VendorsRoute: typeof VendorsRoute
   BagBagIdRoute: typeof BagBagIdRoute
   BusinessBusinessIdRoute: typeof BusinessBusinessIdRoute
   CustomerAddressesRoute: typeof CustomerAddressesRoute
@@ -570,6 +583,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/vendors': {
+      id: '/vendors'
+      path: '/vendors'
+      fullPath: '/vendors'
+      preLoaderRoute: typeof VendorsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/account/': {
@@ -828,6 +848,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegisterRoute: RegisterRoute,
   SearchRoute: SearchRoute,
   TermsRoute: TermsRoute,
+  VendorsRoute: VendorsRoute,
   BagBagIdRoute: BagBagIdRoute,
   BusinessBusinessIdRoute: BusinessBusinessIdRoute,
   CustomerAddressesRoute: CustomerAddressesRoute,
