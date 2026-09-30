@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { safeImage } from "@/lib/image-upload";
 import { businessTypeLabels } from "@/data/mock";
+import { vendorUuidById } from "@/data/catalogue";
 import restaurantBanner from "@/assets/restaurant-banner.jpg";
 import bakeryBanner from "@/assets/bakery-banner.jpg";
 
@@ -37,6 +38,7 @@ export function HomePromoCarousel() {
     businessId: partner.id,
   })) : editorialSlides;
   const selected = slides[active % slides.length];
+  const catalogueId = selected.businessId ? [...vendorUuidById.entries()].find(([, uuid]) => uuid === selected.businessId)?.[0] : undefined;
   useEffect(() => {
     if (paused || slides.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const id = window.setInterval(() => setActive((n) => (n + 1) % slides.length), 6000);
@@ -49,10 +51,10 @@ export function HomePromoCarousel() {
       <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,color-mix(in_oklab,var(--foreground)_90%,transparent),color-mix(in_oklab,var(--foreground)_45%,transparent)_45%,transparent_85%)]" />
       <div className="mx-auto flex min-h-[390px] max-w-6xl flex-col justify-center px-5 pb-20 pt-12 sm:min-h-[470px] sm:px-8 lg:min-h-[520px]">
         <span className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-primary-foreground/40 bg-primary-foreground/15 px-3 py-1.5 text-xs font-bold text-primary-foreground backdrop-blur-sm"><Sparkles className="size-3.5" />{selected.badge}</span>
-        <p className="mb-2 text-sm font-semibold text-accent">{selected.name}</p>
-        <h1 className="max-w-[570px] font-[family-name:var(--font-display)] text-4xl font-semibold leading-[1.1] text-primary-foreground sm:text-5xl lg:text-6xl">{selected.headline}</h1>
+        <h1 className="mb-2 text-sm font-semibold text-accent">{selected.name}</h1>
+        <p className="max-w-[570px] font-[family-name:var(--font-display)] text-4xl font-semibold leading-[1.1] text-primary-foreground sm:text-5xl lg:text-6xl">{selected.headline}</p>
         <p className="mt-4 max-w-md text-sm leading-relaxed text-primary-foreground/90 sm:text-base">{selected.description}</p>
-        <Button asChild size="lg" className="mt-7 w-fit rounded-full bg-accent px-7 text-accent-foreground hover:bg-accent/90"><Link to={selected.businessId ? "/business/$businessId" : "/search"} params={selected.businessId ? { businessId: selected.businessId } : undefined}>{selected.businessId ? "View menu" : "Explore food"}<ArrowRight className="size-4" /></Link></Button>
+        <Button asChild size="lg" className="mt-7 w-fit rounded-full bg-accent px-7 text-accent-foreground hover:bg-accent/90">{catalogueId ? <Link to="/business/$businessId" params={{ businessId: catalogueId }}>View menu <ArrowRight className="size-4" /></Link> : <Link to="/search">Explore food <ArrowRight className="size-4" /></Link>}</Button>
       </div>
       <div className="absolute bottom-5 left-1/2 flex -translate-x-1/2 items-center gap-2" aria-label="Banner slides">{slides.map((slide, i) => <Button key={slide.id} variant="ghost" size="icon" aria-label={`Show banner ${i + 1}`} aria-current={i === active % slides.length ? "true" : undefined} onClick={() => setActive(i)} className="size-8 rounded-full p-0 hover:bg-primary-foreground/15"><span className={`block h-2 rounded-full transition-all ${i === active % slides.length ? "w-7 bg-accent" : "w-2 bg-primary-foreground/70"}`} /></Button>)}</div>
       {slides.length > 1 && <div className="absolute bottom-5 right-5 hidden gap-2 sm:flex"><Button variant="ghost" size="icon" aria-label="Previous banner" onClick={() => go(-1)} className="rounded-full border border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground"><ArrowLeft /></Button><Button variant="ghost" size="icon" aria-label="Next banner" onClick={() => go(1)} className="rounded-full border border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/20 hover:text-primary-foreground"><ArrowRight /></Button></div>}
