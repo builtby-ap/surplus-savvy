@@ -11,6 +11,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth/auth-context";
+import { AssistantWidget } from "@/components/assistant/assistant-widget";
 import { loadCatalogue } from "@/data/catalogue";
 import appCss from "../styles.css?url";
 
@@ -162,6 +163,7 @@ function RootComponent() {
       <AuthProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet key={catalogueVersion} />
+        <AssistantWidget />
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>

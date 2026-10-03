@@ -3,7 +3,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Search, Store, ShoppingBag, BarChart3, Users, Receipt, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getNearbyLocation } from "@/lib/nearby";
 import { loadThreadMessages } from "@/lib/assistant-threads";
@@ -199,4 +199,3 @@ function ChatSession({ threadId, initial, onActivity }: { threadId: string; init
   );
 }
 
-export const roleIcons = { Search, Store, ShoppingBag, BarChart3, Users, Receipt };
