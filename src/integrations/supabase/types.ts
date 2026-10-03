@@ -558,6 +558,185 @@ export type Database = {
         }
         Relationships: []
       }
+      review_helpful: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          review_id: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          review_id: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          review_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_helpful_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_photos: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string
+          review_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url: string
+          review_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string
+          review_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_photos_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      review_reports: {
+        Row: {
+          created_at: string
+          customer_id: string
+          description: string | null
+          id: string
+          reason: string
+          resolved_at: string | null
+          review_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string
+          description?: string | null
+          id?: string
+          reason: string
+          resolved_at?: string | null
+          review_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          description?: string | null
+          id?: string
+          reason?: string
+          resolved_at?: string | null
+          review_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "review_reports_review_id_fkey"
+            columns: ["review_id"]
+            isOneToOne: false
+            referencedRelation: "reviews"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          bag_title: string | null
+          created_at: string
+          customer_id: string
+          food_quality_rating: number | null
+          id: string
+          order_id: string
+          overall_rating: number
+          portion_rating: number | null
+          review_text: string
+          reviewer_name: string
+          status: Database["public"]["Enums"]["review_status"]
+          updated_at: string
+          value_rating: number | null
+          vendor_id: string
+        }
+        Insert: {
+          bag_title?: string | null
+          created_at?: string
+          customer_id?: string
+          food_quality_rating?: number | null
+          id?: string
+          order_id: string
+          overall_rating: number
+          portion_rating?: number | null
+          review_text?: string
+          reviewer_name?: string
+          status?: Database["public"]["Enums"]["review_status"]
+          updated_at?: string
+          value_rating?: number | null
+          vendor_id: string
+        }
+        Update: {
+          bag_title?: string | null
+          created_at?: string
+          customer_id?: string
+          food_quality_rating?: number | null
+          id?: string
+          order_id?: string
+          overall_rating?: number
+          portion_rating?: number | null
+          review_text?: string
+          reviewer_name?: string
+          status?: Database["public"]["Enums"]["review_status"]
+          updated_at?: string
+          value_rating?: number | null
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "advertised_vendors_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_preferences: {
         Row: {
           marketing_emails: boolean
@@ -894,6 +1073,7 @@ export type Database = {
         | "awaiting_verification"
         | "verified"
         | "rejected"
+      review_status: "published" | "reported" | "hidden" | "removed"
       vendor_status: "pending" | "approved" | "rejected" | "deactivated"
     }
     CompositeTypes: {
@@ -1063,6 +1243,7 @@ export const Constants = {
         "verified",
         "rejected",
       ],
+      review_status: ["published", "reported", "hidden", "removed"],
       vendor_status: ["pending", "approved", "rejected", "deactivated"],
     },
   },
