@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { fileToStoredImage } from "@/lib/image-upload";
 import { fetchPaymentSettings } from "@/lib/payments";
 import { savePaymentSettings } from "@/lib/payment-admin";
+import { PointsRulesPanel } from "@/components/admin/points-rules-panel";
 
 export const Route = createFileRoute("/admin/settings")({
   head: () => ({
@@ -71,6 +72,7 @@ function PlatformSettingsPage() {
 
   return (
     <div className="space-y-6">
+      <PointsRulesPanel />
       <section className="rounded-3xl border border-border bg-card p-6">
         <h2 className="flex items-center gap-2 text-xl font-semibold">
           <QrCode className="h-5 w-5 text-primary" /> Payment settings
