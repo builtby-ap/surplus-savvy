@@ -41,6 +41,25 @@ const toolTitles: Record<string, string> = {
 
 const suggestions = {
   customer: ["Show food near me", "Best deals over 50% off", "How do I pay for a pickup order?"],
+// Links the assistant writes point at pages inside this app — render them as
+// in-app navigation instead of opening an external new tab.
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const mdComponents = {
+  a: ({ href, children }: { href?: string; children?: React.ReactNode }) => {
+    if (href && href.startsWith("/")) {
+      return (
+        <Link to={href as never} className="font-medium text-primary underline underline-offset-2">
+          {children}
+        </Link>
+      );
+    }
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className="font-medium text-primary underline underline-offset-2">
+        {children}
+      </a>
+    );
+  },
+};
   vendor: ["Which of my bags are still available?", "Show my latest orders", "How do I advertise my store?"],
   admin: ["Give me a platform overview", "Any payments awaiting verification?", "List pending vendors"],
 } as const;
