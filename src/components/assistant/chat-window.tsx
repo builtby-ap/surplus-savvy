@@ -48,7 +48,7 @@ const suggestions = {
 // Links the assistant writes point at pages inside this app — render them as
 // in-app navigation instead of opening an external new tab.
 const mdComponents = {
-  a: ({ href, children }: { href?: string; children?: React.ReactNode }) => {
+  a: ({ href, children }: { href?: string | undefined; children?: React.ReactNode }) => {
     if (href && href.startsWith("/")) {
       return (
         <Link to={href as never} className="font-medium text-primary underline underline-offset-2">
