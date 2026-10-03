@@ -41,9 +41,12 @@ const toolTitles: Record<string, string> = {
 
 const suggestions = {
   customer: ["Show food near me", "Best deals over 50% off", "How do I pay for a pickup order?"],
+  vendor: ["Which of my bags are still available?", "Show my latest orders", "How do I advertise my store?"],
+  admin: ["Give me a platform overview", "Any payments awaiting verification?", "List pending vendors"],
+} as const;
+
 // Links the assistant writes point at pages inside this app — render them as
 // in-app navigation instead of opening an external new tab.
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mdComponents = {
   a: ({ href, children }: { href?: string; children?: React.ReactNode }) => {
     if (href && href.startsWith("/")) {
@@ -60,9 +63,6 @@ const mdComponents = {
     );
   },
 };
-  vendor: ["Which of my bags are still available?", "Show my latest orders", "How do I advertise my store?"],
-  admin: ["Give me a platform overview", "Any payments awaiting verification?", "List pending vendors"],
-} as const;
 
 export function ChatWindow({ threadId, onActivity }: { threadId: string; onActivity?: () => void }) {
   const query = useQuery({
