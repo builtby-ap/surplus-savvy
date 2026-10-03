@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import {
+  type ErrorComponentProps,
   Outlet,
   Link,
   createRootRouteWithContext,
@@ -11,6 +12,7 @@ import { useEffect, useState, type ReactNode } from "react";
 
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/lib/auth/auth-context";
+import { AssistantWidget } from "@/components/assistant/assistant-widget";
 import { loadCatalogue } from "@/data/catalogue";
 import appCss from "../styles.css?url";
 
@@ -38,7 +40,7 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
+function ErrorComponent({ error, reset }: ErrorComponentProps) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
@@ -162,6 +164,7 @@ function RootComponent() {
       <AuthProvider>
         {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
         <Outlet key={catalogueVersion} />
+        <AssistantWidget />
         <Toaster />
       </AuthProvider>
     </QueryClientProvider>
