@@ -86,7 +86,7 @@ function CustomerOverview() {
     const first = dates.length ? Math.min(...dates.map((d) => d.getTime())) : Date.now();
     const months = Math.max(1, (Date.now() - first) / (30.44 * 864e5));
     const period = topBy(dates.map((d) => periodOf(d.getHours())))[0];
-    const day = topBy(dates.map((d) => DAYS[d.getDay()]))[0];
+    const day = topBy(dates.map((d) => DAYS[d.getDay()] ?? ""))[0];
     const places = topBy(completed.map((o) => o.vendorName)).slice(0, 3);
     return {
       items, original, spent, saved, count,
