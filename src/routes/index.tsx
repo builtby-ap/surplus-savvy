@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowLeft, ArrowRight, Clock3, Gift, Leaf, Tag, Truck } from "lucide-react";
+import { ArrowLeft, ArrowRight, Clock3, Gift, Leaf, Star, Tag, Truck } from "lucide-react";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { HomePromoCarousel } from "@/components/home-promo-carousel";
 import { HomeFoodCard, SectionHeading } from "@/components/home-food-card";
