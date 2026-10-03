@@ -76,7 +76,7 @@ export function AssistantWidget() {
               <img src={avatar} alt="" width={36} height={36} className="size-9" />
             )}
             <div className="min-w-0 flex-1">
-              <p className="font-display text-sm font-semibold leading-tight">Phoe La Min Assistant</p>
+              <p className="font-display text-sm font-semibold leading-tight">AI Assistant</p>
               <p className="text-xs text-muted-foreground">{view === "list" ? "Your conversations" : "Answers from live site data"}</p>
             </div>
             {isAuthenticated && view === "chat" && (
