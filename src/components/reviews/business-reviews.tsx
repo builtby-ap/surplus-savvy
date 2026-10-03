@@ -52,7 +52,7 @@ export function BusinessReviews({ vendorId, reviews, reload }: { vendorId: strin
   const [notice, setNotice] = useState<string | null>(null);
 
   const loadOrders = useCallback(() => {
-    if (!user || user.role !== "customer") return setOrders([]);
+    if (!user || user.role !== "customer") { setOrders([]); return; }
     fetchEligibleOrders(vendorId, user.id).then(setOrders).catch(() => setOrders([]));
   }, [user, vendorId]);
   useEffect(loadOrders, [loadOrders]);
@@ -72,13 +72,13 @@ export function BusinessReviews({ vendorId, reviews, reload }: { vendorId: strin
   function onWrite() {
     setNotice(null);
     if (!user) return;
-    if (!orders?.length) return setNotice("You can review this business after completing an order.");
-    if (!open.length) return setNotice("You already reviewed this order.");
+    if (!orders?.length) { setNotice("You can review this business after completing an order."); return; }
+    if (!open.length) { setNotice("You already reviewed this order."); return; }
     setFormOpen(true);
   }
 
   async function onHelpful(r: Review) {
-    if (!user) return toast("Sign in to mark reviews as helpful.");
+    if (!user) { toast("Sign in to mark reviews as helpful."); return; }
     if (r.customerId === user.id) return;
     try {
       await toggleHelpful(r.id, user.id, !r.helpfulBy.includes(user.id));
@@ -240,7 +240,7 @@ function ReviewForm({ vendorId, orders, onClose, onDone }: { vendorId: string; o
   const [saving, setSaving] = useState(false);
 
   async function submit() {
-    if (!overall) return toast.error("Please give an overall rating.");
+    if (!overall) { toast.error("Please give an overall rating."); return; }
     setSaving(true);
     try {
       await submitReview({ vendorId, orderId, overall, foodQuality: food || null, value: value || null, portion: portion || null, text, photos });
@@ -307,7 +307,7 @@ function ReviewForm({ vendorId, orders, onClose, onDone }: { vendorId: string; o
 const REASONS = ["Inappropriate", "Spam", "Misleading", "Offensive"];
 
 function ReportDialog({ review, userId, onClose }: { review: Review; userId: string; onClose: () => void }) {
-  const [reason, setReason] = useState(REASONS[0]);
+  const [reason, setReason] = useState<string>("Inappropriate");
   const [desc, setDesc] = useState("");
   const [saving, setSaving] = useState(false);
   async function submit() {

@@ -11,7 +11,7 @@ export interface Review {
   id: string;
   customerId: string;
   vendorId: string;
-  vendorName?: string;
+  vendorName?: string | undefined;
   orderId: string;
   overall: number;
   foodQuality: number | null;
