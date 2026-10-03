@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { ArrowLeft, Bike, MapPin, ShoppingBag, Star } from "lucide-react";
+import { ArrowLeft, Bike, Leaf, MapPin, ShoppingBag, Star } from "lucide-react";
+import { BusinessReviews, useVendorReviews } from "@/components/reviews/business-reviews";
+import { summarize } from "@/lib/reviews";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { BagCard } from "@/components/bag-card";
 import { Button } from "@/components/ui/button";
@@ -29,6 +31,8 @@ function BusinessProfile() {
   const { businessId } = useParams({ from: "/business/$businessId" });
   const business = getBusiness(businessId);
   const vendorId = vendorUuidById.get(businessId);
+  const { reviews, reload: reloadReviews } = useVendorReviews(vendorId);
+  const reviewSummary = useMemo(() => summarize(reviews ?? []), [reviews]);
   const [posts, setPosts] = useState<ProfilePost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -97,7 +101,8 @@ function BusinessProfile() {
               <h1 className="mt-1 text-3xl font-semibold text-foreground sm:text-4xl">{business.name}</h1>
               <p className="mt-3 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">{business.description}</p>
               <div className="mt-5 flex flex-wrap gap-x-5 gap-y-2 text-sm text-muted-foreground">
-                {business.rating > 0 && <span className="inline-flex items-center gap-1.5"><Star className="size-4 fill-accent text-accent" /><strong className="text-foreground">{business.rating.toFixed(1)}</strong>{business.reviewCount > 0 && ` (${business.reviewCount} reviews)`}</span>}
+                {reviewSummary.count > 0 ? <a href="#reviews-title" className="inline-flex items-center gap-1.5 hover:text-foreground"><Star className="size-4 fill-accent text-accent" /><strong className="text-foreground">{reviewSummary.average.toFixed(1)}</strong> · {reviewSummary.count} review{reviewSummary.count === 1 ? "" : "s"}</a> : business.rating > 0 && <span className="inline-flex items-center gap-1.5"><Star className="size-4 fill-accent text-accent" /><strong className="text-foreground">{business.rating.toFixed(1)}</strong>{business.reviewCount > 0 && ` (${business.reviewCount} reviews)`}</span>}
+                {business.mealsRescued > 0 && <span className="inline-flex items-center gap-1.5"><Leaf className="size-4 text-success" />{business.mealsRescued}+ food rescues</span>}
                 {(business.address || business.neighborhood) && <span className="inline-flex items-center gap-1.5"><MapPin className="size-4 text-primary" />{[business.address, business.neighborhood].filter(Boolean).join(", ")}</span>}
                 <span className="inline-flex items-center gap-1.5">{business.fulfillment === "delivery" ? <Bike className="size-4 text-primary" /> : <ShoppingBag className="size-4 text-primary" />}{business.fulfillment === "both" ? "Pickup & delivery" : business.fulfillment === "delivery" ? "Delivery" : "Pickup"}</span>
               </div>
@@ -111,6 +116,8 @@ function BusinessProfile() {
         </section>
 
         {!loading && !error && unavailable.length > 0 && <section className="border-t border-border py-10" aria-labelledby="unavailable-bags"><h2 id="unavailable-bags" className="text-2xl font-semibold text-foreground">Currently unavailable</h2><p className="mt-1 mb-6 text-sm text-muted-foreground">These bags can't be reserved right now.</p><div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">{unavailable.map(({ bag }) => <BagCard key={bag.id} bag={bag} unavailable />)}</div></section>}
+
+        {vendorId && <BusinessReviews vendorId={vendorId} reviews={reviews} reload={reloadReviews} />}
       </div>
     </PublicLayout>
   );
