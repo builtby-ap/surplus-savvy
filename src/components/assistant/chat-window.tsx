@@ -168,7 +168,7 @@ function ChatSession({ threadId, initial, onActivity }: { threadId: string; init
                       return m.role === "user" ? (
                         <p key={i} className="whitespace-pre-wrap">{part.text}</p>
                       ) : (
-                        <MessageResponse key={i}>{part.text}</MessageResponse>
+                        <MessageResponse key={i} components={mdComponents}>{part.text}</MessageResponse>
                       );
                     }
                     if (part.type.startsWith("tool-") && "state" in part) {
