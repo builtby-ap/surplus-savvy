@@ -63,7 +63,7 @@ export function ChatWindow({ threadId, onActivity }: { threadId: string; onActiv
   return <ChatSession key={threadId} threadId={threadId} initial={query.data ?? []} onActivity={onActivity} />;
 }
 
-function ChatSession({ threadId, initial, onActivity }: { threadId: string; initial: UIMessage[]; onActivity?: () => void }) {
+function ChatSession({ threadId, initial, onActivity }: { threadId: string; initial: UIMessage[]; onActivity?: (() => void) | undefined }) {
   const { user } = useAuth();
   const role = user?.role ?? "customer";
   const qc = useQueryClient();
