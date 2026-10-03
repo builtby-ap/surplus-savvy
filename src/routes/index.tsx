@@ -10,7 +10,6 @@ import { vendorUuidById } from "@/data/catalogue";
 import { isClosingSoon, useNow } from "@/lib/countdown";
 import { getNearbyLocation, saveNearbyLocation, type LatLng } from "@/lib/nearby";
 import { useAuth } from "@/lib/auth/auth-context";
-import { fetchMyOrders } from "@/lib/customer-orders";
 import { safeImage } from "@/lib/image-upload";
 import { supabase } from "@/integrations/supabase/client";
 import restaurantBanner from "@/assets/restaurant-banner.jpg";
@@ -39,7 +38,6 @@ function MarketplaceHome() {
   const now = useNow(1000);
   const { user } = useAuth();
   const [coords, setCoords] = useState<LatLng | null>(null);
-  const [orderedCategories, setOrderedCategories] = useState<string[]>([]);
   const [promotedImages, setPromotedImages] = useState<Record<string, string>>({});
 
   useEffect(() => {
@@ -57,16 +55,6 @@ function MarketplaceHome() {
     });
     return () => { active = false; };
   }, []);
-  useEffect(() => {
-    if (user?.role !== "customer") return;
-    let active = true;
-    void fetchMyOrders().then((orders) => {
-      if (!active) return;
-      const ranked = orders.flatMap((order) => order.items.map((item) => mysteryBags.find((bag) => bag.title === item.title)?.category)).filter((c): c is BagCategory => Boolean(c));
-      setOrderedCategories(ranked);
-    }).catch(() => {});
-    return () => { active = false; };
-  }, [user?.id, user?.role]);
 
   const available = mysteryBags.filter((bag) => bag.quantityLeft > 0 && (!now || bag.availableUntil > `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`));
   const distance = (bag: MysteryBag) => {
@@ -78,10 +66,6 @@ function MarketplaceHome() {
     return da !== null && db !== null ? da - db : discountPercent(b) - discountPercent(a);
   }).slice(0, 12);
   const closingSoon = now ? available.filter((bag) => isClosingSoon(bag.availableUntil, now)).sort((a, b) => a.availableUntil.localeCompare(b.availableUntil)).slice(0, 10) : [];
-  const recommended = [...available].sort((a, b) => {
-    const score = (bag: MysteryBag) => orderedCategories.filter((category) => category === bag.category).length * 10 + bag.rating + discountPercent(bag) / 100;
-    return score(b) - score(a);
-  }).slice(0, 8);
   const places = useMemo(() => [...businesses].filter((b) => b.verified).sort((a, b) => coords ? haversineKm(coords, a) - haversineKm(coords, b) : b.rating - a.rating).slice(0, 8), [coords]);
 
   return <PublicLayout>
