@@ -33,6 +33,7 @@ import { Route as AdminBusinessesRouteImport } from './routes/admin.businesses'
 import { Route as AdminPaymentsRouteImport } from './routes/admin.payments'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as BagBagIdRouteImport } from './routes/bag.$bagId'
 import { Route as BusinessBusinessIdRouteImport } from './routes/business.$businessId'
 import { Route as CustomerAddressesRouteImport } from './routes/customer.addresses'
@@ -168,6 +169,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BagBagIdRoute = BagBagIdRouteImport.update({
   id: '/bag/$bagId',
   path: '/bag/$bagId',
@@ -262,6 +268,7 @@ export interface FileRoutesByFullPath {
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/api/chat': typeof ApiChatRoute
   '/bag/$bagId': typeof BagBagIdRoute
   '/business/$businessId': typeof BusinessBusinessIdRoute
   '/customer/addresses': typeof CustomerAddressesRoute
@@ -299,6 +306,7 @@ export interface FileRoutesByTo {
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/api/chat': typeof ApiChatRoute
   '/bag/$bagId': typeof BagBagIdRoute
   '/business/$businessId': typeof BusinessBusinessIdRoute
   '/customer/addresses': typeof CustomerAddressesRoute
@@ -340,6 +348,7 @@ export interface FileRoutesById {
   '/admin/payments': typeof AdminPaymentsRoute
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/api/chat': typeof ApiChatRoute
   '/bag/$bagId': typeof BagBagIdRoute
   '/business/$businessId': typeof BusinessBusinessIdRoute
   '/customer/addresses': typeof CustomerAddressesRoute
@@ -382,6 +391,7 @@ export interface FileRouteTypes {
     | '/admin/payments'
     | '/admin/settings'
     | '/admin/users'
+    | '/api/chat'
     | '/bag/$bagId'
     | '/business/$businessId'
     | '/customer/addresses'
@@ -419,6 +429,7 @@ export interface FileRouteTypes {
     | '/admin/payments'
     | '/admin/settings'
     | '/admin/users'
+    | '/api/chat'
     | '/bag/$bagId'
     | '/business/$businessId'
     | '/customer/addresses'
@@ -459,6 +470,7 @@ export interface FileRouteTypes {
     | '/admin/payments'
     | '/admin/settings'
     | '/admin/users'
+    | '/api/chat'
     | '/bag/$bagId'
     | '/business/$businessId'
     | '/customer/addresses'
@@ -491,6 +503,7 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   TermsRoute: typeof TermsRoute
   VendorsRoute: typeof VendorsRoute
+  ApiChatRoute: typeof ApiChatRoute
   BagBagIdRoute: typeof BagBagIdRoute
   BusinessBusinessIdRoute: typeof BusinessBusinessIdRoute
   CustomerAddressesRoute: typeof CustomerAddressesRoute
@@ -668,6 +681,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
+    }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/bag/$bagId': {
       id: '/bag/$bagId'
@@ -849,6 +869,7 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   TermsRoute: TermsRoute,
   VendorsRoute: VendorsRoute,
+  ApiChatRoute: ApiChatRoute,
   BagBagIdRoute: BagBagIdRoute,
   BusinessBusinessIdRoute: BusinessBusinessIdRoute,
   CustomerAddressesRoute: CustomerAddressesRoute,
