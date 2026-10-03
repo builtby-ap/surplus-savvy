@@ -528,6 +528,69 @@ export type Database = {
         }
         Relationships: []
       }
+      point_transactions: {
+        Row: {
+          created_at: string
+          customer_id: string
+          id: string
+          kind: string
+          order_id: string | null
+          points: number
+          reason: string
+          ref: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          id?: string
+          kind: string
+          order_id?: string | null
+          points: number
+          reason: string
+          ref: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          id?: string
+          kind?: string
+          order_id?: string | null
+          points?: number
+          reason?: string
+          ref?: string
+        }
+        Relationships: []
+      }
+      points_settings: {
+        Row: {
+          bags_10_bonus: number
+          bags_5_bonus: number
+          first_order_bonus: number
+          id: boolean
+          points_per_1000_mmk: number
+          review_points: number
+          updated_at: string
+        }
+        Insert: {
+          bags_10_bonus?: number
+          bags_5_bonus?: number
+          first_order_bonus?: number
+          id?: boolean
+          points_per_1000_mmk?: number
+          review_points?: number
+          updated_at?: string
+        }
+        Update: {
+          bags_10_bonus?: number
+          bags_5_bonus?: number
+          first_order_bonus?: number
+          id?: boolean
+          points_per_1000_mmk?: number
+          review_points?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -736,6 +799,80 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      reward_redemptions: {
+        Row: {
+          code: string
+          created_at: string
+          customer_id: string
+          id: string
+          points_spent: number
+          reward_id: string
+          reward_title: string
+          status: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          customer_id: string
+          id?: string
+          points_spent: number
+          reward_id: string
+          reward_title: string
+          status?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          customer_id?: string
+          id?: string
+          points_spent?: number
+          reward_id?: string
+          reward_title?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reward_redemptions_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "rewards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rewards: {
+        Row: {
+          created_at: string
+          description: string
+          discount_mmk: number
+          id: string
+          is_active: boolean
+          points_cost: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          discount_mmk?: number
+          id?: string
+          is_active?: boolean
+          points_cost: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          discount_mmk?: number
+          id?: string
+          is_active?: boolean
+          points_cost?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_preferences: {
         Row: {
@@ -1030,6 +1167,7 @@ export type Database = {
         Args: { _user_id: string; _vendor_id: string }
         Returns: boolean
       }
+      redeem_reward: { Args: { _reward_id: string }; Returns: string }
       resubmit_payment: {
         Args: { order_id: string; screenshot_url: string }
         Returns: undefined

@@ -18,6 +18,7 @@ export const Route = createFileRoute("/account")({
       items={[
         { to: "/account", label: "Overview" },
         { to: "/account/orders", label: "Orders" },
+        { to: "/account/rewards", label: "Rewards" },
         { to: "/account/addresses", label: "Addresses" },
         { to: "/account/settings", label: "Settings" },
       ]}

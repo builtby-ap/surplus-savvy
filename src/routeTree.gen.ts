@@ -25,6 +25,8 @@ import { Route as VendorsRouteImport } from './routes/vendors'
 import { Route as AccountIndexRouteImport } from './routes/account.index'
 import { Route as AccountAddressesRouteImport } from './routes/account.addresses'
 import { Route as AccountFavoritesRouteImport } from './routes/account.favorites'
+import { Route as AccountPointsRouteImport } from './routes/account.points'
+import { Route as AccountRewardsRouteImport } from './routes/account.rewards'
 import { Route as AccountSettingsRouteImport } from './routes/account.settings'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminAdvertisingRouteImport } from './routes/admin.advertising'
@@ -129,6 +131,16 @@ const AccountAddressesRoute = AccountAddressesRouteImport.update({
 const AccountFavoritesRoute = AccountFavoritesRouteImport.update({
   id: '/favorites',
   path: '/favorites',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountPointsRoute = AccountPointsRouteImport.update({
+  id: '/points',
+  path: '/points',
+  getParentRoute: () => AccountRoute,
+} as any)
+const AccountRewardsRoute = AccountRewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
   getParentRoute: () => AccountRoute,
 } as any)
 const AccountSettingsRoute = AccountSettingsRouteImport.update({
@@ -273,6 +285,8 @@ export interface FileRoutesByFullPath {
   '/vendors': typeof VendorsRoute
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
+  '/account/points': typeof AccountPointsRoute
+  '/account/rewards': typeof AccountRewardsRoute
   '/account/settings': typeof AccountSettingsRoute
   '/admin/advertising': typeof AdminAdvertisingRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -313,6 +327,8 @@ export interface FileRoutesByTo {
   '/vendors': typeof VendorsRoute
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
+  '/account/points': typeof AccountPointsRoute
+  '/account/rewards': typeof AccountRewardsRoute
   '/account/settings': typeof AccountSettingsRoute
   '/admin/advertising': typeof AdminAdvertisingRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -357,6 +373,8 @@ export interface FileRoutesById {
   '/vendors': typeof VendorsRoute
   '/account/addresses': typeof AccountAddressesRoute
   '/account/favorites': typeof AccountFavoritesRoute
+  '/account/points': typeof AccountPointsRoute
+  '/account/rewards': typeof AccountRewardsRoute
   '/account/settings': typeof AccountSettingsRoute
   '/admin/advertising': typeof AdminAdvertisingRoute
   '/admin/analytics': typeof AdminAnalyticsRoute
@@ -402,6 +420,8 @@ export interface FileRouteTypes {
     | '/vendors'
     | '/account/addresses'
     | '/account/favorites'
+    | '/account/points'
+    | '/account/rewards'
     | '/account/settings'
     | '/admin/advertising'
     | '/admin/analytics'
@@ -442,6 +462,8 @@ export interface FileRouteTypes {
     | '/vendors'
     | '/account/addresses'
     | '/account/favorites'
+    | '/account/points'
+    | '/account/rewards'
     | '/account/settings'
     | '/admin/advertising'
     | '/admin/analytics'
@@ -485,6 +507,8 @@ export interface FileRouteTypes {
     | '/vendors'
     | '/account/addresses'
     | '/account/favorites'
+    | '/account/points'
+    | '/account/rewards'
     | '/account/settings'
     | '/admin/advertising'
     | '/admin/analytics'
@@ -649,6 +673,20 @@ declare module '@tanstack/react-router' {
       path: '/favorites'
       fullPath: '/account/favorites'
       preLoaderRoute: typeof AccountFavoritesRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/points': {
+      id: '/account/points'
+      path: '/points'
+      fullPath: '/account/points'
+      preLoaderRoute: typeof AccountPointsRouteImport
+      parentRoute: typeof AccountRoute
+    }
+    '/account/rewards': {
+      id: '/account/rewards'
+      path: '/rewards'
+      fullPath: '/account/rewards'
+      preLoaderRoute: typeof AccountRewardsRouteImport
       parentRoute: typeof AccountRoute
     }
     '/account/settings': {
@@ -832,6 +870,8 @@ declare module '@tanstack/react-router' {
 interface AccountRouteChildren {
   AccountAddressesRoute: typeof AccountAddressesRoute
   AccountFavoritesRoute: typeof AccountFavoritesRoute
+  AccountPointsRoute: typeof AccountPointsRoute
+  AccountRewardsRoute: typeof AccountRewardsRoute
   AccountSettingsRoute: typeof AccountSettingsRoute
   AccountIndexRoute: typeof AccountIndexRoute
   AccountOrdersOrderIdRoute: typeof AccountOrdersOrderIdRoute
@@ -841,6 +881,8 @@ interface AccountRouteChildren {
 const AccountRouteChildren: AccountRouteChildren = {
   AccountAddressesRoute: AccountAddressesRoute,
   AccountFavoritesRoute: AccountFavoritesRoute,
+  AccountPointsRoute: AccountPointsRoute,
+  AccountRewardsRoute: AccountRewardsRoute,
   AccountSettingsRoute: AccountSettingsRoute,
   AccountIndexRoute: AccountIndexRoute,
   AccountOrdersOrderIdRoute: AccountOrdersOrderIdRoute,

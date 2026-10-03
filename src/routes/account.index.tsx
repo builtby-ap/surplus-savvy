@@ -6,6 +6,8 @@ import { useMyOrders, type CustomerOrder } from "@/lib/customer-orders";
 import { orderStatusLabels } from "@/lib/order-status";
 import { supabase } from "@/integrations/supabase/client";
 import { Progress } from "@/components/ui/progress";
+import { usePoints } from "@/lib/points";
+import { PointsSection } from "@/components/account/points-section";
 
 export const Route = createFileRoute("/account/")({
   head: () => ({
@@ -50,6 +52,7 @@ function topBy<T extends string>(values: T[]) {
 function CustomerOverview() {
   const { user } = useAuth();
   const orders = useMyOrders(!!user);
+  const { data: points } = usePoints(user?.id);
   const completed = useMemo(() => (orders ?? []).filter(isCompleted), [orders]);
   const [categories, setCategories] = useState<[BagCategory, number][]>([]);
 
@@ -133,9 +136,11 @@ function CustomerOverview() {
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <Stat emoji="🍱" label="Total Meals Ordered" value={s.items.toLocaleString()} />
         <Stat emoji="💰" label="Total Money Saved" value={formatPrice(s.saved)} />
-        <Stat emoji="⭐" label="Current Points" value="—" note="Points program coming soon" />
+        <Stat emoji="⭐" label="Current Points" value={points ? points.balance.toLocaleString() : "…"} />
         <Stat emoji="🍃" label="Food Rescued" value={`${s.items} bag${s.items === 1 ? "" : "s"}`} />
       </div>
+
+      <PointsSection data={points} />
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Section title="🌱 Your Impact">
@@ -159,14 +164,6 @@ function CustomerOverview() {
             <Mini label="Original food value" value={formatPrice(s.original)} />
             <Mini label="Savings rate" value={`${s.rate}% saved`} />
           </div>
-        </Section>
-
-        <Section title="⭐ Points & Rewards">
-          <p className="text-sm text-muted-foreground">
-            The points program isn't live yet, so there's no balance, earned or redeemed points to show. Once it launches,
-            your points, progress to the next reward and recent points activity will appear here automatically.
-          </p>
-          <Progress value={0} className="mt-4 h-2" />
         </Section>
 
         <Section title="📊 Your Activity">
