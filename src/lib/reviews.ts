@@ -27,7 +27,8 @@ export interface Review {
   reports: { reason: string; description: string | null; createdAt: string }[];
 }
 
-type Row = Record<string, unknown>;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Row = any;
 const COLS =
   "id, customer_id, vendor_id, order_id, overall_rating, food_quality_rating, value_rating, portion_rating, review_text, reviewer_name, bag_title, status, created_at, review_photos(image_url), review_helpful(customer_id)";
 
@@ -73,7 +74,7 @@ export async function fetchVendorReviews(vendorId: string): Promise<Review[]> {
 export function summarize(reviews: Review[]) {
   const pub = reviews.filter((r) => r.status === "published");
   const counts = [0, 0, 0, 0, 0];
-  pub.forEach((r) => counts[r.overall - 1]++);
+  pub.forEach((r) => { counts[r.overall - 1] = (counts[r.overall - 1] ?? 0) + 1; });
   const avg = pub.length ? pub.reduce((s, r) => s + r.overall, 0) / pub.length : 0;
   return { count: pub.length, average: avg, counts };
 }

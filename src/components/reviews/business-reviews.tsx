@@ -121,7 +121,7 @@ export function BusinessReviews({ vendorId, reviews, reload }: { vendorId: strin
             <p className="mt-1 text-sm text-muted-foreground">{summary.count} review{summary.count === 1 ? "" : "s"}</p>
             <div className="mt-5 space-y-2">
               {[5, 4, 3, 2, 1].map((s) => {
-                const pct = summary.count ? Math.round((summary.counts[s - 1] / summary.count) * 100) : 0;
+                const pct = summary.count ? Math.round(((summary.counts[s - 1] ?? 0) / summary.count) * 100) : 0;
                 return (
                   <button key={s} type="button" onClick={() => setStars(stars === s ? 0 : s)} className="flex w-full items-center gap-2 text-xs text-muted-foreground hover:text-foreground">
                     <span className="w-6 text-left">{s} ★</span>
