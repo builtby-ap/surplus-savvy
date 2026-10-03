@@ -3,6 +3,7 @@ import { useChat } from "@ai-sdk/react";
 import { DefaultChatTransport, type UIMessage } from "ai";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Link } from "@tanstack/react-router";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getNearbyLocation } from "@/lib/nearby";
@@ -43,6 +44,25 @@ const suggestions = {
   vendor: ["Which of my bags are still available?", "Show my latest orders", "How do I advertise my store?"],
   admin: ["Give me a platform overview", "Any payments awaiting verification?", "List pending vendors"],
 } as const;
+
+// Links the assistant writes point at pages inside this app — render them as
+// in-app navigation instead of opening an external new tab.
+const mdComponents = {
+  a: ({ href, children }: { href?: string | undefined; children?: React.ReactNode }) => {
+    if (href && href.startsWith("/")) {
+      return (
+        <Link to={href as never} className="font-medium text-primary underline underline-offset-2">
+          {children}
+        </Link>
+      );
+    }
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className="font-medium text-primary underline underline-offset-2">
+        {children}
+      </a>
+    );
+  },
+};
 
 export function ChatWindow({ threadId, onActivity }: { threadId: string; onActivity?: () => void }) {
   const query = useQuery({
@@ -148,7 +168,7 @@ function ChatSession({ threadId, initial, onActivity }: { threadId: string; init
                       return m.role === "user" ? (
                         <p key={i} className="whitespace-pre-wrap">{part.text}</p>
                       ) : (
-                        <MessageResponse key={i}>{part.text}</MessageResponse>
+                        <MessageResponse key={i} components={mdComponents}>{part.text}</MessageResponse>
                       );
                     }
                     if (part.type.startsWith("tool-") && "state" in part) {
