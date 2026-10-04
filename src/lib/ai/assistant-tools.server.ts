@@ -24,7 +24,7 @@ function km(aLat: number, aLng: number, bLat: number, bLng: number) {
   return 2 * r * Math.asin(Math.sqrt(x));
 }
 
-const categories = ["mixed_meals", "bakery", "grocery", "produce", "snacks", "beverages", "desserts"] as const;
+const categories = ["mixed_meals", "rice_meals", "noodles", "fast_food", "bbq_grills", "bakery", "desserts_cakes", "cafe_tea", "beverages"] as const;
 
 async function publicVendors(db: Db) {
   const { data, error } = await db
