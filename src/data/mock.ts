@@ -1,6 +1,12 @@
 import bagBakery from "@/assets/bag-bakery.jpg";
 import bagMeals from "@/assets/bag-meals.jpg";
 import bagDesserts from "@/assets/bag-desserts.jpg";
+import catRice from "@/assets/cat-rice.jpg";
+import catNoodles from "@/assets/cat-noodles.jpg";
+import catFastFood from "@/assets/cat-fastfood.jpg";
+import catBbq from "@/assets/cat-bbq.jpg";
+import catCafe from "@/assets/cat-cafe.jpg";
+import catBeverages from "@/assets/cat-beverages.jpg";
 import storeCafe from "@/assets/store-cafe.jpg";
 
 export type BusinessType =
@@ -86,14 +92,14 @@ export const bagCategoryLabels: Record<BagCategory, string> = {
 
 export const categoryImages: Record<BagCategory, string> = {
   mixed_meals: bagMeals,
-  rice_meals: bagMeals,
-  noodles: bagMeals,
-  fast_food: bagMeals,
-  bbq_grills: bagMeals,
+  rice_meals: catRice,
+  noodles: catNoodles,
+  fast_food: catFastFood,
+  bbq_grills: catBbq,
   bakery: bagBakery,
   desserts_cakes: bagDesserts,
-  cafe_tea: bagBakery,
-  beverages: bagDesserts,
+  cafe_tea: catCafe,
+  beverages: catBeverages,
 };
 
 export const storefrontImage = storeCafe;
@@ -312,15 +318,9 @@ export const mysteryBags: MysteryBag[] = [
   bag("m4", "b2", "Lunch Box Bundle", "mixed_meals", "Assorted lunch boxes left from the midday service.", 21, 8, 0, 6, "14:30", "15:30", "pickup", 4.4),
   bag("m5", "b3", "Cafe Counter Bag", "bakery", "Sandwiches, muffins and a pastry or two from the counter.", 19, 6.5, 4, 9, "16:30", "18:00", "pickup", 4.7),
   bag("m6", "b3", "Cold Brew Rescue Pack", "cafe_tea", "Bottled cold brew, iced teas and juices close to date.", 15, 5, 6, 10, "17:00", "18:30", "pickup", 4.3),
-  bag("m7", "b4", "Pantry Staples Box", "mixed_meals", "Pasta, sauces, tinned goods and cereal near best-before.", 30, 10, 8, 15, "18:00", "20:30", "both", 4.5),
-  bag("m8", "b4", "Chilled Dairy Bag", "mixed_meals", "Yoghurt, milk, cheese and butter from the chilled aisle.", 26, 9, 2, 10, "19:00", "20:30", "delivery", 4.4),
-  bag("m9", "b5", "Market Veg Haul", "mixed_meals", "A generous mix of seasonal vegetables from closing stalls.", 22, 6, 7, 14, "15:30", "17:00", "pickup", 4.6),
-  bag("m10", "b5", "Ripe & Ready Fruit Bag", "mixed_meals", "Very ripe fruit, perfect for smoothies and baking today.", 16, 4.5, 3, 12, "15:30", "17:00", "pickup", 4.5),
   bag("m11", "b6", "Snack Attack Bag", "fast_food", "Crisps, popcorn, nuts and chocolate bars near date.", 14, 4, 9, 12, "17:00", "19:00", "pickup", 4.2),
   bag("m12", "b6", "Dried Fruit & Nut Mix", "desserts_cakes", "Mixed bags of dried mango, apricots, almonds and cashews.", 18, 6, 2, 6, "17:30", "19:00", "pickup", 4.1),
-  bag("m13", "b7", "Late Night Essentials", "mixed_meals", "Ready meals, bread, drinks and small essentials.", 20, 7, 5, 10, "21:30", "23:30", "both", 4.0),
   bag("m14", "b7", "Fridge Drinks Bundle", "beverages", "Soft drinks, energy drinks and iced coffee near date.", 13, 4, 4, 8, "21:00", "23:00", "pickup", 4.1),
-  bag("m15", "b8", "Dairy Producer Crate", "mixed_meals", "Yoghurt pots, butter blocks and a wedge of cheese.", 34, 12, 3, 8, "10:00", "13:00", "delivery", 4.9),
   bag("m16", "b9", "Trattoria Family Bag", "mixed_meals", "Pizza slices, pasta portions and garlic bread for two.", 36, 12.5, 2, 8, "21:00", "22:30", "both", 4.7),
   bag("m17", "b9", "Fresh Pasta Rescue", "noodles", "Handmade pasta and sauces made this morning.", 24, 8.5, 6, 10, "20:00", "21:30", "pickup", 4.6),
   bag("m18", "b10", "Patisserie Cake Box", "desserts_cakes", "Two or three cake slices plus macarons from the display.", 28, 9.5, 1, 6, "18:30", "19:30", "pickup", 4.9),
