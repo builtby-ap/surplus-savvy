@@ -110,3 +110,16 @@ export function relativeDay(iso: string) {
   if (diff === 1) return "Yesterday";
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
 }
+
+export interface UsableCode { code: string; title: string; discountMmk: number }
+
+/** The signed-in customer's reward codes that haven't been used yet. */
+export async function fetchUsableCodes(userId: string): Promise<UsableCode[]> {
+  const { data } = await db
+    .from("reward_redemptions")
+    .select("code, reward_title, status, rewards(discount_mmk)")
+    .eq("customer_id", userId)
+    .neq("status", "used")
+    .order("created_at", { ascending: false });
+  return (data ?? []).map((x: any) => ({ code: x.code, title: x.reward_title, discountMmk: Number(x.rewards?.discount_mmk ?? 0) }));
+}
