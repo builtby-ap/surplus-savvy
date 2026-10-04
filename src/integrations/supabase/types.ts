@@ -1185,12 +1185,14 @@ export type Database = {
       app_role: "customer" | "food_vendor" | "admin"
       bag_category:
         | "mixed_meals"
+        | "rice_meals"
+        | "noodles"
+        | "fast_food"
+        | "bbq_grills"
         | "bakery"
-        | "grocery"
-        | "produce"
-        | "snacks"
+        | "desserts_cakes"
+        | "cafe_tea"
         | "beverages"
-        | "desserts"
       business_type:
         | "restaurant"
         | "cafe"
@@ -1351,12 +1353,14 @@ export const Constants = {
       app_role: ["customer", "food_vendor", "admin"],
       bag_category: [
         "mixed_meals",
+        "rice_meals",
+        "noodles",
+        "fast_food",
+        "bbq_grills",
         "bakery",
-        "grocery",
-        "produce",
-        "snacks",
+        "desserts_cakes",
+        "cafe_tea",
         "beverages",
-        "desserts",
       ],
       business_type: [
         "restaurant",

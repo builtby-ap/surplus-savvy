@@ -37,11 +37,13 @@ const typeEmoji: Record<BusinessType, string> = {
 
 const categoryEmoji: Record<BagCategory, string> = {
   bakery: "🥐",
-  desserts: "🍩",
-  grocery: "🛒",
-  produce: "🥬",
+  desserts_cakes: "🍰",
   mixed_meals: "🍱",
-  snacks: "🍿",
+  rice_meals: "🍛",
+  noodles: "🍜",
+  fast_food: "🍔",
+  bbq_grills: "🍢",
+  cafe_tea: "☕",
   beverages: "☕",
 };
 

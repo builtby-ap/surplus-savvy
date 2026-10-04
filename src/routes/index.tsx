@@ -26,7 +26,7 @@ export const Route = createFileRoute("/")({
   component: MarketplaceHome,
 });
 
-const categoryOrder: BagCategory[] = ["mixed_meals", "bakery", "desserts", "produce", "grocery", "snacks", "beverages"];
+const categoryOrder = Object.keys(bagCategoryLabels) as BagCategory[];
 
 function FoodRail({ bags, label, urgent = false }: { bags: MysteryBag[]; label: string; urgent?: boolean }) {
   const rail = useRef<HTMLDivElement>(null);
@@ -73,7 +73,7 @@ function MarketplaceHome() {
     <div className="border-b border-border bg-card"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-4 text-xs font-semibold text-foreground sm:text-sm"><span className="flex items-center gap-2"><Tag className="size-4 text-destructive" />50%+ off good food</span><span className="flex items-center gap-2"><Clock3 className="size-4 text-accent" />Fresh deals every day</span><span className="flex items-center gap-2"><Leaf className="size-4 text-success" />Good food, less waste</span></div></div>
 
     <div className="mx-auto max-w-6xl space-y-14 px-4 pb-8 pt-10 sm:space-y-18 sm:pt-14">
-      <section aria-labelledby="categories-title"><SectionHeading id="categories-title" title="What are you craving?" description="A little something for every appetite" /><div className="grid grid-cols-4 gap-2 sm:grid-cols-7 sm:gap-3">{categoryOrder.map((category) => <Link key={category} to="/search" search={{ category }} className="group min-w-0 text-center"><span className="mx-auto block aspect-square max-w-28 overflow-hidden rounded-full border-2 border-border bg-secondary transition-colors group-hover:border-primary"><img src={categoryImages[category]} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-110" /></span><span className="mt-2 block text-xs font-semibold text-foreground sm:text-sm">{bagCategoryLabels[category]}</span></Link>)}</div></section>
+      <section aria-labelledby="categories-title"><SectionHeading id="categories-title" title="What are you craving?" description="A little something for every appetite" /><div className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-3 lg:grid-cols-9">{categoryOrder.map((category) => <Link key={category} to="/search" search={{ category }} className="group min-w-0 text-center"><span className="mx-auto block aspect-square max-w-28 overflow-hidden rounded-full border-2 border-border bg-secondary transition-colors group-hover:border-primary"><img src={categoryImages[category]} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-110" /></span><span className="mt-2 block text-xs font-semibold text-foreground sm:text-sm">{bagCategoryLabels[category]}</span></Link>)}</div></section>
 
       <section aria-labelledby="deals-title"><SectionHeading id="deals-title" title="Good Deals Near You" description="Great finds at 50% off or more" to="/search" /><FoodRail bags={deals} label="Good deals" /></section>
     </div>
