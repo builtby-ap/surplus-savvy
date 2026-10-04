@@ -28,7 +28,7 @@ const KG_FOOD_PER_ITEM = 1.1;
 const KG_CO2_PER_ITEM = 2.5;
 
 const CATEGORY_EMOJI: Record<BagCategory, string> = {
-  mixed_meals: "🍱", bakery: "🥐", grocery: "🛒", produce: "🥬", snacks: "🍩", beverages: "🥤", desserts: "🍰",
+  mixed_meals: "🍱", rice_meals: "🍛", noodles: "🍜", fast_food: "🍔", bbq_grills: "🍢", bakery: "🥐", desserts_cakes: "🍰", cafe_tea: "☕", beverages: "🥤",
 };
 const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
