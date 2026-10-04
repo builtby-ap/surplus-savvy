@@ -399,6 +399,8 @@ export type Database = {
           pickup_window: string | null
           placed_at: string
           receipt_number: string
+          reward_code: string | null
+          reward_discount: number
           status: Database["public"]["Enums"]["order_status"]
           total: number
           updated_at: string
@@ -432,6 +434,8 @@ export type Database = {
           pickup_window?: string | null
           placed_at?: string
           receipt_number: string
+          reward_code?: string | null
+          reward_discount?: number
           status?: Database["public"]["Enums"]["order_status"]
           total?: number
           updated_at?: string
@@ -465,6 +469,8 @@ export type Database = {
           pickup_window?: string | null
           placed_at?: string
           receipt_number?: string
+          reward_code?: string | null
+          reward_discount?: number
           status?: Database["public"]["Enums"]["order_status"]
           total?: number
           updated_at?: string
