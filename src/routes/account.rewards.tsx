@@ -75,7 +75,10 @@ function RewardsPage() {
             {data.redemptions.map((r) => (
               <li key={r.id} className="flex justify-between py-3 text-sm">
                 <span><span className="font-medium">{r.rewardTitle}</span><span className="block text-xs text-muted-foreground">{new Date(r.createdAt).toLocaleDateString()}</span></span>
-                <span className="font-mono font-semibold">{r.code}</span>
+                <span className="text-right">
+                  <span className={r.status === "used" ? "font-mono font-semibold text-muted-foreground line-through" : "font-mono font-semibold"}>{r.code}</span>
+                  <span className="block text-xs text-muted-foreground">{r.status === "used" ? "Used" : "Ready to use at checkout"}</span>
+                </span>
               </li>
             ))}
           </ul>

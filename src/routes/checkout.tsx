@@ -34,6 +34,7 @@ import {
 } from "@/lib/customer-addresses";
 import { usePaymentSettings, uploadPaymentScreenshot } from "@/lib/payments";
 import { cn } from "@/lib/utils";
+import { fetchUsableCodes, type UsableCode } from "@/lib/points";
 
 
 
@@ -68,6 +69,12 @@ function CheckoutPage() {
   const [method, setMethod] = useState<OrderMethod>("pickup");
   const [notes, setNotes] = useState("");
   const [placing, setPlacing] = useState(false);
+  const [codes, setCodes] = useState<UsableCode[]>([]);
+  const [codeInput, setCodeInput] = useState("");
+  const [applied, setApplied] = useState<UsableCode | null>(null);
+  useEffect(() => {
+    if (user) fetchUsableCodes(user.id).then(setCodes).catch(() => setCodes([]));
+  }, [user]);
 
   // Pickup orders are prepaid via MMQR and need a payment screenshot.
   const paymentSettings = usePaymentSettings();
@@ -139,7 +146,18 @@ function CheckoutPage() {
   const subtotal = bag.discountedPrice * qty;
   const originalTotal = bag.originalPrice * qty;
   const deliveryFee = method === "delivery" ? terms.fee : 0;
-  const total = subtotal + deliveryFee;
+  const rewardDiscount = applied ? Math.min(applied.discountMmk, subtotal) : 0;
+  const total = subtotal - rewardDiscount + deliveryFee;
+  function applyCode(raw: string) {
+    const c = codes.find((x) => x.code === raw.trim().toUpperCase());
+    if (!c) {
+      toast.error("That reward code isn't valid or has already been used.");
+      return;
+    }
+    setApplied(c);
+    setCodeInput(c.code);
+    toast.success(`${c.title} applied`);
+  }
   const belowMinimum = method === "delivery" && subtotal < terms.minimumOrder;
 
   type Snapshot = CustomerAddressInput & { id: string | null };
@@ -185,10 +203,14 @@ function CheckoutPage() {
         discount: originalTotal - subtotal,
         delivery_fee: deliveryFee,
         total,
+        reward_code: applied?.code ?? null,
       } as never)
       .select("id")
       .single();
-    if (error || !data) return;
+    if (error || !data) {
+      if (applied) throw new Error(error?.message ?? "Could not apply reward code");
+      return;
+    }
     await supabase.from("order_items").insert({
       order_id: (data as { id: string }).id,
       food_post_id: postUuidById.get(bag.id) ?? null,
@@ -278,7 +300,7 @@ function CheckoutPage() {
       notes: notes.trim(),
       originalPrice: Number(originalTotal.toFixed(2)),
       itemPrice: Number(subtotal.toFixed(2)),
-      discount: Number((originalTotal - subtotal).toFixed(2)),
+      discount: Number((originalTotal - subtotal + rewardDiscount).toFixed(2)),
       deliveryFee: Number(deliveryFee.toFixed(2)),
       total: Number(total.toFixed(2)),
       paymentStatus: method === "pickup" ? "awaiting_verification" : "not_required",
@@ -288,7 +310,18 @@ function CheckoutPage() {
       pickupWindow: `${bag.availableFrom} – ${bag.availableUntil}`,
       placedAt: new Date().toISOString(),
     });
-    void persistToSupabase(ids.receiptNumber, snapshot, screenshotPath);
+    if (applied) {
+      try {
+        await persistToSupabase(ids.receiptNumber, snapshot, screenshotPath);
+      } catch (err) {
+        toast.error(err instanceof Error ? err.message : "Could not apply reward code");
+        setApplied(null);
+        setPlacing(false);
+        return;
+      }
+    } else {
+      void persistToSupabase(ids.receiptNumber, snapshot, screenshotPath);
+    }
     toast.success(
       method === "pickup"
         ? "Payment under review — the vendor will start preparing once your payment is verified."
@@ -624,6 +657,12 @@ function CheckoutPage() {
                 <dt>You save</dt>
                 <dd>-{formatPrice(originalTotal - subtotal)}</dd>
               </div>
+              {applied && (
+                <div className="flex justify-between text-success">
+                  <dt>Reward ({applied.code})</dt>
+                  <dd>-{formatPrice(rewardDiscount)}</dd>
+                </div>
+              )}
               {method === "delivery" && (
                 <div className="flex justify-between">
                   <dt>Delivery fee</dt>
@@ -635,6 +674,36 @@ function CheckoutPage() {
                 <dd>{formatPrice(total)}</dd>
               </div>
             </dl>
+
+            {user && (
+              <div className="mt-4 space-y-2 rounded-2xl border border-border p-3">
+                <Label htmlFor="reward-code" className="text-xs">⭐ Reward code</Label>
+                {applied ? (
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="font-mono font-semibold">{applied.code}</span>
+                    <Button type="button" variant="ghost" size="sm" onClick={() => { setApplied(null); setCodeInput(""); }}>
+                      Remove
+                    </Button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="flex gap-2">
+                      <Input id="reward-code" placeholder="PLM-XXXXXXXX" value={codeInput} onChange={(e) => setCodeInput(e.target.value)} className="font-mono" />
+                      <Button type="button" variant="outline" disabled={!codeInput.trim()} onClick={() => applyCode(codeInput)}>Apply</Button>
+                    </div>
+                    {codes.length > 0 && (
+                      <div className="flex flex-wrap gap-1.5">
+                        {codes.map((c) => (
+                          <button key={c.code} type="button" onClick={() => applyCode(c.code)} className="rounded-full bg-secondary px-2.5 py-1 text-xs hover:bg-secondary/70">
+                            {c.title}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
 
             {method === "delivery" ? (
               <p className="mt-4 flex items-start gap-2 rounded-2xl bg-accent/15 p-3 text-xs">
