@@ -9,12 +9,10 @@ import {
   bagCategoryLabels,
   bagsForBusiness,
   businessTypeLabels,
-  categoryImages,
   discountPercent,
   formatPrice,
   getBag,
   getBusiness,
-  storefrontImage,
   haversineKm,
 } from "@/data/mock";
 import { getNearbyLocation, type LatLng } from "@/lib/nearby";
@@ -40,9 +38,7 @@ function BagDetail() {
   const navigate = useNavigate();
   const bag = getBag(bagId);
   const business = bag ? getBusiness(bag.businessId) : undefined;
-  const gallery = bag ? [bag.image, storefrontImage, categoryImages[bag.category]] : [];
   const { user, isLoading: authLoading } = useAuth();
-  const [active, setActive] = useState(0);
   const [qty, setQty] = useState(1);
   const [location, setLocation] = useState<LatLng | null>(null);
 
@@ -78,28 +74,12 @@ function BagDetail() {
           <div>
             <div className="surface-card overflow-hidden">
               <img
-                src={gallery[active]}
+                src={bag.image}
                 alt={`${bag.title} from ${business?.name ?? "a local business"}`}
                 width={1024}
                 height={768}
                 className="aspect-[4/3] w-full object-cover"
               />
-            </div>
-            <div className="mt-3 flex gap-3">
-              {gallery.map((src, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setActive(i)}
-                  aria-label={`View image ${i + 1}`}
-                  className={cn(
-                    "overflow-hidden rounded-xl border-2 transition-colors",
-                    active === i ? "border-primary" : "border-transparent hover:border-border",
-                  )}
-                >
-                  <img src={src} alt="" width={160} height={120} className="size-20 object-cover" />
-                </button>
-              ))}
             </div>
           </div>
 
