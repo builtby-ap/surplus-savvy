@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/data/mock";
+import { fileToStoredImage } from "@/lib/image-upload";
 import {
   canRequestAgain,
   fetchLatestAdvertisement,
@@ -60,6 +61,7 @@ export function AdvertisePanel({ vendorId }: { vendorId: string }) {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [tagline, setTagline] = useState("");
+  const [adImage, setAdImage] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -88,12 +90,13 @@ export function AdvertisePanel({ vendorId }: { vendorId: string }) {
     }
     setSaving(true);
     try {
-      await requestAdvertisement({ vendorId, startDate, endDate, tagline });
+      await requestAdvertisement({ vendorId, startDate, endDate, tagline, imageUrl: adImage });
       toast.success("Advertising request sent — an admin will review it.");
       setShowForm(false);
       setStartDate("");
       setEndDate("");
       setTagline("");
+      setAdImage(null);
       await load();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Could not send your request.");
@@ -138,6 +141,13 @@ export function AdvertisePanel({ vendorId }: { vendorId: string }) {
                     Tagline: <span className="font-medium">“{ad.tagline}”</span>
                   </p>
                 )}
+                {ad.imageUrl && (
+                  <img
+                    src={ad.imageUrl}
+                    alt="Advertisement photo"
+                    className="h-28 w-48 rounded-xl object-cover"
+                  />
+                )}
               </>
             );
           })()}
@@ -178,6 +188,39 @@ export function AdvertisePanel({ vendorId }: { vendorId: string }) {
               placeholder="Fresh bakes rescued every evening"
               value={tagline}
               onChange={(e) => setTagline(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2 sm:col-span-2">
+            <Label htmlFor="ad-photo">Advertisement photo (optional)</Label>
+            <p className="text-xs text-muted-foreground">
+              Shown on the home page banner instead of your logo.
+            </p>
+            {adImage && (
+              <div className="flex items-end gap-3">
+                <img
+                  src={adImage}
+                  alt="Advertisement preview"
+                  className="h-28 w-48 rounded-xl object-cover"
+                />
+                <Button type="button" variant="ghost" size="sm" onClick={() => setAdImage(null)}>
+                  Remove
+                </Button>
+              </div>
+            )}
+            <Input
+              id="ad-photo"
+              type="file"
+              accept="image/*"
+              onChange={async (e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                try {
+                  setAdImage(await fileToStoredImage(file, 1600));
+                } catch {
+                  toast.error("Could not read that image.");
+                }
+                e.target.value = "";
+              }}
             />
           </div>
           <div className="flex gap-2 sm:col-span-2">
