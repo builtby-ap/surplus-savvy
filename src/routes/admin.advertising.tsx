@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
-import { BarChart3, Check, Megaphone, MousePointerClick, X } from "lucide-react";
+import { BarChart3, Check, Megaphone, MousePointerClick, Pencil, X } from "lucide-react";
 import { toast } from "sonner";
+import { EditAdDialog } from "@/components/admin/edit-ad-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -57,6 +58,7 @@ function AdminAdvertisingPage() {
   const [ads, setAds] = useState<AdminAdvertisement[]>([]);
   const [drafts, setDrafts] = useState<Record<string, DraftState>>({});
   const [busy, setBusy] = useState<string | null>(null);
+  const [editing, setEditing] = useState<AdminAdvertisement | null>(null);
 
   const load = () =>
     fetchAdminAdvertisements()
@@ -143,6 +145,7 @@ function AdminAdvertisingPage() {
 
   return (
     <div className="space-y-8">
+      <EditAdDialog ad={editing} onClose={() => setEditing(null)} onSaved={() => void load()} />
       <section className="grid gap-3 sm:grid-cols-4">
         {(
           [
@@ -290,14 +293,26 @@ function AdminAdvertisingPage() {
                   </div>
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="mt-5 rounded-xl"
-                  disabled={busy === ad.id}
-                  onClick={() => void end(ad)}
-                >
-                  End campaign early
-                </Button>
+                {ad.imageUrl ? (
+                  <img src={ad.imageUrl} alt="" className="mt-4 h-32 w-full rounded-xl object-cover" />
+                ) : null}
+                {ad.tagline ? (
+                  <p className="mt-2 text-sm italic text-muted-foreground">“{ad.tagline}”</p>
+                ) : null}
+
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <Button className="rounded-xl" onClick={() => setEditing(ad)}>
+                    <Pencil className="size-4" /> Edit
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="rounded-xl"
+                    disabled={busy === ad.id}
+                    onClick={() => void end(ad)}
+                  >
+                    End campaign early
+                  </Button>
+                </div>
               </article>
             ))}
           </div>
