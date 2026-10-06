@@ -149,13 +149,6 @@ function StoreProfilePage() {
         </p>
       )}
 
-      {vendor?.displayAlias && (
-        <p className="surface-card bg-secondary/40 p-4 text-sm">
-          Customers see you as:{" "}
-          <strong className="font-semibold">{vendor.displayAlias}</strong> — your real
-          business name is never shown on the marketplace.
-        </p>
-      )}
 
       <form onSubmit={submit} className="space-y-6">
         <div className="surface-card grid gap-4 p-5 sm:grid-cols-2">
