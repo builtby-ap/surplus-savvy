@@ -11,6 +11,7 @@ export interface Advertisement {
   startDate: string | null;
   endDate: string | null;
   tagline: string | null;
+  imageUrl: string | null;
   cost: number | null;
   status: AdStatus;
   adminNote: string | null;
@@ -18,7 +19,7 @@ export interface Advertisement {
 }
 
 const COLUMNS =
-  "id, vendor_id, requested_start_date, requested_end_date, start_date, end_date, tagline, cost, status, admin_note, created_at";
+  "id, vendor_id, requested_start_date, requested_end_date, start_date, end_date, tagline, image_url, cost, status, admin_note, created_at";
 
 function mapAd(row: Record<string, unknown>): Advertisement {
   return {
@@ -29,6 +30,7 @@ function mapAd(row: Record<string, unknown>): Advertisement {
     startDate: (row["start_date"] as string) ?? null,
     endDate: (row["end_date"] as string) ?? null,
     tagline: (row["tagline"] as string) ?? null,
+    imageUrl: (row["image_url"] as string) ?? null,
     cost: row["cost"] === null || row["cost"] === undefined ? null : Number(row["cost"]),
     status: row["status"] as AdStatus,
     adminNote: (row["admin_note"] as string) ?? null,
@@ -42,7 +44,7 @@ export async function fetchLatestAdvertisement(
 ): Promise<Advertisement | null> {
   const { data, error } = await supabase
     .from("advertisements")
-    .select(COLUMNS)
+    .select(COLUMNS as never)
     .eq("vendor_id", vendorId)
     .order("created_at", { ascending: false })
     .limit(1)
@@ -56,6 +58,7 @@ export interface AdRequestInput {
   startDate: string;
   endDate: string;
   tagline?: string;
+  imageUrl?: string | null;
 }
 
 export async function requestAdvertisement(input: AdRequestInput): Promise<Advertisement> {
@@ -66,11 +69,12 @@ export async function requestAdvertisement(input: AdRequestInput): Promise<Adver
       requested_start_date: input.startDate,
       requested_end_date: input.endDate,
       tagline: input.tagline?.trim() ? input.tagline.trim() : null,
-    })
-    .select(COLUMNS)
+      image_url: input.imageUrl || null,
+    } as never)
+    .select(COLUMNS as never)
     .single();
   if (error) throw new Error(error.message);
-  return mapAd(data as Record<string, unknown>);
+  return mapAd(data as unknown as Record<string, unknown>);
 }
 
 /** True when an ad's active window has already passed. */
@@ -147,6 +151,13 @@ export interface ActivateAdInput {
 
 /** Approve a pending request: set final dates + cost and promote the vendor. */
 export async function activateAdvertisement(input: ActivateAdInput): Promise<void> {
+  const { data: adRow } = await supabase
+    .from("advertisements")
+    .select("image_url" as never)
+    .eq("id", input.id)
+    .maybeSingle();
+  const adImage = ((adRow as { image_url?: string | null } | null)?.image_url ?? null) || null;
+
   const { error } = await supabase
     .from("advertisements")
     .update({
@@ -165,7 +176,8 @@ export async function activateAdvertisement(input: ActivateAdInput): Promise<voi
       is_advertised: true,
       ad_tagline: input.tagline?.trim() ? input.tagline.trim() : null,
       ad_priority: 1,
-    })
+      ad_image_url: adImage,
+    } as never)
     .eq("id", input.vendorId);
   if (vendorError) throw new Error(vendorError.message);
 }
@@ -188,7 +200,7 @@ export async function endAdvertisement(id: string, vendorId: string): Promise<vo
 
   const { error: vendorError } = await supabase
     .from("vendors")
-    .update({ is_advertised: false, ad_tagline: null, ad_priority: 0 })
+    .update({ is_advertised: false, ad_tagline: null, ad_priority: 0, ad_image_url: null } as never)
     .eq("id", vendorId);
   if (vendorError) throw new Error(vendorError.message);
 }
