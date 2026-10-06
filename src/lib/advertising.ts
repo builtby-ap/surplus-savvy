@@ -182,6 +182,27 @@ export async function activateAdvertisement(input: ActivateAdInput): Promise<voi
   if (vendorError) throw new Error(vendorError.message);
 }
 
+/** Admin edit of a running ad's tagline and photo; mirrors onto the vendor banner. */
+export async function updateActiveAdvertisement(input: {
+  id: string;
+  vendorId: string;
+  tagline: string | null;
+  imageUrl: string | null;
+}): Promise<void> {
+  const tagline = input.tagline?.trim() ? input.tagline.trim() : null;
+  const imageUrl = input.imageUrl || null;
+  const { error } = await supabase
+    .from("advertisements")
+    .update({ tagline, image_url: imageUrl } as never)
+    .eq("id", input.id);
+  if (error) throw new Error(error.message);
+  const { error: vendorError } = await supabase
+    .from("vendors")
+    .update({ ad_tagline: tagline, ad_image_url: imageUrl } as never)
+    .eq("id", input.vendorId);
+  if (vendorError) throw new Error(vendorError.message);
+}
+
 export async function rejectAdvertisement(id: string, note?: string): Promise<void> {
   const { error } = await supabase
     .from("advertisements")
