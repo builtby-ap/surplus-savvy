@@ -50,7 +50,7 @@ export async function fetchLatestAdvertisement(
     .limit(1)
     .maybeSingle();
   if (error) throw new Error(error.message);
-  return data ? mapAd(data as Record<string, unknown>) : null;
+  return data ? mapAd(data as unknown as Record<string, unknown>) : null;
 }
 
 export interface AdRequestInput {
