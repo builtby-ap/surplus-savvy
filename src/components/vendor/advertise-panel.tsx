@@ -141,6 +141,13 @@ export function AdvertisePanel({ vendorId }: { vendorId: string }) {
                     Tagline: <span className="font-medium">“{ad.tagline}”</span>
                   </p>
                 )}
+                {ad.imageUrl && (
+                  <img
+                    src={ad.imageUrl}
+                    alt="Advertisement photo"
+                    className="h-28 w-48 rounded-xl object-cover"
+                  />
+                )}
               </>
             );
           })()}
