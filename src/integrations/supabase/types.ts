@@ -64,6 +64,7 @@ export type Database = {
           created_at: string
           end_date: string | null
           id: string
+          image_url: string | null
           impressions: number
           requested_end_date: string
           requested_start_date: string
@@ -80,6 +81,7 @@ export type Database = {
           created_at?: string
           end_date?: string | null
           id?: string
+          image_url?: string | null
           impressions?: number
           requested_end_date: string
           requested_start_date: string
@@ -96,6 +98,7 @@ export type Database = {
           created_at?: string
           end_date?: string | null
           id?: string
+          image_url?: string | null
           impressions?: number
           requested_end_date?: string
           requested_start_date?: string
@@ -927,6 +930,7 @@ export type Database = {
       }
       vendors: {
         Row: {
+          ad_image_url: string | null
           ad_priority: number
           ad_tagline: string | null
           address: string
@@ -963,6 +967,7 @@ export type Database = {
           verified: boolean
         }
         Insert: {
+          ad_image_url?: string | null
           ad_priority?: number
           ad_tagline?: string | null
           address?: string
@@ -999,6 +1004,7 @@ export type Database = {
           verified?: boolean
         }
         Update: {
+          ad_image_url?: string | null
           ad_priority?: number
           ad_tagline?: string | null
           address?: string
@@ -1054,7 +1060,7 @@ export type Database = {
           ad_priority?: number | null
           city?: string | null
           id?: string | null
-          image_url?: string | null
+          image_url?: never
           logo_initials?: string | null
           name?: string | null
           neighborhood?: string | null
@@ -1065,7 +1071,7 @@ export type Database = {
           ad_priority?: number | null
           city?: string | null
           id?: string | null
-          image_url?: string | null
+          image_url?: never
           logo_initials?: string | null
           name?: string | null
           neighborhood?: string | null
