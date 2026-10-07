@@ -1,12 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowLeft, ArrowRight, Clock3, Gift, Leaf, Star, Tag, Truck } from "lucide-react";
 import { PublicLayout } from "@/components/layout/public-layout";
 import { HomePromoCarousel } from "@/components/home-promo-carousel";
 import { HomeFoodCard, SectionHeading } from "@/components/home-food-card";
 import { Button } from "@/components/ui/button";
 import { bagCategoryLabels, businesses, categoryImages, discountPercent, haversineKm, mysteryBags, type BagCategory, type MysteryBag } from "@/data/mock";
-import { vendorUuidById } from "@/data/catalogue";
 import { isClosingSoon, useNow } from "@/lib/countdown";
 import { getNearbyLocation, saveNearbyLocation, type LatLng } from "@/lib/nearby";
 import { useAuth } from "@/lib/auth/auth-context";
@@ -27,6 +26,8 @@ export const Route = createFileRoute("/")({
 });
 
 const categoryOrder = Object.keys(bagCategoryLabels) as BagCategory[];
+
+type NewPlace = { id: string; legacy_id: string | null; name: string; image_url: string | null; created_at: string };
 
 function FoodRail({ bags, label, urgent = false }: { bags: MysteryBag[]; label: string; urgent?: boolean }) {
   const rail = useRef<HTMLDivElement>(null);
@@ -66,7 +67,14 @@ function MarketplaceHome() {
     return da !== null && db !== null ? da - db : discountPercent(b) - discountPercent(a);
   }).slice(0, 12);
   const closingSoon = now ? available.filter((bag) => isClosingSoon(bag.availableUntil, now)).sort((a, b) => a.availableUntil.localeCompare(b.availableUntil)).slice(0, 10) : [];
-  const places = useMemo(() => [...businesses].filter((b) => b.verified).sort((a, b) => coords ? haversineKm(coords, a) - haversineKm(coords, b) : b.rating - a.rating).slice(0, 8), [coords]);
+  const [places, setPlaces] = useState<NewPlace[]>([]);
+  useEffect(() => {
+    let active = true;
+    void supabase.from("vendors_public" as never).select("id,legacy_id,name,image_url,created_at").eq("verification_status", "approved").order("created_at", { ascending: false }).limit(8).then(({ data }) => {
+      if (active && data) setPlaces(data as unknown as NewPlace[]);
+    });
+    return () => { active = false; };
+  }, []);
 
   return <PublicLayout>
     <HomePromoCarousel />
@@ -81,7 +89,7 @@ function MarketplaceHome() {
     <section className="border-y border-border bg-secondary/70 py-12 sm:py-16"><div className="mx-auto max-w-6xl px-4"><div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3"><div className="min-w-0"><div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase text-destructive"><Clock3 className="size-4" />Last chance</div><h2 className="text-2xl font-semibold text-foreground sm:text-3xl">Closing Soon</h2><p className="mt-1 text-sm text-muted-foreground">These bags have less than an hour left</p></div><Link to="/search" search={{ closingSoon: true }} className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:underline">See all <ArrowRight className="size-4" /></Link></div><FoodRail bags={closingSoon} label="Closing soon" urgent /></div></section>
 
     <div className="mx-auto max-w-6xl space-y-14 px-4 py-14 sm:space-y-18">
-      <section aria-labelledby="places-title"><SectionHeading id="places-title" title="Discover New Places" description="Local restaurants and food makers worth getting to know" to="/vendors" /><div className="grid grid-cols-4 gap-x-2 gap-y-4 sm:grid-cols-8 sm:gap-x-3">{places.map((place) => { const uuid = vendorUuidById.get(place.id); const cover = uuid ? promotedImages[uuid] : undefined; return <Link key={place.id} to="/business/$businessId" params={{ businessId: place.id }} className="group min-w-0 text-center"><span className="mx-auto block aspect-square max-w-24 overflow-hidden rounded-full border-2 border-border bg-secondary transition-colors group-hover:border-primary"><img src={safeImage(cover, restaurantBanner)} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-110" /></span><span className="mt-2 block text-xs font-semibold leading-snug text-foreground sm:text-sm">{place.name}</span></Link>; })}</div></section>
+      <section aria-labelledby="places-title"><SectionHeading id="places-title" title="Discover New Places" description="Local restaurants and food makers worth getting to know" to="/vendors" /><div className="grid grid-cols-4 gap-x-2 gap-y-4 sm:grid-cols-8 sm:gap-x-3">{places.map((place, index) => { const cover = promotedImages[place.id] ?? place.image_url; return <Link key={place.id} to="/business/$businessId" params={{ businessId: place.legacy_id ?? place.id }} className={`group min-w-0 text-center ${index >= 4 ? "hidden sm:block" : ""}`}><span className="mx-auto block aspect-square max-w-24 overflow-hidden rounded-full border-2 border-border bg-secondary transition-colors group-hover:border-primary"><img src={safeImage(cover, restaurantBanner)} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-110" /></span><span className="mt-2 block text-xs font-semibold leading-snug text-foreground sm:text-sm">{place.name}</span></Link>; })}</div></section>
 
       <section aria-labelledby="points-title" className="relative overflow-hidden rounded-2xl border border-border bg-primary p-7 shadow-[var(--shadow-lifted)] sm:p-10">
         <Star className="pointer-events-none absolute -right-6 -top-8 size-44 text-accent/15" aria-hidden="true" />
