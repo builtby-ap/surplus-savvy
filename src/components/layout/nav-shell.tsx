@@ -1,7 +1,7 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import logoAsset from "@/assets/phoelamin-logo.png.asset.json";
 import { Link, useNavigate, type LinkProps } from "@tanstack/react-router";
-import { LogOut } from "lucide-react";
+import { LogOut, Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth/auth-context";
 
@@ -24,6 +24,7 @@ export function NavShell({
 }) {
   const navigate = useNavigate();
   const { logout, isAuthenticated } = useAuth();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   async function handleLogout() {
     await logout();
@@ -43,7 +44,7 @@ export function NavShell({
           <span className="rounded-full bg-primary-foreground/15 px-3 py-1 text-xs uppercase tracking-wide">
             {title}
           </span>
-          <nav className="ml-auto flex flex-wrap items-center gap-1 text-sm">
+          <nav className="ml-auto hidden flex-wrap items-center gap-1 text-sm md:flex">
             {items.map((item) => (
               <Link
                 key={String(item.to)}
@@ -72,7 +73,51 @@ export function NavShell({
               </Button>
             ) : null}
           </nav>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((o) => !o)}
+            aria-label={menuOpen ? "Close menu" : "Open menu"}
+            aria-expanded={menuOpen}
+            className="ml-auto inline-flex size-11 shrink-0 items-center justify-center rounded-full hover:bg-primary-foreground/15 md:hidden"
+          >
+            {menuOpen ? <X className="size-6" /> : <Menu className="size-6" />}
+          </button>
         </div>
+        {menuOpen ? (
+          <nav className="border-t border-primary-foreground/15 px-4 py-2 md:hidden">
+            <div className="mx-auto flex max-w-6xl flex-col gap-1 text-sm">
+              {items.map((item) => (
+                <Link
+                  key={String(item.to)}
+                  to={item.to}
+                  onClick={() => setMenuOpen(false)}
+                  activeOptions={{ exact: String(item.to).split("/").length === 2 }}
+                  activeProps={{ className: "bg-primary-foreground/20 font-medium" }}
+                  className="flex items-center rounded-lg px-3 py-3 transition-colors hover:bg-primary-foreground/15"
+                >
+                  {item.label}
+                  {item.badge ? (
+                    <span className="ml-1.5 inline-flex min-w-5 items-center justify-center rounded-full bg-destructive px-1.5 py-0.5 text-[11px] font-semibold leading-none text-destructive-foreground">
+                      {item.badge}
+                    </span>
+                  ) : null}
+                </Link>
+              ))}
+              {isAuthenticated ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    void handleLogout();
+                  }}
+                  className="flex items-center gap-2 rounded-lg px-3 py-3 text-left transition-colors hover:bg-primary-foreground/15"
+                >
+                  <LogOut className="size-4" /> Log Out
+                </button>
+              ) : null}
+            </div>
+          </nav>
+        ) : null}
       </header>
       <div className="mx-auto max-w-6xl px-4 py-8">
         <p className="text-sm text-muted-foreground">{subtitle}</p>
