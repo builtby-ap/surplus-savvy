@@ -35,6 +35,13 @@ export interface CustomerOrder {
   deliveryFee: number;
   total: number;
   placedAt: string;
+  updatedAt?: string;
+  paymentVerifiedAt?: string | null;
+  pickupInstructions?: string[];
+  deliveryRecipientName?: string | null;
+  deliveryPhone?: string | null;
+  deliveryBuildingFloor?: string | null;
+  deliveryNote?: string | null;
   vendorId: string;
   vendorName: string;
   vendorType: string;
@@ -47,7 +54,7 @@ export interface CustomerOrder {
 }
 
 const ORDER_COLUMNS =
-  "id, receipt_number, method, status, notes, delivery_address, pickup_window, original_price, item_price, discount, delivery_fee, total, placed_at, vendor_id, payment_status, payment_screenshot_url, vendors_public(name, display_alias, type, address, neighborhood, phone), order_items(id, title, quantity, original_price, unit_price)";
+  "id, receipt_number, method, status, notes, delivery_address, pickup_window, original_price, item_price, discount, delivery_fee, total, placed_at, updated_at, vendor_id, payment_status, payment_screenshot_url, payment_verified_at, delivery_recipient_name, delivery_phone, delivery_building_floor, delivery_note, vendors_public(name, display_alias, type, address, neighborhood, phone), order_items(id, title, quantity, original_price, unit_price, food_posts(pickup_instructions))";
 
 
 type Row = Record<string, unknown>;
@@ -71,6 +78,13 @@ function toOrder(row: Row): CustomerOrder {
     deliveryFee: n(row['delivery_fee']),
     total: n(row['total']),
     placedAt: s(row['placed_at']) || new Date().toISOString(),
+    updatedAt: s(row['updated_at']),
+    paymentVerifiedAt: (row['payment_verified_at'] as string) ?? null,
+    pickupInstructions: [...new Set(items.map((item) => s((item['food_posts'] as Row | null)?.['pickup_instructions']).trim()).filter(Boolean))],
+    deliveryRecipientName: (row['delivery_recipient_name'] as string) ?? null,
+    deliveryPhone: (row['delivery_phone'] as string) ?? null,
+    deliveryBuildingFloor: (row['delivery_building_floor'] as string) ?? null,
+    deliveryNote: (row['delivery_note'] as string) ?? null,
     vendorId: s(row['vendor_id']),
     vendorName: s(vendor['name']) || s(vendor['display_alias']) || "Mystery Vendor",
     vendorType: s(vendor['type']),

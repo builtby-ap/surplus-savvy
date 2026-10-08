@@ -7,8 +7,17 @@ import { orderStatusLabels, statusBadgeClass, type OrderStatus } from "@/lib/ord
 import { useMyOrders, type CustomerOrder } from "@/lib/customer-orders";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { CurrentOrderDetails } from "@/components/account/current-order-details";
 
 export const Route = createFileRoute("/account/orders/")({
+  head: () => ({ meta: [
+    { title: "Your Orders | Phoe La Min" },
+    { name: "description", content: "Track your current Phoe La Min order, view pickup and delivery details, and browse your order history." },
+    { property: "og:title", content: "Your Orders | Phoe La Min" },
+    { property: "og:description", content: "Your food rescue orders, progress, and collection details in one place." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: OrderHistory,
 });
 
@@ -21,7 +30,7 @@ function OrderCard({ order, prominent }: { order: CustomerOrder; prominent?: boo
     <Link
       to="/account/orders/$orderId"
       params={{ orderId: order.id }}
-      className={`surface-card flex items-center gap-4 p-5 transition hover:shadow-lg ${prominent ? "border-2 border-primary/40" : ""}`}
+      className={`${prominent ? "" : "surface-card"} flex items-center gap-3 p-5 transition hover:bg-muted/30 sm:gap-4`}
     >
       <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-secondary text-secondary-foreground">
         {order.method === "delivery" ? <Bike className="size-5" /> : <ShoppingBag className="size-5" />}
@@ -43,7 +52,7 @@ function OrderCard({ order, prominent }: { order: CustomerOrder; prominent?: boo
             </span>
           )}
         </div>
-        <p className="truncate text-sm text-muted-foreground">
+        <p className={`${prominent ? "break-words" : "truncate"} text-sm text-muted-foreground`}>
           {prominent ? order.items.map((i) => `${i.quantity}× ${i.title}`).join(", ") : `${order.items.length} item${order.items.length === 1 ? "" : "s"}`} · {order.vendorName}
         </p>
         <p className="text-xs text-muted-foreground">
@@ -118,7 +127,10 @@ function OrderHistory() {
       <section className="space-y-3">
         <h2 className="text-xl font-semibold">Current Order</h2>
         {current ? (
-          <OrderCard order={current} prominent />
+          <div className="surface-card overflow-hidden border-2 border-primary/40">
+            <OrderCard order={current} prominent />
+            <CurrentOrderDetails order={current} />
+          </div>
         ) : (
           <div className="surface-card p-8 text-center text-muted-foreground">
             You don't have any active orders.
