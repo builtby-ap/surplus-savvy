@@ -1,4 +1,4 @@
-# Surplus Savvy
+# Phoe La Min
 
 Build the frontend for Surplus Rescue, a food-waste-rescue marketplace web app. Restaurants, cafes, bakeries, grocery stores, fresh markets, snack shops, convenience stores, and food producers list surplus food as discounted "mystery bags" with a limited quantity and a pickup/delivery time window. Customers browse bags, reserve one, and pay cash on delivery or pickup.
 
@@ -12,7 +12,7 @@ Warm, food-forward, generous rounded cards, mobile-first, real photography-style
 
 Set up three experiences behind route groups: a public marketplace, a business dashboard, and an admin dashboard, plus /login, /register, /forgot-password. Build a sticky header with logo, search bar, cart/orders icon, and a notification bell.
 
-No backend yet — everything runs on realistic mock data: create sample data for 8-10 businesses across types (restaurant, cafe, bakery, grocery, fresh_market, snack_shop, convenience, producer) and 15-20 mystery bags across categories (mixed_meals, bakery, grocery, produce, snacks, beverages, desserts), each with an original price, a discounted price, quantity left, and an available-until time.
+No backend yet — everything runs on realistic mock data: create sample data for 8-10 businesses across types (restaurant, cafe, bakery, grocery, fresh_market, snack_shop, convenience, producer) and 15-20 mystery bags across categories (mixed_meals, rice & meals, noodles, fast food, BBQ & grills, bakery, desserts & cakes, cafe & tea, beverages), each with an original price, a discounted price, quantity left, and an available-until time.
 
 Scaffold empty routes for every page we'll build next (marketplace home, bag detail, business profile, search, checkout, order confirmation, customer dashboard with orders/favorites/addresses/settings, business dashboard with mystery-bags/orders/delivery/analytics, admin dashboard with users/businesses/settings) — placeholder content is fine, we'll fill each one in over the next prompts.
 
