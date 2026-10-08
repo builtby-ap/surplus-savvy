@@ -405,6 +405,7 @@ export type Database = {
           reward_code: string | null
           reward_discount: number
           status: Database["public"]["Enums"]["order_status"]
+          status_timestamps: Json
           total: number
           updated_at: string
           vendor_id: string
@@ -440,6 +441,7 @@ export type Database = {
           reward_code?: string | null
           reward_discount?: number
           status?: Database["public"]["Enums"]["order_status"]
+          status_timestamps?: Json
           total?: number
           updated_at?: string
           vendor_id: string
@@ -475,6 +477,7 @@ export type Database = {
           reward_code?: string | null
           reward_discount?: number
           status?: Database["public"]["Enums"]["order_status"]
+          status_timestamps?: Json
           total?: number
           updated_at?: string
           vendor_id?: string
