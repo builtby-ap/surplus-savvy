@@ -1,9 +1,8 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
-import { ArrowLeft, Ban, Check, Receipt } from "lucide-react";
+import { ArrowLeft, Ban, Receipt } from "lucide-react";
 import { formatPrice } from "@/data/mock";
 import { useAuth } from "@/lib/auth/auth-context";
 import {
-  flowFor,
   isTerminal,
   orderStatusDescriptions,
   orderStatusLabels,
@@ -11,9 +10,18 @@ import {
 } from "@/lib/order-status";
 import { useMyOrder } from "@/lib/customer-orders";
 import { PaymentReviewPanel } from "@/components/checkout/payment-review";
+import { CurrentOrderDetails } from "@/components/account/current-order-details";
 
 
 export const Route = createFileRoute("/account/orders/$orderId")({
+  head: () => ({ meta: [
+    { title: "Track Your Order | Phoe La Min" },
+    { name: "description", content: "Follow your Phoe La Min order and see pickup or delivery instructions and recorded order times." },
+    { property: "og:title", content: "Track Your Order | Phoe La Min" },
+    { property: "og:description", content: "Order progress and pickup or delivery details for your food rescue." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary" },
+  ] }),
   component: OrderTracking,
 });
 
@@ -38,8 +46,6 @@ function OrderTracking() {
   }
 
   const status = order.status;
-  const flow = flowFor(order.method);
-  const currentIndex = flow.indexOf(status);
 
   return (
     <div className="space-y-6">
@@ -94,43 +100,11 @@ function OrderTracking() {
                 <p className="text-sm text-muted-foreground">{orderStatusDescriptions[status]}</p>
               </div>
             </div>
-          ) : (
-            <ol className="relative space-y-6 pl-2">
-              {flow.map((step, i) => {
-                const done = i <= currentIndex;
-                const active = i === currentIndex;
-                return (
-                  <li key={step} className="relative flex gap-4">
-                    {i < flow.length - 1 && (
-                      <span
-                        aria-hidden
-                        className={`absolute left-[15px] top-9 h-[calc(100%+0.4rem)] w-0.5 ${done ? "bg-success" : "bg-border"}`}
-                      />
-                    )}
-                    <span
-                      className={`z-10 flex size-8 shrink-0 items-center justify-center rounded-full border-2 ${
-                        done
-                          ? "border-success bg-success text-white"
-                          : active
-                            ? "border-primary bg-primary/10 text-primary animate-pulse"
-                            : "border-border bg-background text-muted-foreground"
-                      }`}
-                    >
-                      {done ? <Check className="size-4" /> : <span className="text-xs font-semibold">{i + 1}</span>}
-                    </span>
-                    <div className="pb-1">
-                      <p className={`font-medium ${active ? "text-primary" : done ? "" : "text-muted-foreground"}`}>
-                        {orderStatusLabels[step]}
-                      </p>
-                      <p className="text-sm text-muted-foreground">{orderStatusDescriptions[step]}</p>
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          )}
+          ) : null}
         </div>
       </div>
+
+      <CurrentOrderDetails order={order} />
 
       <div className="surface-card p-6">
         <h3 className="font-semibold">Items</h3>
