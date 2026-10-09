@@ -13,4 +13,4 @@
 - Render homepage partner banners from advertised_vendors_public and use neutral editorial fallback slides when no ads are active; this avoids inventing paid offers.
 - Fetch all approved vendors' posts separately for business profiles while keeping the shared marketplace catalogue available-only, so hidden and sold-out listings never enter discovery rails.
 - The AI assistant streams from the `/api/chat` server route using the caller's own Supabase token, picks tools by the role in `user_roles`, and stores each thread's messages in `chat_threads`; RLS stays the final guard on what each role can read.
-- Current-order details use the customer's existing RLS-scoped orders and related posts; display only recorded timestamps and label missing stage times rather than inferring them from generic updated_at.
+- Current-order details use RLS-scoped orders and related posts; status_timestamps is server-recorded by an orders trigger, never client-supplied, and missing historical stage times are labeled rather than inferred from updated_at.

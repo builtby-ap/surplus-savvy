@@ -2,7 +2,8 @@ import { Check, Clock, MapPin, Phone, Receipt, ShoppingBag, Truck } from "lucide
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import type { CustomerOrder } from "@/lib/customer-orders";
-import { flowFor, orderStatusDescriptions, orderStatusLabels } from "@/lib/order-status";
+import { flowFor, isTerminal, orderStatusDescriptions, orderStatusLabels } from "@/lib/order-status";
+import { recordedStatusTime } from "@/lib/order-timestamps";
 
 function RecordedTime({ value }: { value?: string | null }) {
   if (!value || Number.isNaN(Date.parse(value))) return null;
@@ -10,7 +11,8 @@ function RecordedTime({ value }: { value?: string | null }) {
 }
 
 export function CurrentOrderDetails({ order }: { order: CustomerOrder }) {
-  const flow = flowFor(order.method);
+  const terminal = isTerminal(order.status);
+  const flow = terminal ? ["pending" as const, order.status] : flowFor(order.method);
   const currentIndex = flow.indexOf(order.status);
   const paymentBlocked = order.paymentStatus === "awaiting_verification" || order.paymentStatus === "rejected";
   const pickup = order.method === "pickup";
@@ -30,6 +32,7 @@ export function CurrentOrderDetails({ order }: { order: CustomerOrder }) {
           ) : null}
           <ol className="mt-5 space-y-0">
             {flow.map((step, index) => {
+              const timestamp = recordedStatusTime(step, order.placedAt, order.statusTimestamps);
               const reached = index === 0 || (!paymentBlocked && index <= currentIndex);
               const active = index === currentIndex;
               return (
@@ -41,7 +44,7 @@ export function CurrentOrderDetails({ order }: { order: CustomerOrder }) {
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
                       <p className={`text-sm font-semibold ${reached ? "text-foreground" : "text-muted-foreground"}`}>{index === 0 ? "Order placed" : orderStatusLabels[step]}{active ? <span className="ml-2 text-xs font-normal text-primary">Current</span> : null}</p>
-                      <span className="text-xs text-muted-foreground">{index === 0 ? <RecordedTime value={order.placedAt} /> : reached ? "Time not recorded" : "Upcoming"}</span>
+                      <span className="text-xs text-muted-foreground">{timestamp ? <RecordedTime value={timestamp} /> : reached ? "Time not recorded" : "Upcoming"}</span>
                     </div>
                     {active && !paymentBlocked ? <p className="mt-1 text-xs text-muted-foreground">{orderStatusDescriptions[step]}</p> : null}
                   </div>
