@@ -146,20 +146,21 @@ function AdminAdvertisingPage() {
   return (
     <div className="space-y-8">
       <EditAdDialog ad={editing} onClose={() => setEditing(null)} onSaved={() => void load()} />
-      <section className="grid gap-3 sm:grid-cols-4">
-        {(
-          [
-            ["Pending requests", pending.length],
-            ["Active campaigns", active.length],
-            ["Impressions (active)", active.reduce((s, a) => s + a.impressions, 0)],
-            ["Clicks (active)", active.reduce((s, a) => s + a.clicks, 0)],
-          ] as const
-        ).map(([label, value]) => (
-          <div key={label} className="surface-card p-4">
-            <p className="text-sm text-muted-foreground">{label}</p>
-            <p className="mt-1 text-2xl font-semibold">{value.toLocaleString()}</p>
-          </div>
-        ))}
+      <section className="grid gap-3 sm:grid-cols-3">
+        <div className="surface-card p-4">
+          <p className="text-sm text-muted-foreground">Ads revenue</p>
+          <p className="mt-1 text-2xl font-semibold">
+            {formatMMK(ads.reduce((s, a) => s + (a.cost ?? 0), 0))}
+          </p>
+        </div>
+        <div className="surface-card p-4">
+          <p className="text-sm text-muted-foreground">Pending requests</p>
+          <p className="mt-1 text-2xl font-semibold">{pending.length.toLocaleString()}</p>
+        </div>
+        <div className="surface-card p-4">
+          <p className="text-sm text-muted-foreground">Active campaigns</p>
+          <p className="mt-1 text-2xl font-semibold">{active.length.toLocaleString()}</p>
+        </div>
       </section>
 
       <section>
