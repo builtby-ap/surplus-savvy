@@ -40,6 +40,16 @@ function MarketplaceHome() {
   const { user } = useAuth();
   const [coords, setCoords] = useState<LatLng | null>(null);
 
+  useEffect(() => {
+    const saved = getNearbyLocation();
+    if (saved) setCoords(saved);
+    if (typeof navigator !== "undefined" && navigator.geolocation) navigator.geolocation.getCurrentPosition((position) => {
+      const next = { lat: position.coords.latitude, lng: position.coords.longitude };
+      setCoords(next); saveNearbyLocation(next);
+    }, () => {}, { timeout: 8000 });
+  }, []);
+
+
   const available = mysteryBags.filter((bag) => bag.quantityLeft > 0 && (!now || bag.availableUntil > `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`));
   const distance = (bag: MysteryBag) => {
     const vendor = businesses.find((b) => b.id === bag.businessId);
