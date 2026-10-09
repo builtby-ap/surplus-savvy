@@ -39,7 +39,6 @@ function MarketplaceHome() {
   const now = useNow(1000);
   const { user } = useAuth();
   const [coords, setCoords] = useState<LatLng | null>(null);
-  const [promotedImages, setPromotedImages] = useState<Record<string, string>>({});
 
   useEffect(() => {
     const saved = getNearbyLocation();
@@ -49,13 +48,7 @@ function MarketplaceHome() {
       setCoords(next); saveNearbyLocation(next);
     }, () => {}, { timeout: 8000 });
   }, []);
-  useEffect(() => {
-    let active = true;
-    void supabase.from("advertised_vendors_public" as never).select("id,image_url").limit(20).then(({ data }) => {
-      if (active && data) setPromotedImages(Object.fromEntries((data as unknown as { id: string; image_url: string | null }[]).filter((v) => v.image_url).map((v) => [v.id, v.image_url])) as Record<string, string>);
-    });
-    return () => { active = false; };
-  }, []);
+
 
   const available = mysteryBags.filter((bag) => bag.quantityLeft > 0 && (!now || bag.availableUntil > `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`));
   const distance = (bag: MysteryBag) => {
@@ -89,7 +82,7 @@ function MarketplaceHome() {
     <section className="border-y border-border bg-secondary/70 py-12 sm:py-16"><div className="mx-auto max-w-6xl px-4"><div className="mb-5 grid grid-cols-[minmax(0,1fr)_auto] items-end gap-3"><div className="min-w-0"><div className="mb-2 flex items-center gap-2 text-xs font-bold uppercase text-destructive"><Clock3 className="size-4" />Last chance</div><h2 className="text-2xl font-semibold text-foreground sm:text-3xl">Closing Soon</h2><p className="mt-1 text-sm text-muted-foreground">These bags have less than an hour left</p></div><Link to="/search" search={{ closingSoon: true }} className="inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-primary hover:underline">See all <ArrowRight className="size-4" /></Link></div><FoodRail bags={closingSoon} label="Closing soon" urgent /></div></section>
 
     <div className="mx-auto max-w-6xl space-y-14 px-4 py-14 sm:space-y-18">
-      <section aria-labelledby="places-title"><SectionHeading id="places-title" title="Discover New Places" description="Local restaurants and food makers worth getting to know" to="/vendors" /><div className="grid grid-cols-4 gap-x-2 gap-y-4 sm:grid-cols-8 sm:gap-x-3">{places.map((place, index) => { const cover = promotedImages[place.id] ?? place.image_url; return <Link key={place.id} to="/business/$businessId" params={{ businessId: place.legacy_id ?? place.id }} className={`group min-w-0 text-center ${index >= 4 ? "hidden sm:block" : ""}`}><span className="mx-auto block aspect-square max-w-24 overflow-hidden rounded-full border-2 border-border bg-secondary transition-colors group-hover:border-primary"><img src={safeImage(cover, restaurantBanner)} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-110" /></span><span className="mt-2 block text-xs font-semibold leading-snug text-foreground sm:text-sm">{place.name}</span></Link>; })}</div></section>
+      <section aria-labelledby="places-title"><SectionHeading id="places-title" title="Discover New Places" description="Local restaurants and food makers worth getting to know" to="/vendors" /><div className="grid grid-cols-4 gap-x-2 gap-y-4 sm:grid-cols-8 sm:gap-x-3">{places.map((place, index) => { const cover = place.image_url; return <Link key={place.id} to="/business/$businessId" params={{ businessId: place.legacy_id ?? place.id }} className={`group min-w-0 text-center ${index >= 4 ? "hidden sm:block" : ""}`}><span className="mx-auto block aspect-square max-w-24 overflow-hidden rounded-full border-2 border-border bg-secondary transition-colors group-hover:border-primary"><img src={safeImage(cover, restaurantBanner)} alt="" loading="lazy" className="size-full object-cover transition-transform duration-300 group-hover:scale-110" /></span><span className="mt-2 block text-xs font-semibold leading-snug text-foreground sm:text-sm">{place.name}</span></Link>; })}</div></section>
 
       <section aria-labelledby="points-title" className="relative overflow-hidden rounded-2xl border border-border bg-primary p-7 shadow-[var(--shadow-lifted)] sm:p-10">
         <Star className="pointer-events-none absolute -right-6 -top-8 size-44 text-accent/15" aria-hidden="true" />
