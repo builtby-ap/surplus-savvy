@@ -55,7 +55,9 @@ function MarketplaceHome() {
     const vendor = businesses.find((b) => b.id === bag.businessId);
     return coords && vendor && vendor.lat && vendor.lng ? haversineKm(coords, vendor) : null;
   };
-  const deals = [...available].filter((bag) => discountPercent(bag) >= 50).sort((a, b) => {
+  // Good Deals: every live food post (is_available = true, loaded from the
+  // food_posts table) discounted 50%+ off its original price.
+  const deals = [...mysteryBags].filter((bag) => discountPercent(bag) >= 50).sort((a, b) => {
     const da = distance(a), db = distance(b);
     return da !== null && db !== null ? da - db : discountPercent(b) - discountPercent(a);
   }).slice(0, 12);
